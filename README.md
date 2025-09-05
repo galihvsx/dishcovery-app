@@ -1,42 +1,59 @@
-# dishcovery-app
+# DISHCOVERY App
 
-# Folder Structure
+Capstone Project BEKUP 2025 — Aplikasi pengenalan kuliner Indonesia berbasis Mobile (Flutter, arsitektur MVC)
 
+---
+
+## 📂 Folder Structure
+
+```text
 lib/
-├─ main.dart
-├─ app.dart # MaterialApp, theme, route init
+├─ main.dart                      # Entry point aplikasi
+├─ app.dart                       # Root MaterialApp, theme, route init
+│
 ├─ routes/
-│ └─ app_routes.dart # route name & generator/GoRouter
+│  └─ app_routes.dart             # Route name & generator/GoRouter
+│
 ├─ config/
-│ ├─ env.dart # baca runtime env (dart-define)
-│ └─ theme.dart # light/dark theme
+│  ├─ env.dart                    # Runtime env (dart-define)
+│  └─ theme.dart                  # Konfigurasi light/dark theme
+│
 ├─ core/
-│ ├─ utils/ # helper (debounce, formatter, etc.)
-│ ├─ errors/ # AppException, failure mapper
-│ └─ widgets/ # reusable UI atoms (EmptyState, Button)
+│  ├─ utils/                      # Helper (debounce, formatter, dll.)
+│  ├─ errors/                     # AppException, failure mapper
+│  └─ widgets/                    # Reusable UI atoms (EmptyState, Button, dll.)
+│
 ├─ services/
-│ ├─ api_client.dart # Dio singleton + interceptors
-│ ├─ image_picker_service.dart # kamera/galeri
-│ └─ storage_service.dart # local storage wrapper
+│  ├─ api_client.dart             # HTTP client (Dio singleton + interceptors)
+│  ├─ image_picker_service.dart   # Kamera / galeri handler
+│  └─ storage_service.dart        # Local storage wrapper (SharedPref/Hive/Isar)
+│
 ├─ models/
-│ ├─ recognition_result.dart
-│ └─ food_item.dart
+│  ├─ recognition_result.dart     # Data model hasil pengenalan
+│  └─ food_item.dart              # Data model item makanan
+│
 ├─ repositories/
-│ ├─ food_repository.dart # API calls: recognize, recommendations
-│ └─ history_repository.dart # local CRUD history
+│  ├─ food_repository.dart        # Akses API: recognize, recommendations
+│  └─ history_repository.dart     # Akses lokal CRUD history
+│
 ├─ controllers/
-│ ├─ recognition_controller.dart # state + logic screen/fitur
-│ ├─ history_controller.dart
-│ └─ settings_controller.dart
+│  ├─ recognition_controller.dart # State + logic untuk food recognition
+│  ├─ history_controller.dart     # State + logic untuk riwayat
+│  └─ settings_controller.dart    # State + logic untuk pengaturan
+│
 └─ views/
-├─ capture/
-│ ├─ capture_page.dart
-│ └─ widgets/...
-├─ result/
-│ ├─ result_page.dart
-│ └─ widgets/...
-├─ history/
-│ ├─ history_page.dart
-│ └─ widgets/...
-└─ settings/
-└─ settings_page.dart
+   ├─ capture/
+   │  ├─ capture_page.dart        # UI untuk ambil/pilih foto
+   │  └─ widgets/...
+   │
+   ├─ result/
+   │  ├─ result_page.dart         # UI untuk hasil pengenalan
+   │  └─ widgets/...
+   │
+   ├─ history/
+   │  ├─ history_page.dart        # UI daftar riwayat pencarian
+   │  └─ widgets/...
+   │
+   └─ settings/
+      └─ settings_page.dart       # UI halaman pengaturan
+```
