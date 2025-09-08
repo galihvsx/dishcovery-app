@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -11,6 +12,9 @@ class CameraViewController extends ChangeNotifier {
   CameraController? _cameraController;
   CameraModel _model = const CameraModel();
   List<CameraDescription> _cameras = [];
+  bool _isDisposing = false;
+  bool _isTakingPicture = false;
+  bool _isPreviewPaused = false;
 
   CameraModel get model => _model;
 
@@ -105,15 +109,29 @@ class CameraViewController extends ChangeNotifier {
   }
 
   Future<void> _setupCamera(CameraDescription camera) async {
-    await _cameraController?.dispose();
+    // Aggressively dispose previous controller
+    if (_cameraController != null) {
+      try {
+        await _cameraController!.pausePreview();
+        await Future.delayed(const Duration(milliseconds: 100));
+        await _cameraController!.dispose();
+        await Future.delayed(const Duration(milliseconds: 100));
+      } catch (e) {
+        debugPrint('Error disposing previous camera: $e');
+      }
+    }
 
     _cameraController = CameraController(
       camera,
-      ResolutionPreset.high,
+      ResolutionPreset.low, // Minimal resolution to reduce buffer usage
       enableAudio: false,
+      imageFormatGroup: ImageFormatGroup.jpeg,
     );
 
     await _cameraController!.initialize();
+
+    // Extended delay for buffer stabilization
+    await Future.delayed(const Duration(milliseconds: 300));
   }
 
   void toggleFlash() {
@@ -169,25 +187,57 @@ class CameraViewController extends ChangeNotifier {
   }
 
   Future<String?> takePicture() async {
-    if (!_model.isInitialized || _cameraController == null) {
+    if (!_model.isInitialized ||
+        _cameraController == null ||
+        _isTakingPicture) {
       _updateModel(
-        _model.copyWith(errorMessage: 'Kamera belum diinisialisasi'),
+        _model.copyWith(
+          errorMessage:
+              'Kamera belum diinisialisasi atau sedang mengambil foto',
+        ),
       );
       return null;
     }
 
     try {
+      _isTakingPicture = true;
       _updateModel(_model.copyWith(isLoading: true, errorMessage: null));
 
-      final XFile photo = await _cameraController!.takePicture();
+      // More aggressive buffer management
+      if (!_isPreviewPaused) {
+        await _cameraController!.pausePreview();
+        _isPreviewPaused = true;
+        // Longer delay to ensure all buffers are released
+        await Future.delayed(const Duration(milliseconds: 150));
+      }
 
+      final XFile photo = await _cameraController!.takePicture();
       final String savedPath = await _savePhotoToAppDirectory(photo);
 
-      // Pause preview sebentar untuk mengurangi buffer buildup
-      _updateModel(_model.copyWith(isLoading: false, imagePath: savedPath));
+      // Force garbage collection to free up buffers
+      if (!kReleaseMode) {
+        // Only in debug mode to avoid performance impact in release
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
 
+      // Resume preview after longer delay
+      if (_isPreviewPaused) {
+        await _cameraController!.resumePreview();
+        _isPreviewPaused = false;
+        await Future.delayed(const Duration(milliseconds: 200));
+      }
+
+      _updateModel(_model.copyWith(isLoading: false, imagePath: savedPath));
       return savedPath;
     } catch (e) {
+      // Ensure preview is resumed even if error occurs
+      try {
+        if (_isPreviewPaused) {
+          await _cameraController!.resumePreview();
+          _isPreviewPaused = false;
+        }
+      } catch (_) {}
+
       _updateModel(
         _model.copyWith(
           isLoading: false,
@@ -195,6 +245,8 @@ class CameraViewController extends ChangeNotifier {
         ),
       );
       return null;
+    } finally {
+      _isTakingPicture = false;
     }
   }
 
@@ -219,9 +271,67 @@ class CameraViewController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Add method to manually pause/resume preview for lifecycle management
+  Future<void> pausePreview() async {
+    if (_cameraController != null && !_isPreviewPaused) {
+      try {
+        await _cameraController!.pausePreview();
+        _isPreviewPaused = true;
+      } catch (e) {
+        debugPrint('Error pausing preview: $e');
+      }
+    }
+  }
+
+  Future<void> resumePreview() async {
+    if (_cameraController != null && _isPreviewPaused) {
+      try {
+        await _cameraController!.resumePreview();
+        _isPreviewPaused = false;
+      } catch (e) {
+        debugPrint('Error resuming preview: $e');
+      }
+    }
+  }
+
+  Future<void> setFocusPoint(Offset point) async {
+    if (_cameraController == null || !_model.isInitialized) {
+      debugPrint('Camera not initialized, cannot set focus point');
+      return;
+    }
+
+    try {
+      await _cameraController!.setFocusPoint(point);
+      await _cameraController!.setExposurePoint(point);
+    } catch (e) {
+      debugPrint('Error setting focus point: $e');
+      _updateModel(
+        _model.copyWith(errorMessage: 'Gagal mengatur fokus: ${e.toString()}'),
+      );
+    }
+  }
+
   @override
   void dispose() {
-    _cameraController?.dispose();
+    if (_isDisposing) return;
+    _isDisposing = true;
+
+    // Aggressive cleanup to prevent buffer leaks
+    if (_cameraController != null) {
+      try {
+        if (!_isPreviewPaused) {
+          _cameraController!.pausePreview();
+        }
+        // Extended delay for buffer cleanup
+        Future.delayed(const Duration(milliseconds: 150), () {
+          _cameraController?.dispose();
+        });
+      } catch (e) {
+        debugPrint('Error during camera disposal: $e');
+        _cameraController?.dispose();
+      }
+    }
+
     _cameraController = null;
     super.dispose();
   }
