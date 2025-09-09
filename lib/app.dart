@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/theme.dart';
 import 'providers/theme_provider.dart';
-import 'features/home/presentation/home_page.dart';
+import 'utils/routes/app_routes.dart';
 
 class App extends StatelessWidget {
   final SharedPreferences preferences;
@@ -21,8 +21,8 @@ class App extends StatelessWidget {
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             themeMode: themeProvider.themeMode,
-            // Masih default ke home page, nanti diubah sesuai kebutuhan
-            home: const HomePage(),
+            onGenerateRoute: AppRoutes.generateRoute,
+            initialRoute: AppRoutes.main,
           );
         },
       ),

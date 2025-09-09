@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 class ThemeProvider with ChangeNotifier {
   static const String _themeKey = 'theme_mode';
   final SharedPreferences _prefs;
   ThemeMode _themeMode;
+  Timer? _saveTimer;
 
   ThemeProvider(this._prefs) : _themeMode = _loadThemeMode(_prefs);
 
@@ -22,10 +24,21 @@ class ThemeProvider with ChangeNotifier {
     }
   }
 
-  Future<void> setThemeMode(ThemeMode mode) async {
+  void setThemeMode(ThemeMode mode) {
     if (_themeMode == mode) return;
 
+    // Update theme immediately for instant UI response
     _themeMode = mode;
+    notifyListeners();
+
+    // Debounce SharedPreferences save to reduce I/O operations
+    _saveTimer?.cancel();
+    _saveTimer = Timer(const Duration(milliseconds: 100), () {
+      _saveThemeToPrefs(mode);
+    });
+  }
+
+  Future<void> _saveThemeToPrefs(ThemeMode mode) async {
     String themeModeString;
     switch (mode) {
       case ThemeMode.light:
@@ -40,6 +53,11 @@ class ThemeProvider with ChangeNotifier {
     }
 
     await _prefs.setString(_themeKey, themeModeString);
-    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _saveTimer?.cancel();
+    super.dispose();
   }
 }
