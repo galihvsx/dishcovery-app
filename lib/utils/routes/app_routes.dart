@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../features/home/presentation/home_screen.dart';
+import '../../features/home/presentation/dishcovery_home_page.dart';
 import '../../features/capture/presentation/capture_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../core/navigation/main_navigation.dart';
@@ -19,7 +19,7 @@ class AppRoutes {
       case main:
         return MaterialPageRoute(builder: (_) => const MainNavigation());
       case home:
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
+        return MaterialPageRoute(builder: (_) => const DishcoveryHomePage());
       case capture:
         return MaterialPageRoute(builder: (_) => const CaptureScreen());
       case history:

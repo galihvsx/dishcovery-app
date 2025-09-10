@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
-import '../../features/home/presentation/home_screen.dart';
+import '../../features/home/presentation/dishcovery_home_page.dart';
 import '../../features/capture/presentation/capture_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../utils/constants/navigation_constants.dart';
@@ -30,7 +30,7 @@ class _MainNavigationState extends State<MainNavigation> {
       icon: Icons.home,
       title: 'Home',
       tab: NavigationTab.home,
-      screen: HomeScreen(),
+      screen: DishcoveryHomePage(),
     ),
     const NavigationItem(
       icon: Icons.camera_alt,
