@@ -6,7 +6,7 @@ class AppTheme {
   // Light Theme
   static ThemeData light =
       FlexThemeData.light(
-        scheme: FlexScheme.shadBlue,
+        scheme: FlexScheme.shadRed,
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
         blendLevel: 7,
         subThemesData: const FlexSubThemesData(
@@ -34,7 +34,7 @@ class AppTheme {
   // Dark Theme
   static ThemeData dark =
       FlexThemeData.dark(
-        scheme: FlexScheme.shadBlue,
+        scheme: FlexScheme.shadRed,
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
         blendLevel: 13,
         subThemesData: const FlexSubThemesData(
