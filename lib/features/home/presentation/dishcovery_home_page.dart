@@ -1,0 +1,99 @@
+import 'package:dishcovery_app/core/widgets/app_logo.dart';
+import 'package:dishcovery_app/core/widgets/app_title.dart';
+import 'package:dishcovery_app/features/capture/presentation/camera_test_screen.dart';
+import 'package:flutter/material.dart';
+
+class DishcoveryHomePage extends StatelessWidget {
+  const DishcoveryHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+     backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        title: const AppTitle(),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(36.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const AppLogo(size: 180),
+                        const SizedBox(height: 24),
+
+                        // Take Photo button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const CameraTestScreen(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Text(
+                              "Take Photo",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Select Photo button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // TODO: pilih foto dari gallery
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Text(
+                              "Select Photo",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

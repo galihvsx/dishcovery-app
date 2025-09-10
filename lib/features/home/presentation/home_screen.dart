@@ -1,4 +1,7 @@
+import 'package:dishcovery_app/features/capture/presentation/camera_test_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_text_field.dart';
@@ -76,6 +79,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 16),
+              CustomButton(
+                text: 'Test Camera',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CameraTestScreen(),
+                    ),
+                  );
+                },
+                type: ButtonType.secondary,
+              ),
+              SizedBox(height: 16),
               CustomButton(
                 text: 'Primary Button',
                 onPressed: () {},
