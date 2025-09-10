@@ -1,20 +1,19 @@
 import 'package:dishcovery_app/features/capture/presentation/camera_test_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_text_field.dart';
-import '../../../providers/theme_provider.dart';
+import '../../../core/widgets/theme_switcher.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeScreenState extends State<HomeScreen> {
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
 
@@ -30,23 +29,8 @@ class _HomePageState extends State<HomePage> {
       appBar: CustomAppBar(
         title: 'Dishcovery',
         actions: [
-          // Theme switcher button
-          IconButton(
-            icon: Icon(
-              Theme.of(context).brightness == Brightness.light
-                  ? Icons.dark_mode
-                  : Icons.light_mode,
-            ),
-            onPressed: () {
-              final themeProvider = context.read<ThemeProvider>();
-              final currentTheme = Theme.of(context).brightness;
-              themeProvider.setThemeMode(
-                currentTheme == Brightness.light
-                    ? ThemeMode.dark
-                    : ThemeMode.light,
-              );
-            },
-          ),
+          // Theme switcher button - menggunakan widget yang reusable
+          const ThemeSwitcher(),
         ],
       ),
       body: SingleChildScrollView(
