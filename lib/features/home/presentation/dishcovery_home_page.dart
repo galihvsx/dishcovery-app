@@ -1,5 +1,6 @@
 import 'package:dishcovery_app/core/widgets/app_logo.dart';
-import 'package:dishcovery_app/core/widgets/app_title.dart';
+import 'package:dishcovery_app/core/widgets/custom_app_bar.dart';
+import 'package:dishcovery_app/core/widgets/theme_switcher.dart';
 import 'package:dishcovery_app/features/capture/presentation/camera_test_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -9,12 +10,10 @@ class DishcoveryHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        title: const AppTitle(),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: const CustomAppBar(
+        title: 'Dishcovery',
+        actions: [ThemeSwitcher()],
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -45,7 +44,9 @@ class DishcoveryHomePage extends StatelessWidget {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -70,7 +71,9 @@ class DishcoveryHomePage extends StatelessWidget {
                               // TODO: pilih foto dari gallery
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),

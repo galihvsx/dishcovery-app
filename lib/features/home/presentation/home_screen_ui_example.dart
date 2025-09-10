@@ -1,6 +1,5 @@
 import 'package:dishcovery_app/features/capture/presentation/camera_test_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_button.dart';
