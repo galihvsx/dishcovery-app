@@ -8,8 +8,9 @@ import 'utils/routes/app_routes.dart';
 
 class App extends StatelessWidget {
   final SharedPreferences preferences;
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  const App({super.key, required this.preferences});
+  App({super.key, required this.preferences});
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +21,7 @@ class App extends StatelessWidget {
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {
           return MaterialApp(
+            navigatorKey: navigatorKey,
             title: 'Dishcovery',
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,

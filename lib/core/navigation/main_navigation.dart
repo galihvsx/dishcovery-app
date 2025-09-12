@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import '../../features/home/presentation/dishcovery_home_page.dart';
-import '../../features/capture/presentation/capture_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
+import '../../features/settings/presentation/setting_screen.dart';
 import '../../utils/constants/navigation_constants.dart';
 import 'navigation_models.dart';
+import 'navigation_service.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -15,6 +16,7 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   late PersistentTabController _controller;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -22,6 +24,17 @@ class _MainNavigationState extends State<MainNavigation> {
     _controller = PersistentTabController(
       initialIndex: NavigationConstants.homeTabIndex,
     );
+
+    // Initialize NavigationService
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NavigationService().initialize(
+        tabController: _controller,
+        navigatorKey: _navigatorKey,
+        onTabChanged: () {
+          if (mounted) setState(() {});
+        },
+      );
+    });
   }
 
   // Configuration for navigation items
@@ -33,44 +46,33 @@ class _MainNavigationState extends State<MainNavigation> {
       screen: DishcoveryHomePage(),
     ),
     const NavigationItem(
-      icon: Icons.camera_alt,
-      title: 'Capture',
-      tab: NavigationTab.capture,
-      screen: CaptureScreen(),
-    ),
-    const NavigationItem(
       icon: Icons.history,
       title: 'History',
       tab: NavigationTab.history,
       screen: HistoryScreen(),
+    ),
+    const NavigationItem(
+      icon: Icons.settings,
+      title: 'Settings',
+      tab: NavigationTab.settings,
+      screen: SettingScreen(),
     ),
   ];
 
   List<PersistentTabConfig> _buildTabs(BuildContext context) {
     final theme = Theme.of(context);
 
-    return _navigationItems.asMap().entries.map((entry) {
-      final index = entry.key;
-      final item = entry.value;
-
-      // Special styling for center tab (Capture)
-      final isCenter = index == NavigationConstants.captureTabIndex;
-
+    return _navigationItems.map((item) {
       return PersistentTabConfig(
         screen: item.screen,
         item: ItemConfig(
-          icon: Icon(
-            item.icon,
-            size: isCenter
-                ? NavigationConstants.iconSize + 4
-                : NavigationConstants.iconSize,
-          ),
+          icon: Icon(item.icon, size: NavigationConstants.iconSize),
           title: item.title,
           activeForegroundColor: theme.primaryColor,
           inactiveForegroundColor: Colors.grey,
           textStyle: TextStyle(
             fontSize: NavigationConstants.navBarTextSize,
-            fontWeight: isCenter ? FontWeight.w600 : FontWeight.w500,
+            fontWeight: FontWeight.w500,
           ),
         ),
       );
@@ -83,7 +85,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
     return PersistentTabView(
       tabs: _buildTabs(context),
-      navBarBuilder: (navBarConfig) => Style15BottomNavBar(
+      navBarBuilder: (navBarConfig) => Style3BottomNavBar(
         navBarConfig: navBarConfig,
         navBarDecoration: NavBarDecoration(
           color:
@@ -91,15 +93,15 @@ class _MainNavigationState extends State<MainNavigation> {
               theme.colorScheme.surface,
           border: Border(
             top: BorderSide(
-              color: theme.dividerColor.withOpacity(
-                NavigationConstants.borderOpacity,
+              color: theme.dividerColor.withAlpha(
+                (NavigationConstants.borderOpacity * 255).round(),
               ),
               width: NavigationConstants.borderWidth,
             ),
           ),
           boxShadow: [
             BoxShadow(
-              color: theme.shadowColor.withOpacity(0.08),
+              color: theme.shadowColor.withAlpha((0.08 * 255).round()),
               blurRadius: 12,
               offset: const Offset(0, -4),
             ),
@@ -111,11 +113,16 @@ class _MainNavigationState extends State<MainNavigation> {
       handleAndroidBackButtonPress: true,
       resizeToAvoidBottomInset: true,
       stateManagement: true,
+      onTabChanged: (index) {
+        // Update NavigationService dengan tab yang baru
+        NavigationService().updateCurrentTab(index);
+      },
     );
   }
 
   @override
   void dispose() {
+    NavigationService().dispose();
     _controller.dispose();
     super.dispose();
   }
