@@ -24,8 +24,6 @@ jobs:
       id-token: 'write'
       issues: 'write'
       pull-requests: 'write'
-      actions: 'read'  # untuk workflow_dispatch
-      checks: 'write'  # untuk status checks
     steps:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
@@ -101,14 +99,7 @@ jobs:
                     "get_file_contents",
                     "list_commits",
                     "push_files",
-                    "search_code",
-                    "add_comment_to_pending_review",
-                    "create_pending_pull_request_review",
-                    "submit_pending_pull_request_review",
-                    "create_pull_request_review_comment",
-                    "get_pull_request_reviews",
-                    "update_pull_request_review_comment",
-                    "delete_pull_request_review_comment"
+                    "search_code"
                   ],
                   "env": {
                     "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
