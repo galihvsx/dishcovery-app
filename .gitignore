@@ -11,6 +11,9 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+pubspec.lock
+.gemini/
+gha-creds-*.json
 
 # IntelliJ related
 *.iml
@@ -43,3 +46,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+.gemini/
+gha-creds-*.json
