@@ -19,8 +19,8 @@ class NavigationConstants {
 
   // Tab indices
   static const int homeTabIndex = 0;
-  static const int captureTabIndex = 1;
-  static const int historyTabIndex = 2;
+  static const int historyTabIndex = 1;
+  static const int settingsTabIndex = 2;
 
   // Tab count
   static const int totalTabs = 3;
