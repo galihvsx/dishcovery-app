@@ -55,7 +55,6 @@ jobs:
         startsWith(github.event.comment.body || github.event.review.body || github.event.issue.body, '@gemini-cli') &&
         contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association)
       )
-      # triage disabled - issues auto-routing removed
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'read'
@@ -102,7 +101,6 @@ jobs:
             } else if (eventType === 'pull_request.opened') {
               core.setOutput('command', 'review');
             } else {
-              // triage disabled for small project
               core.setOutput('command', 'fallthrough');
             }
 
@@ -135,7 +133,7 @@ jobs:
   # triage: disabled - not needed for small project
   # triage:
   #   needs: 'dispatch'
-  #   if: needs.dispatch.outputs.command == 'triage'
+  #   if: ${{ needs.dispatch.outputs.command == 'triage' }}
   #   uses: './.github/workflows/gemini-triage.yml'
   #   permissions:
   #     contents: 'read'
