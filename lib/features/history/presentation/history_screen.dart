@@ -72,7 +72,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     leading: CircleAvatar(
                       backgroundColor: Theme.of(
                         context,
-                      ).primaryColor.withOpacity(0.1),
+                      ).primaryColor.withAlpha((0.1 * 255).round()),
                       child: Icon(
                         item['image'] as IconData,
                         color: Theme.of(context).primaryColor,
