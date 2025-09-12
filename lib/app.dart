@@ -1,5 +1,3 @@
-import 'package:dishcovery_app/features/capture/presentation/camera_test_screen.dart';
-import 'package:dishcovery_app/features/home/presentation/dishcovery_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
