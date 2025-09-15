@@ -1,7 +1,7 @@
 import 'package:dishcovery_app/core/widgets/app_logo.dart';
 import 'package:dishcovery_app/core/widgets/custom_app_bar.dart';
 import 'package:dishcovery_app/core/widgets/theme_switcher.dart';
-import 'package:dishcovery_app/features/capture/presentation/camera_test_screen.dart';
+import 'package:dishcovery_app/features/examples/camera_test_screen.dart';
 import 'package:flutter/material.dart';
 
 class DishcoveryHomePage extends StatelessWidget {
@@ -39,7 +39,7 @@ class DishcoveryHomePage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      const CameraTestScreen(),
+                                      const CameraExampleScreen(),
                                 ),
                               );
                             },

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/camera_provider.dart';
+import '../../../providers/camera_provider.dart';
 import 'widgets/camera_bottom_controls_widget.dart';
 import 'widgets/camera_error_widget.dart';
 import 'widgets/camera_permission_widget.dart';
