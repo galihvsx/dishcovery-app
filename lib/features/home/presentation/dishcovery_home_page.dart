@@ -3,6 +3,7 @@ import 'package:dishcovery_app/core/widgets/custom_app_bar.dart';
 import 'package:dishcovery_app/core/widgets/theme_switcher.dart';
 import 'package:dishcovery_app/features/examples/camera_test_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:dishcovery_app/utils/routes/app_routes.dart';
 
 class DishcoveryHomePage extends StatelessWidget {
   const DishcoveryHomePage({super.key});
@@ -86,6 +87,18 @@ class DishcoveryHomePage extends StatelessWidget {
                                 color: Colors.white,
                               ),
                             ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Firebase AI Logic Example page
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(AppRoutes.aiExample);
+                            },
+                            child: const Text('Buka Contoh AI Logic'),
                           ),
                         ),
                       ],

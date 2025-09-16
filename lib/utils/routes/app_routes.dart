@@ -3,6 +3,7 @@ import '../../features/home/presentation/dishcovery_home_page.dart';
 import '../../features/capture/presentation/capture_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../core/navigation/main_navigation.dart';
+import '../../features/examples/ai_logic_example_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -12,6 +13,7 @@ class AppRoutes {
   static const String history = '/history';
   static const String settings = '/settings';
   static const String result = '/result';
+  static const String aiExample = '/ai-example';
 
   // Route generator
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -24,6 +26,10 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const CaptureScreen());
       case history:
         return MaterialPageRoute(builder: (_) => const HistoryScreen());
+      case aiExample:
+        return MaterialPageRoute(
+          builder: (_) => const AiLogicExampleScreen(),
+        );
       default:
         return MaterialPageRoute(
           builder: (_) =>
