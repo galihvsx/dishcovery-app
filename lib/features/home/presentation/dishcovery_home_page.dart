@@ -3,6 +3,8 @@ import 'package:dishcovery_app/core/widgets/custom_app_bar.dart';
 import 'package:dishcovery_app/core/widgets/theme_switcher.dart';
 import 'package:dishcovery_app/features/capture/presentation/camera_test_screen.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:dishcovery_app/features/capture/services/image_picker_service.dart';
 
 class DishcoveryHomePage extends StatelessWidget {
   const DishcoveryHomePage({super.key});
@@ -67,8 +69,14 @@ class DishcoveryHomePage extends StatelessWidget {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
-                              // TODO: pilih foto dari gallery
+                            onPressed: () async {
+                              final picker = ImagePickerService();
+                              final File? image = await picker
+                                  .pickFromGallery();
+                              if (image != null) {
+                                // contoh: print path atau nanti bisa navigate ke ResultScreen
+                                print("Selected image path: ${image.path}");
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Theme.of(
