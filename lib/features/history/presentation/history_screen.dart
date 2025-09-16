@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/theme_switcher.dart';
+import 'widgets/history_card_item.dart';
+import '../models/history_item.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -10,99 +11,64 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  // Mock data for testing
-  final List<Map<String, dynamic>> _historyItems = [
-    {
-      'dish': 'Nasi Padang',
-      'date': '2024-01-15',
-      'calories': '650 kcal',
-      'image': Icons.rice_bowl,
-    },
-    {
-      'dish': 'Rendang',
-      'date': '2024-01-14',
-      'calories': '420 kcal',
-      'image': Icons.restaurant,
-    },
-    {
-      'dish': 'Gado-gado',
-      'date': '2024-01-13',
-      'calories': '320 kcal',
-      'image': Icons.local_dining,
-    },
-    {
-      'dish': 'Sate Ayam',
-      'date': '2024-01-12',
-      'calories': '380 kcal',
-      'image': Icons.kebab_dining,
-    },
+  final List<HistoryItem> _historyItems = [
+    HistoryItem(
+      dish: 'Nasi Padang',
+      origin: 'Sumatera Barat',
+      description:
+          'Nasi Padang terkenal dengan berbagai lauk pauk khas Minangkabau yang kaya rempah.',
+      image: 'assets/images/nasi_padang.jpg',
+    ),
+    HistoryItem(
+      dish: 'Rendang',
+      origin: 'Sumatera Barat',
+      description:
+          'Rendang adalah masakan daging sapi bercita rasa pedas yang dimasak lama dengan santan.',
+      image: 'assets/images/rendang.jpg',
+    ),
+    HistoryItem(
+      dish: 'Gado-gado',
+      origin: 'Jakarta',
+      description:
+          'Gado-gado adalah salad khas Indonesia dengan saus kacang gurih.',
+      image: 'assets/images/gado_gado.jpg',
+    ),
+    HistoryItem(
+      dish: 'Sate Ayam',
+      origin: 'Jawa Tengah',
+      description:
+          'Sate ayam disajikan dengan bumbu kacang manis gurih dan lontong atau nasi.',
+      image: 'assets/images/sate_ayam.jpg',
+    ),
   ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'History', actions: [ThemeSwitcher()]),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('History'),
+        actions: const [ThemeSwitcher()],
+      ),
       body: _historyItems.isEmpty
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.history, size: 80, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text(
-                    'No history yet',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Start capturing food to see your history',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                ],
-              ),
-            )
+          ? const Center(child: Text('No history yet'))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: _historyItems.length,
               itemBuilder: (context, index) {
                 final item = _historyItems[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(
-                        context,
-                      ).primaryColor.withOpacity(0.1),
-                      child: Icon(
-                        item['image'] as IconData,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                    title: Text(
-                      item['dish'] as String,
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    subtitle: Text(item['date'] as String),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          item['calories'] as String,
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      // TODO: Navigate ke Detail Screen dari History tsb
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Viewing ${item['dish']}')),
-                      );
-                    },
-                  ),
+                return HistoryCardItem(
+                  dish: item.dish,
+                  origin: item.origin,
+                  description: item.description,
+                  imageUrl: item.image,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Viewing ${item.dish}')),
+                    );
+                  },
                 );
               },
             ),
