@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class CameraPermissionWidget extends StatelessWidget {
   final VoidCallback onRequestPermission;
 
-  const CameraPermissionWidget({
-    super.key,
-    required this.onRequestPermission,
-  });
+  const CameraPermissionWidget({super.key, required this.onRequestPermission});
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +33,7 @@ class CameraPermissionWidget extends StatelessWidget {
               const SizedBox(height: 16),
               const Text(
                 'This app needs camera access to take photos. Please grant camera permission to continue.',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: Colors.white70, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -58,10 +52,7 @@ class CameraPermissionWidget extends StatelessWidget {
                 ),
                 child: const Text(
                   'Grant Permission',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ],

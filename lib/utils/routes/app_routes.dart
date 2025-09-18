@@ -1,8 +1,9 @@
+import 'package:dishcovery_app/core/navigation/main_navigation.dart';
+import 'package:dishcovery_app/features/capture/presentation/capture_screen.dart';
+import 'package:dishcovery_app/features/history/presentation/history_screen.dart';
+import 'package:dishcovery_app/features/home/presentation/dishcovery_home_page.dart';
+import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
 import 'package:flutter/material.dart';
-import '../../features/home/presentation/dishcovery_home_page.dart';
-import '../../features/capture/presentation/capture_screen.dart';
-import '../../features/history/presentation/history_screen.dart';
-import '../../core/navigation/main_navigation.dart';
 
 class AppRoutes {
   // Route names
@@ -24,6 +25,12 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const CaptureScreen());
       case history:
         return MaterialPageRoute(builder: (_) => const HistoryScreen());
+      case result:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final imagePath = args?['imagePath'] ?? '';
+        return MaterialPageRoute(
+          builder: (_) => ResultScreen(imagePath: imagePath),
+        );
       default:
         return MaterialPageRoute(
           builder: (_) =>
