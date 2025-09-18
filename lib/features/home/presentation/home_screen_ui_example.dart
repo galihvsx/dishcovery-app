@@ -1,4 +1,4 @@
-import 'package:dishcovery_app/features/capture/presentation/camera_test_screen.dart';
+import 'package:dishcovery_app/features/examples/camera_test_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/custom_app_bar.dart';
@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const CameraTestScreen(),
+                      builder: (context) => const CameraExampleScreen(),
                     ),
                   );
                 },

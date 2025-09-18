@@ -2,7 +2,7 @@ name: dishcovery_app
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -43,10 +43,12 @@ dependencies:
   shared_preferences: ^2.5.3
   intl: ^0.20.2
   google_fonts: ^6.3.1
-  lottie: ^3.3.1
+  lottie: ^3.3.2
   path_provider: ^2.1.5
   flex_color_scheme: ^8.3.0
   persistent_bottom_nav_bar_v2: ^6.1.0
+  firebase_core: ^4.1.0
+  firebase_ai: ^3.2.0
 
 dev_dependencies:
   flutter_test:

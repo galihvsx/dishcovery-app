@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../providers/camera_provider.dart';
+import '../../../../providers/camera_provider.dart';
 
 class CameraBottomControlsWidget extends StatelessWidget {
   final CameraProvider provider;
