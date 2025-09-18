@@ -26,6 +26,11 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const CaptureScreen());
       case history:
         return MaterialPageRoute(builder: (_) => const HistoryScreen());
+      case result:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final imagePath = args?['imagePath'] ?? '';
+        return MaterialPageRoute(
+          builder: (_) => ResultScreen(imagePath: imagePath),
       case aiExample:
         return MaterialPageRoute(
           builder: (_) => const AiLogicExampleScreen(),

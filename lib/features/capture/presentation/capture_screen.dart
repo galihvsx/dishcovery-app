@@ -1,3 +1,4 @@
+import 'package:dishcovery_app/features/capture/presentation/preview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -216,12 +217,18 @@ class _CaptureScreenState extends State<CaptureScreen>
           provider: provider,
           onPictureTaken: (imagePath) {
             if (imagePath != null && mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Foto disimpan: $imagePath'),
-                  backgroundColor: Colors.green,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PreviewScreen(imagePath: imagePath),
                 ),
               );
+              // ScaffoldMessenger.of(context).showSnackBar(
+              //   SnackBar(
+              //     content: Text('Foto disimpan: $imagePath'),
+              //     backgroundColor: Colors.green,
+              //   ),
+              // );
             }
           },
         ),

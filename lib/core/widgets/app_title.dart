@@ -12,7 +12,7 @@ class AppTitle extends StatelessWidget {
       style: TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 20,
-        color: isDarkMode ? Colors.white : Colors.black, 
+        color: isDarkMode ? Colors.white : Colors.black,
       ),
     );
   }

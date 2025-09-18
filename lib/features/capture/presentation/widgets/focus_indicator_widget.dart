@@ -26,10 +26,7 @@ class FocusIndicatorWidget extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.white, width: 2),
                 borderRadius: BorderRadius.circular(30),
               ),
               child: const Icon(
