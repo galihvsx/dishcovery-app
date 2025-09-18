@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../providers/camera_provider.dart';
+import '../../../../providers/camera_provider.dart';
 
 class CameraBottomControlsWidget extends StatelessWidget {
   final CameraProvider provider;
@@ -22,7 +22,7 @@ class CameraBottomControlsWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           const SizedBox(width: 64),
-          
+
           // Capture Button
           GestureDetector(
             onTap: () async {
@@ -45,11 +45,7 @@ class CameraBottomControlsWidget extends StatelessWidget {
                         color: Colors.grey,
                       ),
                     )
-                  : const Icon(
-                      Icons.camera_alt,
-                      color: Colors.black,
-                      size: 32,
-                    ),
+                  : const Icon(Icons.camera_alt, color: Colors.black, size: 32),
             ),
           ),
 
