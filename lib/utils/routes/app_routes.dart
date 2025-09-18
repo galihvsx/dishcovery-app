@@ -4,6 +4,7 @@ import '../../features/capture/presentation/capture_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../core/navigation/main_navigation.dart';
 import '../../features/examples/ai_logic_example_screen.dart';
+import '../../features/result/presentation/result_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -31,10 +32,9 @@ class AppRoutes {
         final imagePath = args?['imagePath'] ?? '';
         return MaterialPageRoute(
           builder: (_) => ResultScreen(imagePath: imagePath),
-      case aiExample:
-        return MaterialPageRoute(
-          builder: (_) => const AiLogicExampleScreen(),
         );
+      case aiExample:
+        return MaterialPageRoute(builder: (_) => const AiLogicExampleScreen());
       default:
         return MaterialPageRoute(
           builder: (_) =>
