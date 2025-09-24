@@ -12,6 +12,7 @@ class FirebaseAiService {
 
   final GenerativeModel _model;
 
+  /// Convert image to plain text description
   Future<String> imageToText({
     required Uint8List imageBytes,
     String prompt = '',
@@ -21,6 +22,7 @@ class FirebaseAiService {
       parts.add(TextPart(prompt));
     }
     parts.add(InlineDataPart('image/jpeg', imageBytes));
+
     final res = await _model.generateContent([Content.multi(parts)]);
     if (res.text == null || res.text!.isEmpty) {
       throw FirebaseAIException('Empty response');
@@ -28,6 +30,7 @@ class FirebaseAiService {
     return res.text!;
   }
 
+  /// Convert image to structured data (generic schema)
   Future<Map<String, dynamic>> imageToStructured({
     required Uint8List imageBytes,
     String prompt = '',
@@ -37,6 +40,7 @@ class FirebaseAiService {
       parts.add(TextPart(prompt));
     }
     parts.add(InlineDataPart('image/jpeg', imageBytes));
+
     final res = await _model.generateContent(
       [Content.multi(parts)],
       generationConfig: GenerationConfig(
@@ -44,10 +48,12 @@ class FirebaseAiService {
         responseSchema: _defaultImageSchema(),
       ),
     );
+
     final text = res.text;
     if (text == null || text.isEmpty) {
       throw FirebaseAIException('Empty response');
     }
+
     final decoded = json.decode(text);
     if (decoded is! Map<String, dynamic>) {
       throw FirebaseAIException('Non-object JSON returned');
@@ -55,6 +61,7 @@ class FirebaseAiService {
     return decoded;
   }
 
+  /// Convert text to structured JSON
   Future<Map<String, dynamic>> textToStructured({
     required String prompt,
   }) async {
@@ -65,10 +72,12 @@ class FirebaseAiService {
         responseSchema: _defaultTextSchema(),
       ),
     );
+
     final text = res.text;
     if (text == null || text.isEmpty) {
       throw FirebaseAIException('Empty response');
     }
+
     final decoded = json.decode(text);
     if (decoded is! Map<String, dynamic>) {
       throw FirebaseAIException('Non-object JSON returned');
@@ -76,6 +85,38 @@ class FirebaseAiService {
     return decoded;
   }
 
+  /// Convert image to Dishcovery structured schema
+  Future<Map<String, dynamic>> imageToDishcovery({
+    required Uint8List imageBytes,
+    String prompt = '',
+  }) async {
+    final parts = <Part>[];
+    if (prompt.trim().isNotEmpty) {
+      parts.add(TextPart(prompt));
+    }
+    parts.add(InlineDataPart('image/jpeg', imageBytes));
+
+    final res = await _model.generateContent(
+      [Content.multi(parts)],
+      generationConfig: GenerationConfig(
+        responseMimeType: 'application/json',
+        responseSchema: _dishcoverySchema(),
+      ),
+    );
+
+    final text = res.text;
+    if (text == null || text.isEmpty) {
+      throw FirebaseAIException('Empty response');
+    }
+
+    final decoded = json.decode(text);
+    if (decoded is! Map<String, dynamic>) {
+      throw FirebaseAIException('Non-object JSON returned');
+    }
+    return decoded;
+  }
+
+  /// Read image from file path into bytes
   Future<Uint8List> readImageFile(String path) async {
     final f = File(path);
     if (!await f.exists()) {
@@ -84,6 +125,7 @@ class FirebaseAiService {
     return await f.readAsBytes();
   }
 
+  // Default schemas
   Schema _defaultImageSchema() {
     return Schema.object(
       properties: {
@@ -103,8 +145,18 @@ class FirebaseAiService {
 
   Schema _defaultTextSchema() {
     return Schema.object(
+      properties: {'keyPoints': Schema.array(items: Schema.string())},
+    );
+  }
+
+  Schema _dishcoverySchema() {
+    return Schema.object(
       properties: {
-        'keyPoints': Schema.array(items: Schema.string()),
+        'name': Schema.string(),
+        'origin': Schema.string(),
+        'description': Schema.string(),
+        'tags': Schema.array(items: Schema.string()),
+        'relatedFoods': Schema.array(items: Schema.string()),
       },
     );
   }

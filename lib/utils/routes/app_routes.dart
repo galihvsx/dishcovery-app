@@ -1,4 +1,7 @@
+import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
+import 'package:dishcovery_app/providers/scan_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../features/home/presentation/dishcovery_home_page.dart';
 import '../../features/capture/presentation/capture_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
@@ -30,11 +33,14 @@ class AppRoutes {
         final args = settings.arguments as Map<String, dynamic>?;
         final imagePath = args?['imagePath'] ?? '';
         return MaterialPageRoute(
-          builder: (_) => ResultScreen(imagePath: imagePath),
-      case aiExample:
-        return MaterialPageRoute(
-          builder: (_) => const AiLogicExampleScreen(),
+          builder: (_) => ChangeNotifierProvider(
+            create: (_) => ScanProvider(),
+            child: ResultScreen(imagePath: imagePath),
+          ),
         );
+
+      case aiExample:
+        return MaterialPageRoute(builder: (_) => const AiLogicExampleScreen());
       default:
         return MaterialPageRoute(
           builder: (_) =>

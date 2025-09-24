@@ -15,14 +15,22 @@ class AiLogicExampleScreen extends StatefulWidget {
 }
 
 class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
-  final _promptController = TextEditingController(text: 'Jelaskan isi gambar secara ringkas.');
-  final _textPromptController = TextEditingController(text: 'Buat struktur JSON ringkas untuk 3 poin penting tentang masakan rendang.');
+  final _promptController = TextEditingController(
+    text: 'Jelaskan isi gambar secara ringkas.',
+  );
+  final _textPromptController = TextEditingController(
+    text:
+        'Buat struktur JSON ringkas untuk 3 poin penting tentang masakan rendang.',
+  );
   Uint8List? _imageBytes;
   String? _imagePreviewInfo;
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final file = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final file = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
     if (file == null) return;
     final bytes = await file.readAsBytes();
     setState(() {
@@ -33,7 +41,10 @@ class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
 
   Future<void> _captureImage() async {
     final picker = ImagePicker();
-    final file = await picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+    final file = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 85,
+    );
     if (file == null) return;
     final bytes = await file.readAsBytes();
     setState(() {
@@ -42,8 +53,6 @@ class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
     });
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -51,9 +60,7 @@ class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
       child: Consumer<AiProvider>(
         builder: (context, provider, _) {
           return Scaffold(
-            appBar: AppBar(
-              title: const Text('Firebase AI Logic — Examples'),
-            ),
+            appBar: AppBar(title: const Text('Firebase AI Logic — Examples')),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -82,17 +89,26 @@ class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
                   if (_imageBytes != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.memory(_imageBytes!, height: 200, fit: BoxFit.cover),
+                      child: Image.memory(
+                        _imageBytes!,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   if (_imagePreviewInfo != null) ...[
                     const SizedBox(height: 6),
-                    Text(_imagePreviewInfo!, style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      _imagePreviewInfo!,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
 
                   const SizedBox(height: 16),
                   TextField(
                     controller: _promptController,
-                    decoration: const InputDecoration(labelText: 'Prompt untuk gambar'),
+                    decoration: const InputDecoration(
+                      labelText: 'Prompt untuk gambar',
+                    ),
                     minLines: 1,
                     maxLines: 4,
                   ),
@@ -104,9 +120,9 @@ class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
                           onPressed: provider.isLoading || _imageBytes == null
                               ? null
                               : () => provider.generateTextFromImage(
-                                    imageBytes: _imageBytes!,
-                                    prompt: _promptController.text,
-                                  ),
+                                  imageBytes: _imageBytes!,
+                                  prompt: _promptController.text,
+                                ),
                           child: const Text('Gambar → Teks'),
                         ),
                       ),
@@ -116,9 +132,9 @@ class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
                           onPressed: provider.isLoading || _imageBytes == null
                               ? null
                               : () => provider.generateStructuredFromImage(
-                                    imageBytes: _imageBytes!,
-                                    prompt: _promptController.text,
-                                  ),
+                                  imageBytes: _imageBytes!,
+                                  prompt: _promptController.text,
+                                ),
                           child: const Text('Gambar → JSON'),
                         ),
                       ),
@@ -128,7 +144,9 @@ class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
                   const Divider(height: 32),
                   TextField(
                     controller: _textPromptController,
-                    decoration: const InputDecoration(labelText: 'Prompt teks → JSON'),
+                    decoration: const InputDecoration(
+                      labelText: 'Prompt teks → JSON',
+                    ),
                     minLines: 1,
                     maxLines: 4,
                   ),
@@ -139,8 +157,8 @@ class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
                       onPressed: provider.isLoading
                           ? null
                           : () => provider.generateStructuredFromText(
-                                prompt: _textPromptController.text,
-                              ),
+                              prompt: _textPromptController.text,
+                            ),
                       child: const Text('Teks → JSON'),
                     ),
                   ),
@@ -149,19 +167,34 @@ class _AiLogicExampleScreenState extends State<AiLogicExampleScreen> {
                   if (provider.isLoading) const LinearProgressIndicator(),
                   if (provider.error != null) ...[
                     const SizedBox(height: 8),
-                    Text(provider.error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                    Text(
+                      provider.error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
                   ],
                   if (provider.textResult != null) ...[
                     const SizedBox(height: 12),
-                    Text('Hasil Teks', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Hasil Teks',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 6),
                     SelectableText(provider.textResult!),
                   ],
                   if (provider.jsonResult != null) ...[
                     const SizedBox(height: 12),
-                    Text('Hasil JSON', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Hasil JSON',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 6),
-                    SelectableText(const JsonEncoder.withIndent('  ').convert(provider.jsonResult)),
+                    SelectableText(
+                      const JsonEncoder.withIndent(
+                        '  ',
+                      ).convert(provider.jsonResult),
+                    ),
                   ],
                 ],
               ),

@@ -96,7 +96,9 @@ class DishcoveryHomePage extends StatelessWidget {
                           width: double.infinity,
                           child: OutlinedButton(
                             onPressed: () {
-                              Navigator.of(context).pushNamed(AppRoutes.aiExample);
+                              Navigator.of(
+                                context,
+                              ).pushNamed(AppRoutes.aiExample);
                             },
                             child: const Text('Buka Contoh AI Logic'),
                           ),

@@ -1,9 +1,9 @@
 import 'package:dishcovery_app/features/capture/presentation/preview_screen.dart';
+import 'package:dishcovery_app/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-import '../../../providers/camera_provider.dart';
 import 'widgets/camera_bottom_controls_widget.dart';
 import 'widgets/camera_error_widget.dart';
 import 'widgets/camera_permission_widget.dart';
@@ -223,12 +223,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                   builder: (_) => PreviewScreen(imagePath: imagePath),
                 ),
               );
-              // ScaffoldMessenger.of(context).showSnackBar(
-              //   SnackBar(
-              //     content: Text('Foto disimpan: $imagePath'),
-              //     backgroundColor: Colors.green,
-              //   ),
-              // );
             }
           },
         ),
