@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/theme.dart';
 import 'providers/theme_provider.dart';
 import 'utils/routes/app_routes.dart';
+import 'features/history/providers/history_provider.dart';
 
 class App extends StatelessWidget {
   final SharedPreferences preferences;
@@ -17,6 +18,7 @@ class App extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider(preferences)),
+        ChangeNotifierProvider(create: (_) => HistoryProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {

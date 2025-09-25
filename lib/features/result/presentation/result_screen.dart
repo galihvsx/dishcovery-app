@@ -7,8 +7,13 @@ import 'widgets/related_foods_widget.dart';
 
 class ResultScreen extends StatelessWidget {
   final String imagePath;
+  final bool fromHistory;
 
-  const ResultScreen({super.key, required this.imagePath});
+  const ResultScreen({
+    super.key, 
+    required this.imagePath,
+    this.fromHistory = false,
+  });
 
   @override
   Widget build(BuildContext context) {
