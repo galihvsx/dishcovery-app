@@ -1,7 +1,10 @@
+import 'package:dishcovery_app/core/services/image_picker_service.dart';
 import 'package:dishcovery_app/core/widgets/app_logo.dart';
 import 'package:dishcovery_app/core/widgets/custom_app_bar.dart';
 import 'package:dishcovery_app/core/widgets/theme_switcher.dart';
+import 'package:dishcovery_app/features/capture/presentation/preview_screen.dart';
 import 'package:dishcovery_app/features/examples/camera_test_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:dishcovery_app/utils/routes/app_routes.dart';
 
@@ -10,6 +13,8 @@ class DishcoveryHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final picker = ImagePickerService();
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: const CustomAppBar(
@@ -68,8 +73,25 @@ class DishcoveryHomePage extends StatelessWidget {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
-                              // TODO: pilih foto dari gallery
+                            onPressed: () async {
+                              final imagePath = await picker
+                                  .pickImageFromGallery();
+
+                              if (imagePath != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        PreviewScreen(imagePath: imagePath),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('No image selected'),
+                                  ),
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Theme.of(

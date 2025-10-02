@@ -18,14 +18,18 @@ class ScanProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
+    await Future.delayed(const Duration(seconds: 3));
+
     try {
       final bytes = await _aiService.readImageFile(imagePath);
       final res = await _aiService.imageToDishcovery(
         imageBytes: bytes,
         prompt: """
-Kamu adalah AI asisten untuk aplikasi Dishcovery.
-Identifikasi makanan tradisional Nusantara pada gambar ini.
-Kembalikan JSON sesuai schema: name, origin, description, tags[], relatedFoods[].
+Kamu adalah AI asisten untuk aplikasi Dishcovery, seorang ahli kuliner Nusantara.
+Identifikasi makanan tradisional Nusantara pada gambar ini secara akurat.
+Berikan jawaban dalam format JSON yang sesuai dengan schema yang diberikan.
+- Pastikan 'description' dan 'history' ditulis dalam format Markdown untuk Tampilan yang menarik.
+- Isi 'name', 'origin', 'description', 'history', dan 'recipe' (ingredients dan steps) dengan lengkap dan informatif.
 """,
       );
 

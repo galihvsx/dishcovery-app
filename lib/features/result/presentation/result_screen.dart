@@ -1,10 +1,12 @@
 import 'package:dishcovery_app/providers/scan_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'widgets/related_foods_widget.dart';
 import 'widgets/result_actions_widget.dart';
 import 'widgets/result_image_widget.dart';
 import 'widgets/result_info_widget.dart';
+import 'widgets/result_skeleton_loader.dart';
 import 'widgets/result_tags_widget.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -61,7 +63,7 @@ class _ResultScreenState extends State<ResultScreen> {
         ],
       ),
       body: scanProvider.loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const ResultSkeletonLoader()
           : scanProvider.error != null
           ? Center(child: Text("Error: ${scanProvider.error}"))
           : scanProvider.result == null
@@ -77,6 +79,8 @@ class _ResultScreenState extends State<ResultScreen> {
                     name: scanProvider.result!.name,
                     origin: scanProvider.result!.origin,
                     description: scanProvider.result!.description,
+                    history: scanProvider.result!.history,
+                    recipe: scanProvider.result!.recipe,
                   ),
                   const SizedBox(height: 12),
                   if (scanProvider.result!.tags.isNotEmpty)

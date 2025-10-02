@@ -15,7 +15,7 @@ class ResultTagsWidget extends StatelessWidget {
           .map(
             (tag) => Chip(
               label: Text(tag),
-              backgroundColor: colorScheme.primaryContainer.withOpacity(0.2),
+              backgroundColor: colorScheme.primaryContainer.withAlpha(128),
               labelStyle: TextStyle(color: colorScheme.onPrimaryContainer),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),

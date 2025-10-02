@@ -152,9 +152,33 @@ class FirebaseAiService {
   Schema _dishcoverySchema() {
     return Schema.object(
       properties: {
-        'name': Schema.string(),
-        'origin': Schema.string(),
-        'description': Schema.string(),
+        'name': Schema.string(
+          description: "Nama makanan dalam Bahasa Indonesia.",
+        ),
+        'origin': Schema.string(
+          description: "Daerah asal makanan, contoh: 'Bandung, Jawa Barat'.",
+        ),
+        'description': Schema.string(
+          description:
+              "Deskripsi singkat dan menarik tentang makanan dalam format Markdown.",
+        ),
+        'history': Schema.string(
+          description:
+              "Cerita atau sejarah singkat di balik makanan dalam format Markdown.",
+        ), // <-- FIELD BARU
+        'recipe': Schema.object(
+          // <-- OBJEK BARU
+          properties: {
+            'ingredients': Schema.array(
+              items: Schema.string(),
+              description: "Daftar bahan-bahan yang dibutuhkan.",
+            ),
+            'steps': Schema.array(
+              items: Schema.string(),
+              description: "Langkah-langkah memasak.",
+            ),
+          },
+        ),
         'tags': Schema.array(items: Schema.string()),
         'relatedFoods': Schema.array(items: Schema.string()),
       },
