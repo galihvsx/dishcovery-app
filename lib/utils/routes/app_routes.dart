@@ -1,40 +1,115 @@
 import 'package:flutter/material.dart';
-import '../../features/home/presentation/dishcovery_home_page.dart';
-import '../../features/capture/presentation/capture_screen.dart';
-import '../../features/history/presentation/history_screen.dart';
+
+import '../../core/navigation/auth_guard.dart';
+import '../../core/navigation/auth_preferences_guard.dart';
 import '../../core/navigation/main_navigation.dart';
+import '../../features/auth/forgot_password/presentation/forgot_password_screen.dart';
+import '../../features/auth/login/presentation/login_screen.dart';
+import '../../features/auth/register/presentation/register_screen.dart';
+import '../../features/capture/presentation/capture_screen.dart';
 import '../../features/examples/ai_logic_example_screen.dart';
+import '../../features/history/presentation/history_screen.dart';
+import '../../features/home/presentation/dishcovery_home_page.dart';
+import '../../features/onboarding/presentation/app_onboarding_screen.dart';
+import '../../features/preference_onboarding/presentation/preferences_onboarding_screen.dart';
 import '../../features/result/presentation/result_screen.dart';
+import '../../features/settings/presentation/edit_profile_screen.dart';
+import '../../features/settings/presentation/setting_screen.dart';
+import '../../features/user_preference/presentation/user_preferences_screen.dart';
 
+/// App routing configuration following Flutter best practices
+///
+/// This class provides:
+/// - Route generation with screen paths
+/// - Type-safe navigation using screen static paths
+/// - Clean navigation patterns
+/// - Authentication guards for protected routes
 class AppRoutes {
-  // Route names
-  static const String main = '/';
-  static const String home = '/home';
-  static const String capture = '/capture';
-  static const String history = '/history';
-  static const String settings = '/settings';
-  static const String result = '/result';
-  static const String aiExample = '/ai-example';
+  /// Onboarding route
+  static const String onboarding = '/onboarding';
 
-  // Route generator
+  /// Main navigation route
+  static const String main = '/';
+  static const String aiExample = '/ai-example';
+  static const String preferences = '/preferences';
+  static const String preferencesOnboarding = '/preferences-onboarding';
+  static const String editProfile = '/edit-profile';
+
+  /// Authentication routes
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
+
+  /// Route generator that maps screen paths to widgets
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      // Onboarding route
+      case onboarding:
+        return MaterialPageRoute(builder: (_) => const AppOnboardingScreen());
+
+      // Authentication routes (no guard needed)
+      case login:
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
+      case register:
+        return MaterialPageRoute(builder: (_) => const RegisterScreen());
+      case forgotPassword:
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
+
+      // Protected routes (require authentication and preferences)
       case main:
-        return MaterialPageRoute(builder: (_) => const MainNavigation());
-      case home:
-        return MaterialPageRoute(builder: (_) => const DishcoveryHomePage());
-      case capture:
-        return MaterialPageRoute(builder: (_) => const CaptureScreen());
-      case history:
-        return MaterialPageRoute(builder: (_) => const HistoryScreen());
-      case result:
-        final args = settings.arguments as Map<String, dynamic>?;
-        final imagePath = args?['imagePath'] ?? '';
-        return MaterialPageRoute(
-          builder: (_) => ResultScreen(imagePath: imagePath),
+        return createAuthenticatedRouteWithPreferences(
+          settings,
+          (_) => const MainNavigation(),
         );
-      case aiExample:
+      case DishcoveryHomePage.path:
+        return createAuthenticatedRouteWithPreferences(
+          settings,
+          (_) => const DishcoveryHomePage(),
+        );
+      case CaptureScreen.path:
+        return createAuthenticatedRouteWithPreferences(
+          settings,
+          (_) => const CaptureScreen(),
+        );
+      case HistoryScreen.path:
+        return createAuthenticatedRouteWithPreferences(
+          settings,
+          (_) => const HistoryScreen(),
+        );
+      case SettingScreen.path:
+        return createAuthenticatedRouteWithPreferences(
+          settings,
+          (_) => const SettingScreen(),
+        );
+      case ResultScreen.path:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        final imagePath = args['imagePath'] as String? ?? '';
+        return createAuthenticatedRouteWithPreferences(
+          settings,
+          (_) => ResultScreen(imagePath: imagePath),
+        );
+
+      // Protected routes (require only authentication, no preferences needed)
+      case preferences:
+        return createAuthenticatedRoute(
+          settings,
+          (_) => const UserPreferencesScreen(),
+        );
+      case preferencesOnboarding:
+        return createAuthenticatedRoute(
+          settings,
+          (_) => const PreferencesOnboardingScreen(),
+        );
+      case editProfile:
+        return createAuthenticatedRoute(
+          settings,
+          (_) => const EditProfileScreen(),
+        );
+
+      // Public routes (no authentication required)
+      case AiLogicExampleScreen.path:
         return MaterialPageRoute(builder: (_) => const AiLogicExampleScreen());
+
       default:
         return MaterialPageRoute(
           builder: (_) =>
@@ -43,37 +118,40 @@ class AppRoutes {
     }
   }
 
-  // Navigation helper methods
-  static Future<void> pushToCapture(BuildContext context) async {
-    await Navigator.of(context).pushNamed(capture);
-  }
+  /// Route configuration for better navigation
+  static final Map<String, WidgetBuilder> routes = {
+    // Authentication routes
+    login: (_) => const LoginScreen(),
+    register: (_) => const RegisterScreen(),
+    forgotPassword: (_) => const ForgotPasswordScreen(),
 
-  static Future<void> pushToHistory(BuildContext context) async {
-    await Navigator.of(context).pushNamed(history);
-  }
+    // Protected routes (wrapped with AuthGuard)
+    main: (_) => const AuthGuard(child: MainNavigation()),
+    DishcoveryHomePage.path: (_) =>
+        const AuthGuard(child: DishcoveryHomePage()),
+    CaptureScreen.path: (_) => const AuthGuard(child: CaptureScreen()),
+    HistoryScreen.path: (_) => const AuthGuard(child: HistoryScreen()),
+    SettingScreen.path: (_) => const AuthGuard(child: SettingScreen()),
 
-  static Future<void> pushToSettings(BuildContext context) async {
-    await Navigator.of(context).pushNamed(settings);
-  }
+    // Public routes
+    AiLogicExampleScreen.path: (_) => const AiLogicExampleScreen(),
+  };
 
-  static Future<void> pushToResult(
-    BuildContext context, {
-    Map<String, dynamic>? arguments,
-  }) async {
-    await Navigator.of(context).pushNamed(result, arguments: arguments);
-  }
+  /// Helper method to navigate with typed arguments
+  static Map<String, dynamic> createArguments({
+    String? imagePath,
+    Map<String, dynamic>? additionalArgs,
+  }) {
+    final args = <String, dynamic>{};
 
-  static void pop(BuildContext context) {
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
+    if (imagePath != null) {
+      args['imagePath'] = imagePath;
     }
-  }
 
-  static void popUntilRoot(BuildContext context) {
-    Navigator.of(context).popUntil((route) => route.isFirst);
-  }
+    if (additionalArgs != null) {
+      args.addAll(additionalArgs);
+    }
 
-  static void popUntilRoute(BuildContext context, String routeName) {
-    Navigator.of(context).popUntil(ModalRoute.withName(routeName));
+    return args;
   }
 }

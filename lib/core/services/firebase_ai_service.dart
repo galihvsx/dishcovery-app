@@ -103,9 +103,7 @@ class FirebaseAiService {
 
   Schema _defaultTextSchema() {
     return Schema.object(
-      properties: {
-        'keyPoints': Schema.array(items: Schema.string()),
-      },
+      properties: {'keyPoints': Schema.array(items: Schema.string())},
     );
   }
 }

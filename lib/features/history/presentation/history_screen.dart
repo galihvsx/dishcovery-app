@@ -5,6 +5,8 @@ import '../../../core/widgets/theme_switcher.dart';
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
+  static const String path = '/history';
+
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
 }
