@@ -7,17 +7,13 @@ class NavigationService extends NavigationServiceBase {
   factory NavigationService() => _instance;
   NavigationService._internal();
 
-  // Controllers dan keys
   PersistentTabController? _tabController;
   GlobalKey<NavigatorState>? _navigatorKey;
 
-  // Current state
   NavigationTab _currentTab = NavigationTab.home;
 
-  // Callbacks untuk komunikasi dengan UI
   VoidCallback? _onTabChanged;
 
-  // Initialize service dengan controllers
   void initialize({
     required PersistentTabController tabController,
     required GlobalKey<NavigatorState> navigatorKey,
@@ -50,7 +46,6 @@ class NavigationService extends NavigationServiceBase {
     if (_navigatorKey?.currentState?.canPop() == true) {
       _navigatorKey!.currentState!.pop();
     } else {
-      // Jika tidak bisa pop, kembali ke home tab
       navigateToTab(NavigationTab.home);
     }
   }
@@ -66,19 +61,16 @@ class NavigationService extends NavigationServiceBase {
   @override
   NavigationTab get currentTab => _currentTab;
 
-  // Update current tab (dipanggil dari MainNavigation saat tab berubah)
   void updateCurrentTab(int index) {
     if (index >= 0 && index < NavigationTab.values.length) {
       _currentTab = NavigationTab.values[index];
     }
   }
 
-  // Navigation helpers
   BuildContext? get context => _navigatorKey?.currentContext;
 
   bool get canPop => _navigatorKey?.currentState?.canPop() == true;
 
-  // Push ke route tertentu
   Future<T?> pushNamed<T extends Object?>(
     String routeName, {
     Object? arguments,
@@ -89,7 +81,6 @@ class NavigationService extends NavigationServiceBase {
     );
   }
 
-  // Push dan replace
   Future<T?> pushReplacementNamed<T extends Object?, TO extends Object?>(
     String routeName, {
     Object? arguments,
@@ -102,7 +93,6 @@ class NavigationService extends NavigationServiceBase {
     );
   }
 
-  // Push dan hapus semua route sebelumnya
   Future<T?> pushNamedAndClearStack<T extends Object?>(
     String routeName, {
     Object? arguments,
@@ -114,12 +104,10 @@ class NavigationService extends NavigationServiceBase {
     );
   }
 
-  // Convenience methods untuk navigasi cepat ke tab tertentu
   void goToHome() => navigateToTab(NavigationTab.home);
   void goToHistory() => navigateToTab(NavigationTab.history);
   void goToSettings() => navigateToTab(NavigationTab.settings);
 
-  // Show dialogs dan bottom sheets
   Future<T?> showAppDialog<T>({
     required Widget dialog,
     bool barrierDismissible = true,
@@ -144,7 +132,6 @@ class NavigationService extends NavigationServiceBase {
     );
   }
 
-  // Show snackbar
   void showSnackBar(
     String message, {
     Color? backgroundColor,
@@ -160,7 +147,6 @@ class NavigationService extends NavigationServiceBase {
     );
   }
 
-  // Cleanup
   void dispose() {
     _tabController = null;
     _navigatorKey = null;
@@ -168,7 +154,6 @@ class NavigationService extends NavigationServiceBase {
   }
 }
 
-// Base class untuk interface
 abstract class NavigationServiceBase {
   void navigateToTab(NavigationTab tab);
   void pop();

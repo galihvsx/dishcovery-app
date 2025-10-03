@@ -2,26 +2,31 @@ import 'package:flutter/material.dart';
 
 class AppLogo extends StatelessWidget {
   final double size;
+  final bool circular;
 
-  const AppLogo({super.key, this.size = 120});
+  const AppLogo({super.key, this.size = 120, this.circular = false});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
+    final logo = Image.asset(
+      "assets/images/dishcovery_logo.png",
+      fit: BoxFit.contain,
       height: size,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.transparent,
-      ),
-      child: ClipOval(
-        child: Image.asset(
-          Theme.of(context).brightness == Brightness.dark
-              ? "assets/images/Dishcovery-black.png" //mode gelap
-              : "assets/images/Dishcovery-white.png", //mode terang
-          fit: BoxFit.cover,
-        ),
-      ),
     );
+
+    if (circular) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        ),
+        padding: EdgeInsets.all(size * 0.15),
+        child: logo,
+      );
+    }
+
+    return SizedBox(height: size, child: logo);
   }
 }

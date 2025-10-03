@@ -1,238 +1,644 @@
-import 'package:dishcovery_app/features/capture/presentation/preview_screen.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 
-import '../../../providers/camera_provider.dart';
-import 'widgets/camera_bottom_controls_widget.dart';
-import 'widgets/camera_error_widget.dart';
-import 'widgets/camera_permission_widget.dart';
-import 'widgets/camera_preview_widget.dart';
-import 'widgets/camera_top_controls_widget.dart';
-import 'widgets/focus_indicator_widget.dart';
+import '../../../utils/routes/app_routes.dart';
+import '../../result/presentation/result_screen.dart';
 
 class CaptureScreen extends StatefulWidget {
   const CaptureScreen({super.key});
+
+  static const String path = '/capture';
 
   @override
   State<CaptureScreen> createState() => _CaptureScreenState();
 }
 
 class _CaptureScreenState extends State<CaptureScreen>
-    with WidgetsBindingObserver, TickerProviderStateMixin {
-  CameraProvider? _cameraProvider;
-  Offset? _focusPoint;
-  late AnimationController _focusAnimationController;
-  late Animation<double> _focusAnimation;
+    with WidgetsBindingObserver {
+  CameraController? _cameraController;
+  List<CameraDescription>? _cameras;
+  bool _isInitialized = false;
+  bool _isFlashOn = false;
+  bool _isLoading = false;
+  String? _errorMessage;
+  bool _hasPermission = false;
+  bool _isPermanentlyDenied = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    _focusAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-    _focusAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _focusAnimationController, curve: Curves.easeOut),
-    );
+    _initializeCamera();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _focusAnimationController.dispose();
-    // Pastikan camera controller di-dispose dengan benar saat navigasi keluar
-    if (_cameraProvider != null) {
-      _cameraProvider!.controller.pausePreview();
-    }
+    _disposeCamera();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_cameraProvider == null) return;
+    final CameraController? cameraController = _cameraController;
 
-    switch (state) {
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.paused:
-        // Aggressively pause camera saat app tidak aktif
-        _cameraProvider!.controller.pausePreview();
-        break;
-      case AppLifecycleState.resumed:
-        // Resume camera saat app kembali aktif dengan delay
-        if (_cameraProvider!.isInitialized) {
-          Future.delayed(const Duration(milliseconds: 300), () {
-            if (mounted && _cameraProvider!.isInitialized) {
-              _cameraProvider!.controller.resumePreview();
-            }
-          });
-        }
-        break;
-      case AppLifecycleState.detached:
-        // Dispose kamera saat app ditutup
-        _cameraProvider!.controller.pausePreview();
-        break;
-      case AppLifecycleState.hidden:
-        // Pause saat hidden
-        _cameraProvider!.controller.pausePreview();
-        break;
+    // App state changed before we got the chance to initialize.
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      _disposeCamera();
+    } else if (state == AppLifecycleState.resumed) {
+      _initializeCamera();
     }
   }
 
-  void _onTapToFocus(TapDownDetails details, CameraProvider provider) {
-    if (!provider.isInitialized) return;
-
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final Offset localPosition = renderBox.globalToLocal(
-      details.globalPosition,
-    );
-
-    // Normalize the tap position to camera coordinates (0.0 to 1.0)
-    final double x = localPosition.dx / renderBox.size.width;
-    final double y = localPosition.dy / renderBox.size.height;
-
-    // Clamp values to ensure they're within bounds
-    final double clampedX = x.clamp(0.0, 1.0);
-    final double clampedY = y.clamp(0.0, 1.0);
-
-    final Offset focusPoint = Offset(clampedX, clampedY);
-
-    // Set focus point and show visual feedback
-    provider.setFocusPoint(focusPoint);
-
+  Future<void> _initializeCamera() async {
     setState(() {
-      _focusPoint = localPosition;
+      _isLoading = true;
+      _errorMessage = null;
     });
 
-    // Start focus animation
-    _focusAnimationController.reset();
-    _focusAnimationController.forward().then((_) {
-      // Hide focus indicator after animation completes
-      if (mounted) {
+    try {
+      // Check camera permission
+      final permissionStatus = await Permission.camera.status;
+
+      if (permissionStatus.isPermanentlyDenied) {
         setState(() {
-          _focusPoint = null;
+          _hasPermission = false;
+          _isPermanentlyDenied = true;
+          _isLoading = false;
+          _errorMessage = 'Izin kamera ditolak secara permanen';
         });
+        return;
       }
-    });
+
+      if (permissionStatus.isDenied) {
+        final result = await Permission.camera.request();
+
+        if (result.isPermanentlyDenied) {
+          setState(() {
+            _hasPermission = false;
+            _isPermanentlyDenied = true;
+            _isLoading = false;
+            _errorMessage = 'Izin kamera ditolak secara permanen';
+          });
+          return;
+        }
+
+        if (!result.isGranted) {
+          setState(() {
+            _hasPermission = false;
+            _isLoading = false;
+            _errorMessage = 'Izin kamera diperlukan untuk mengambil foto';
+          });
+          return;
+        }
+      }
+
+      // Get available cameras
+      _cameras = await availableCameras();
+
+      if (_cameras == null || _cameras!.isEmpty) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Tidak ada kamera tersedia';
+        });
+        return;
+      }
+
+      // Initialize camera controller with back camera
+      final backCamera = _cameras!.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.back,
+        orElse: () => _cameras!.first,
+      );
+
+      await _setupCameraController(backCamera);
+
+      setState(() {
+        _hasPermission = true;
+        _isInitialized = true;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Gagal menginisialisasi kamera: ${e.toString()}';
+      });
+    }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) {
-        final provider = CameraProvider();
-        _cameraProvider = provider;
-        // Initialize camera setelah provider dibuat
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          provider.initializeCamera();
-        });
-        return provider;
-      },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: Consumer<CameraProvider>(
-          builder: (context, cameraProvider, child) {
-            debugPrint('hasPermission: ${cameraProvider.hasPermission}');
-            debugPrint(
-              'isPermanentlyDenied: ${cameraProvider.isPermanentlyDenied}',
-            );
-            debugPrint('errorMessage: ${cameraProvider.errorMessage}');
+  Future<void> _setupCameraController(CameraDescription camera) async {
+    // Dispose existing controller if any
+    await _cameraController?.dispose();
 
-            // Tampilkan loading view jika sedang loading, tanpa mempedulikan permission status
-            if (cameraProvider.isLoading) {
-              return _buildLoadingView();
-            }
+    // Create new controller
+    _cameraController = CameraController(
+      camera,
+      ResolutionPreset.high,
+      enableAudio: false,
+      imageFormatGroup: ImageFormatGroup.jpeg,
+    );
 
-            if (!cameraProvider.hasPermission) {
-              return _buildPermissionView(cameraProvider);
-            }
+    try {
+      await _cameraController!.initialize();
+    } catch (e) {
+      throw Exception('Gagal menginisialisasi controller: $e');
+    }
+  }
 
-            if (cameraProvider.errorMessage != null &&
-                cameraProvider.hasPermission) {
-              return _buildErrorView(cameraProvider);
-            }
+  Future<void> _disposeCamera() async {
+    await _cameraController?.dispose();
+    _cameraController = null;
+    if (mounted) {
+      setState(() {
+        _isInitialized = false;
+      });
+    }
+  }
 
-            if (!cameraProvider.isInitialized) {
-              return _buildLoadingView();
-            }
+  Future<void> _takePicture() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+      _showSnackBar('Kamera belum siap');
+      return;
+    }
 
-            return _buildCameraView(cameraProvider);
-          },
-        ),
+    if (_isLoading) return;
+
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final XFile photo = await _cameraController!.takePicture();
+
+      if (!mounted) return;
+
+      // Navigate to result screen
+      Navigator.of(context).pushReplacementNamed(
+        ResultScreen.path,
+        arguments: AppRoutes.createArguments(imagePath: photo.path),
+      );
+    } catch (e) {
+      _showSnackBar('Gagal mengambil foto: ${e.toString()}');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _toggleFlash() async {
+    if (_cameraController == null || !_isInitialized) return;
+
+    try {
+      final newFlashMode = _isFlashOn ? FlashMode.off : FlashMode.torch;
+      await _cameraController!.setFlashMode(newFlashMode);
+
+      setState(() {
+        _isFlashOn = !_isFlashOn;
+      });
+    } catch (e) {
+      _showSnackBar('Gagal mengubah flash: ${e.toString()}');
+    }
+  }
+
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  Widget _buildErrorView(CameraProvider provider) {
-    return CameraErrorWidget(
-      errorMessage: provider.errorMessage!,
-      onRetry: () {
-        provider.clearError();
-        provider.initializeCamera();
-      },
+  Widget _buildCameraPreview() {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+      return const SizedBox.shrink();
+    }
+
+    final size = MediaQuery.of(context).size;
+    final deviceRatio = size.width / size.height;
+    final previewSize = _cameraController!.value.previewSize!;
+    final previewRatio = previewSize.height / previewSize.width;
+
+    return OverflowBox(
+      maxHeight: deviceRatio < previewRatio
+          ? size.height
+          : size.width / previewRatio,
+      maxWidth: deviceRatio < previewRatio
+          ? size.height * previewRatio
+          : size.width,
+      child: CameraPreview(_cameraController!),
     );
   }
 
-  Widget _buildPermissionView(CameraProvider provider) {
-    final bool isPermanentlyDenied = provider.isPermanentlyDenied;
-
-    return CameraPermissionWidget(
-      onRequestPermission: () async {
-        if (isPermanentlyDenied) {
-          await openAppSettings();
-        } else {
-          provider.initializeCamera();
-        }
-      },
+  Widget _buildGamificationOverlay() {
+    return IgnorePointer(
+      child: SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: CustomPaint(painter: _FoodFramePainter()),
+      ),
     );
   }
 
-  Widget _buildLoadingView() {
-    return const Center(child: CircularProgressIndicator(color: Colors.white));
-  }
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
-  Widget _buildCameraView(CameraProvider provider) {
-    return Stack(
-      children: [
-        // Camera Preview with GestureDetector
-        CameraPreviewWidget(provider: provider, onTapToFocus: _onTapToFocus),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // Camera Preview
+          if (_isInitialized) _buildCameraPreview(),
 
-        // Focus indicator
-        if (_focusPoint != null)
-          FocusIndicatorWidget(
-            focusPoint: _focusPoint!,
-            focusAnimation: _focusAnimation,
-          ),
+          // Gamification Overlay (frame guide)
+          if (_isInitialized) _buildGamificationOverlay(),
 
-        // Top Controls
-        CameraTopControlsWidget(
-          provider: provider,
-          onBackPressed: () => Navigator.of(context).pop(),
-        ),
+          // Loading State
+          if (_isLoading && !_isInitialized)
+            const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: Colors.white),
+                  SizedBox(height: 16),
+                  Text(
+                    'Menginisialisasi kamera...',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
 
-        // Bottom Controls
-        CameraBottomControlsWidget(
-          provider: provider,
-          onPictureTaken: (imagePath) {
-            if (imagePath != null && mounted) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PreviewScreen(imagePath: imagePath),
+          // Error State
+          if (_errorMessage != null && !_isInitialized)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _isPermanentlyDenied
+                          ? Icons.camera_alt_outlined
+                          : Icons.error_outline,
+                      size: 80,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
+                    if (_isPermanentlyDenied)
+                      FilledButton.icon(
+                        onPressed: () async {
+                          await openAppSettings();
+                        },
+                        icon: const Icon(Icons.settings),
+                        label: const Text('Buka Pengaturan'),
+                      )
+                    else if (!_hasPermission)
+                      FilledButton.icon(
+                        onPressed: _initializeCamera,
+                        icon: const Icon(Icons.camera_alt),
+                        label: const Text('Berikan Izin Kamera'),
+                      )
+                    else
+                      FilledButton.icon(
+                        onPressed: _initializeCamera,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Coba Lagi'),
+                      ),
+                  ],
                 ),
-              );
-              // ScaffoldMessenger.of(context).showSnackBar(
-              //   SnackBar(
-              //     content: Text('Foto disimpan: $imagePath'),
-              //     backgroundColor: Colors.green,
-              //   ),
-              // );
-            }
-          },
-        ),
-      ],
+              ),
+            ),
+
+          // Top gradient overlay
+          if (_isInitialized)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: MediaQuery.of(context).padding.top + 120,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.7),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // Bottom gradient overlay
+          if (_isInitialized)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: MediaQuery.of(context).padding.bottom + 180,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.7),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // Top Controls (Back button and Flash) - ABOVE gradients
+          if (_isInitialized)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 16,
+              left: 16,
+              right: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Back Button
+                  _ControlButton(
+                    icon: Icons.close,
+                    onTap: () => Navigator.of(context).pop(),
+                  ),
+
+                  // Flash Toggle
+                  _ControlButton(
+                    icon: _isFlashOn ? Icons.flash_on : Icons.flash_off,
+                    iconColor: _isFlashOn ? Colors.amber : Colors.white,
+                    onTap: _toggleFlash,
+                  ),
+                ],
+              ),
+            ),
+
+          // Bottom instruction and tips
+          if (_isInitialized)
+            Positioned(
+              bottom: MediaQuery.of(context).padding.bottom + 140,
+              left: 20,
+              right: 20,
+              child: Column(
+                children: [
+                  // Tips container
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.primaryColor.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.tips_and_updates,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Pastikan pencahayaan cukup',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          // Bottom Controls (Capture Button) - ABOVE gradients
+          if (_isInitialized)
+            Positioned(
+              bottom: MediaQuery.of(context).padding.bottom + 40,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: GestureDetector(
+                  onTap: _isLoading ? null : _takePicture,
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: theme.primaryColor, width: 5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.primaryColor.withValues(alpha: 0.4),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: _isLoading
+                        ? Padding(
+                            padding: const EdgeInsets.all(18),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 4,
+                              color: theme.primaryColor,
+                            ),
+                          )
+                        : Container(
+                            margin: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: theme.primaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
+}
+
+// Custom button widget for controls
+class _ControlButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final Color iconColor;
+
+  const _ControlButton({
+    required this.icon,
+    required this.onTap,
+    this.iconColor = Colors.white,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(30),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: Icon(icon, color: iconColor, size: 28),
+        ),
+      ),
+    );
+  }
+}
+
+// Custom painter for food frame guide
+class _FoodFramePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.5)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+
+    final dottedPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.8)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    // Calculate frame dimensions (circular frame in center)
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+    final radius = size.width * 0.35;
+
+    // Draw circular dashed frame
+    const dashWidth = 10.0;
+    const dashSpace = 8.0;
+    double startAngle = 0;
+
+    while (startAngle < 360) {
+      final endAngle = startAngle + dashWidth;
+      canvas.drawArc(
+        Rect.fromCircle(center: Offset(centerX, centerY), radius: radius),
+        _degreesToRadians(startAngle),
+        _degreesToRadians(dashWidth),
+        false,
+        dottedPaint,
+      );
+      startAngle = endAngle + dashSpace;
+    }
+
+    // Draw corner brackets
+    final bracketLength = 30.0;
+    final bracketOffset = 15.0;
+
+    // Top-left corner
+    canvas.drawLine(
+      Offset(centerX - radius - bracketOffset, centerY - radius),
+      Offset(
+        centerX - radius - bracketOffset + bracketLength,
+        centerY - radius,
+      ),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(centerX - radius - bracketOffset, centerY - radius),
+      Offset(
+        centerX - radius - bracketOffset,
+        centerY - radius + bracketLength,
+      ),
+      paint,
+    );
+
+    // Top-right corner
+    canvas.drawLine(
+      Offset(centerX + radius + bracketOffset, centerY - radius),
+      Offset(
+        centerX + radius + bracketOffset - bracketLength,
+        centerY - radius,
+      ),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(centerX + radius + bracketOffset, centerY - radius),
+      Offset(
+        centerX + radius + bracketOffset,
+        centerY - radius + bracketLength,
+      ),
+      paint,
+    );
+
+    // Bottom-left corner
+    canvas.drawLine(
+      Offset(centerX - radius - bracketOffset, centerY + radius),
+      Offset(
+        centerX - radius - bracketOffset + bracketLength,
+        centerY + radius,
+      ),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(centerX - radius - bracketOffset, centerY + radius),
+      Offset(
+        centerX - radius - bracketOffset,
+        centerY + radius - bracketLength,
+      ),
+      paint,
+    );
+
+    // Bottom-right corner
+    canvas.drawLine(
+      Offset(centerX + radius + bracketOffset, centerY + radius),
+      Offset(
+        centerX + radius + bracketOffset - bracketLength,
+        centerY + radius,
+      ),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(centerX + radius + bracketOffset, centerY + radius),
+      Offset(
+        centerX + radius + bracketOffset,
+        centerY + radius - bracketLength,
+      ),
+      paint,
+    );
+  }
+
+  double _degreesToRadians(double degrees) {
+    return degrees * (3.141592653589793 / 180.0);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

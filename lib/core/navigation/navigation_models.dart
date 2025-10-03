@@ -6,7 +6,6 @@ enum NavigationTab {
   history,
   settings;
 
-  // Helper untuk mendapatkan tab index
   int get tabIndex {
     switch (this) {
       case NavigationTab.home:
@@ -18,7 +17,6 @@ enum NavigationTab {
     }
   }
 
-  // Helper untuk mendapatkan nama yang readable
   String get displayName {
     switch (this) {
       case NavigationTab.home:
@@ -45,11 +43,9 @@ class NavigationItem {
   });
 }
 
-// Context class untuk akses mudah ke NavigationService
 class NavigationContext {
   static NavigationService get nav => NavigationService();
 
-  // Quick access methods
   static void toHome() => nav.goToHome();
   static void toHistory() => nav.goToHistory();
   static void toSettings() => nav.navigateToTab(NavigationTab.settings);
@@ -60,7 +56,6 @@ class NavigationContext {
   static NavigationTab get currentTab => nav.currentTab;
   static BuildContext? get context => nav.context;
 
-  // Show helpers
   static void showSnackBar(String message, {Color? backgroundColor}) {
     nav.showSnackBar(message, backgroundColor: backgroundColor);
   }

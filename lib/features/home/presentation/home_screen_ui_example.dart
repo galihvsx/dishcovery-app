@@ -1,4 +1,3 @@
-import 'package:dishcovery_app/features/examples/camera_test_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/custom_app_bar.dart';
@@ -7,6 +6,7 @@ import '../../../core/widgets/custom_text_field.dart';
 import '../../../core/widgets/theme_switcher.dart';
 
 class HomeScreen extends StatefulWidget {
+  static const String path = '/home';
   const HomeScreen({super.key});
 
   @override
@@ -45,8 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 32),
-
-              // Text Fields Section
               const Text(
                 'Text Fields',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
@@ -78,19 +76,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 16),
-              CustomButton(
-                text: 'Test Camera',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CameraExampleScreen(),
-                    ),
-                  );
-                },
-                type: ButtonType.secondary,
-              ),
-              SizedBox(height: 16),
               CustomButton(
                 text: 'Primary Button',
                 onPressed: () {},

@@ -10,6 +10,8 @@ class ResultScreen extends StatelessWidget {
 
   const ResultScreen({super.key, required this.imagePath});
 
+  static const String path = '/result';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
