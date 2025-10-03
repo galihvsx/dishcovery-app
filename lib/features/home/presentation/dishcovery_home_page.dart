@@ -27,7 +27,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final picker = ImagePickerService();
 
     return Scaffold(
       body: RefreshIndicator(

@@ -366,11 +366,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(color: Colors.white),
-                  SizedBox(height: 16),
-                  Text(
-                    'Menginisialisasi kamera...',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
                 ],
               ),
             ),
@@ -643,12 +638,10 @@ class _CaptureScreenState extends State<CaptureScreen>
 class _ControlButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  final Color iconColor;
 
   const _ControlButton({
     required this.icon,
     required this.onTap,
-    this.iconColor = Colors.white,
   });
 
   @override
@@ -668,7 +661,7 @@ class _ControlButton extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: Icon(icon, color: iconColor, size: 28),
+          child: Icon(icon, color: Colors.white, size: 28),
         ),
       ),
     );
