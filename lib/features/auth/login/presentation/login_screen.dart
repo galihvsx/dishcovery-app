@@ -55,22 +55,41 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    debugPrint('🎯 LoginScreen: Google Sign-In button pressed');
     final authProvider = context.read<AuthProvider>();
+    debugPrint('🎯 LoginScreen: AuthProvider obtained, current loading state: ${authProvider.isLoading}');
+    debugPrint('🎯 LoginScreen: AuthProvider current user: ${authProvider.user?.email ?? 'null'}');
 
     try {
+      debugPrint('🎯 LoginScreen: Calling authProvider.signInWithGoogle()');
       final success = await authProvider.signInWithGoogle();
+      debugPrint('🎯 LoginScreen: authProvider.signInWithGoogle() returned: $success');
 
       if (success && mounted) {
+        debugPrint('✅ LoginScreen: Sign-in successful, navigating to main screen');
         Navigator.of(context).pushReplacementNamed(AppRoutes.main);
+      } else if (!success) {
+        debugPrint('❌ LoginScreen: Sign-in failed (success = false)');
+      } else if (!mounted) {
+        debugPrint('⚠️ LoginScreen: Widget not mounted, skipping navigation');
       }
     } catch (e) {
+      debugPrint('❌ LoginScreen: Exception caught during Google Sign-In');
+      debugPrint('❌ LoginScreen: Exception type: ${e.runtimeType}');
+      debugPrint('❌ LoginScreen: Exception message: ${e.toString()}');
+      debugPrint('❌ LoginScreen: Is cancellation error: ${e.toString().contains('cancelled')}');
+      debugPrint('❌ LoginScreen: Widget mounted: $mounted');
+      
       if (mounted && !e.toString().contains('cancelled')) {
+        debugPrint('🎯 LoginScreen: Showing error SnackBar to user');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString()),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
+      } else if (e.toString().contains('cancelled')) {
+        debugPrint('🎯 LoginScreen: User cancelled sign-in, not showing error message');
       }
     }
   }
@@ -319,16 +338,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   builder: (context, authProvider, child) {
                     return SizedBox(
                       height: 48,
-                      child: SignInButton(
-                        Buttons.google,
-                        onPressed: authProvider.isLoading
-                            ? () {}
-                            : _handleGoogleSignIn,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
+                      child: authProvider.isLoading
+                          ? Container(
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: colorScheme.outlineVariant,
+                                ),
+                              ),
+                              child: Center(
+                                child: SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : SignInButton(
+                              Buttons.google,
+                              onPressed: _handleGoogleSignIn,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
                     );
                   },
                 ),

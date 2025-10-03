@@ -76,31 +76,65 @@ class FirebaseAuthService {
 
   /// Sign in with Google
   Future<UserCredential?> signInWithGoogle() async {
+    debugPrint('🚀 FirebaseAuthService: Starting Google Sign-In flow');
+    debugPrint('🚀 FirebaseAuthService: Current Firebase user: ${_auth.currentUser?.email ?? 'null'}');
+    debugPrint('🚀 FirebaseAuthService: GoogleSignIn instance initialized: ${_googleSignIn.toString()}');
+    
     try {
       // Trigger the Google Sign-In flow
+      debugPrint('🚀 FirebaseAuthService: Triggering Google Sign-In dialog');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      debugPrint('🚀 FirebaseAuthService: Google Sign-In dialog completed');
 
       if (googleUser == null) {
         // User canceled the sign-in
+        debugPrint('❌ FirebaseAuthService: User cancelled Google Sign-In');
         throw Exception('Google sign-in was cancelled');
       }
 
+      debugPrint('✅ FirebaseAuthService: Google user obtained: ${googleUser.email}');
+      debugPrint('🚀 FirebaseAuthService: Google user display name: ${googleUser.displayName}');
+      debugPrint('🚀 FirebaseAuthService: Google user ID: ${googleUser.id}');
+
       // Obtain the auth details from the request
+      debugPrint('🚀 FirebaseAuthService: Obtaining Google authentication details');
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
+      debugPrint('✅ FirebaseAuthService: Google authentication details obtained');
+      debugPrint('🚀 FirebaseAuthService: Access token available: ${googleAuth.accessToken != null}');
+      debugPrint('🚀 FirebaseAuthService: ID token available: ${googleAuth.idToken != null}');
 
       // Create a new credential
+      debugPrint('🚀 FirebaseAuthService: Creating Firebase credential from Google tokens');
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
+      debugPrint('✅ FirebaseAuthService: Firebase credential created successfully');
 
       // Sign in to Firebase with the Google credential
-      return await _auth.signInWithCredential(credential);
+      debugPrint('🚀 FirebaseAuthService: Signing in to Firebase with Google credential');
+      final userCredential = await _auth.signInWithCredential(credential);
+      debugPrint('✅ FirebaseAuthService: Firebase sign-in completed successfully');
+      debugPrint('🚀 FirebaseAuthService: Firebase user: ${userCredential.user?.email ?? 'null'}');
+      debugPrint('🚀 FirebaseAuthService: Firebase user UID: ${userCredential.user?.uid ?? 'null'}');
+      debugPrint('🚀 FirebaseAuthService: Firebase user display name: ${userCredential.user?.displayName ?? 'null'}');
+      debugPrint('🚀 FirebaseAuthService: Firebase user email verified: ${userCredential.user?.emailVerified ?? false}');
+      
+      return userCredential;
     } on FirebaseAuthException catch (e) {
+      debugPrint('❌ FirebaseAuthService: FirebaseAuthException occurred');
+      debugPrint('❌ FirebaseAuthService: Error code: ${e.code}');
+      debugPrint('❌ FirebaseAuthService: Error message: ${e.message}');
+      debugPrint('❌ FirebaseAuthService: Error details: ${e.toString()}');
       throw _handleAuthException(e);
     } catch (e) {
+      debugPrint('❌ FirebaseAuthService: General exception occurred');
+      debugPrint('❌ FirebaseAuthService: Exception type: ${e.runtimeType}');
+      debugPrint('❌ FirebaseAuthService: Exception message: ${e.toString()}');
+      
       if (e.toString().contains('cancelled')) {
+        debugPrint('❌ FirebaseAuthService: Re-throwing cancellation exception');
         rethrow;
       }
       throw Exception('Failed to sign in with Google: ${e.toString()}');
