@@ -1,3 +1,5 @@
+import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
+import 'package:dishcovery_app/providers/scan_provider.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/navigation/auth_guard.dart';

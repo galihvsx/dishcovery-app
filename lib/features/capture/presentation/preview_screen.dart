@@ -20,7 +20,7 @@ class PreviewScreen extends StatelessWidget {
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: colorScheme.surfaceVariant,
+                color: colorScheme.surfaceContainerHighest,
               ),
               clipBehavior: Clip.hardEdge,
               child: Image.file(
