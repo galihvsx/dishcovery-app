@@ -1,4 +1,3 @@
-import 'package:dishcovery_app/features/onboarding/presentation/app_onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,16 +52,6 @@ class App extends StatelessWidget {
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
-          // return MaterialApp(
-          //   debugShowCheckedModeBanner: false,
-          //   title: 'Dishcovery App',
-          //   themeMode: Provider.of<ThemeProvider>(context).themeMode,
-          //   theme: AppTheme.light,
-          //   darkTheme: AppTheme.dark,
-          //   initialRoute: _initialRoute,
-          //   onGenerateRoute: AppRoutes.generateRoute,
-          // );
-
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Dishcovery App',
@@ -70,8 +59,7 @@ class App extends StatelessWidget {
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             initialRoute: _initialRoute,
-            navigatorKey: navigatorKey,
-            home: AppOnboardingScreen(),
+            onGenerateRoute: AppRoutes.generateRoute,
           );
         },
       ),
