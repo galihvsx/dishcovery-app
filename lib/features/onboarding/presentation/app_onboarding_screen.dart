@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:introduction_screen/introduction_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../utils/routes/app_routes.dart';
-import 'widgets/onboarding_controls.dart';
-import 'widgets/onboarding_page_data.dart';
 
 class AppOnboardingScreen extends StatefulWidget {
   const AppOnboardingScreen({super.key});
@@ -15,8 +12,6 @@ class AppOnboardingScreen extends StatefulWidget {
 }
 
 class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
-  final _introKey = GlobalKey<IntroductionScreenState>();
-
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasSeenOnboarding', true);
@@ -30,18 +25,107 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final size = MediaQuery.of(context).size;
 
-    return IntroductionScreen(
-      key: _introKey,
-      globalBackgroundColor: colorScheme.surface,
-      pages: OnboardingPageData.getPages(context, theme),
-      onDone: _completeOnboarding,
-      onSkip: _completeOnboarding,
-      showSkipButton: true,
-      skip: OnboardingControls.buildSkipButton(colorScheme),
-      next: OnboardingControls.buildNextButton(colorScheme),
-      done: OnboardingControls.buildDoneButton(colorScheme),
-      dotsDecorator: OnboardingControls.buildDotsDecorator(colorScheme),
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Full screen background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/onboarding_1.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          
+          // Gradient overlay that fades to bottom
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.3),
+                    Colors.black.withOpacity(0.7),
+                    Colors.black.withOpacity(0.9),
+                  ],
+                  stops: const [0.0, 0.4, 0.6, 0.8, 1.0],
+                ),
+              ),
+            ),
+          ),
+          
+          // Content overlay
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  const Spacer(flex: 3),
+                  
+                  // Title and description
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Temukan Makanan Indonesia',
+                        style: theme.textTheme.headlineLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 32,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Jelajahi ribuan resep makanan Indonesia dengan teknologi AI yang canggih',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 16,
+                          height: 1.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 48),
+                  
+                  // Get Started Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _completeOnboarding,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        elevation: 8,
+                        shadowColor: colorScheme.primary.withOpacity(0.3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                      ),
+                      child: Text(
+                        'Mulai Sekarang',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
