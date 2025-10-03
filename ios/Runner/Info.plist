@@ -51,5 +51,9 @@
 	<string>Aplikasi membutuhkan akses galeri untuk memilih foto makanan</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Aplikasi membutuhkan akses untuk menyimpan foto hasil edit</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Aplikasi membutuhkan akses lokasi untuk menampilkan rekomendasi berbasis lokasi</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Aplikasi menggunakan lokasi untuk meningkatkan personalisasi konten makanan</string>
 </dict>
 </plist>
