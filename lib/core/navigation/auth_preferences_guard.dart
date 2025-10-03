@@ -71,8 +71,6 @@ class _AuthPreferencesGuardState extends State<AuthPreferencesGuard> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Memuat preferensi...'),
                 ],
               ),
             ),
