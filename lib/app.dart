@@ -1,4 +1,3 @@
-import 'package:dishcovery_app/features/onboarding/presentation/app_onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/user_preferences_service.dart';
 import 'core/theme/theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/scan_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/user_preferences_provider.dart';
 import 'utils/routes/app_routes.dart';
@@ -34,6 +34,7 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider(preferences)),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ScanProvider()),
         ChangeNotifierProxyProvider<AuthProvider, UserPreferencesProvider>(
           create: (context) => UserPreferencesProvider(
             service: UserPreferencesService(),

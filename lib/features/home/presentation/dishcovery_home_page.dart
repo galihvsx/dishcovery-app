@@ -27,6 +27,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {

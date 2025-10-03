@@ -1,3 +1,4 @@
+import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/navigation/auth_guard.dart';
@@ -12,7 +13,6 @@ import '../../features/history/presentation/history_screen.dart';
 import '../../features/home/presentation/dishcovery_home_page.dart';
 import '../../features/onboarding/presentation/app_onboarding_screen.dart';
 import '../../features/preference_onboarding/presentation/preferences_onboarding_screen.dart';
-import '../../features/result/presentation/result_screen.dart';
 import '../../features/settings/presentation/edit_profile_screen.dart';
 import '../../features/settings/presentation/setting_screen.dart';
 import '../../features/user_preference/presentation/user_preferences_screen.dart';

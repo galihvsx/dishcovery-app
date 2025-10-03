@@ -25,12 +25,9 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
       body: Stack(
         children: [
-          // Full screen background image
           Positioned.fill(
             child: Image.asset(
               'assets/images/onboarding_1.png',
@@ -38,7 +35,6 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
             ),
           ),
           
-          // Gradient overlay that fades to bottom
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -48,9 +44,9 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                   colors: [
                     Colors.transparent,
                     Colors.transparent,
-                    Colors.black.withOpacity(0.3),
-                    Colors.black.withOpacity(0.7),
-                    Colors.black.withOpacity(0.9),
+                    Colors.black.withAlpha(77),
+                    Colors.black.withAlpha(179),
+                    Colors.black.withAlpha(230),
                   ],
                   stops: const [0.0, 0.4, 0.6, 0.8, 1.0],
                 ),
@@ -83,7 +79,7 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                       Text(
                         'Jelajahi ribuan resep makanan Indonesia dengan teknologi AI yang canggih',
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withAlpha(230),
                           fontSize: 16,
                           height: 1.5,
                         ),
@@ -104,7 +100,7 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
                         elevation: 8,
-                        shadowColor: colorScheme.primary.withOpacity(0.3),
+                        shadowColor: colorScheme.primary.withAlpha(77),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(28),
                         ),
