@@ -77,22 +77,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    debugPrint('🎯 RegisterScreen: Google Sign-In button pressed');
     final authProvider = context.read<AuthProvider>();
+    debugPrint('🎯 RegisterScreen: AuthProvider obtained, current loading state: ${authProvider.isLoading}');
+    debugPrint('🎯 RegisterScreen: AuthProvider current user: ${authProvider.user?.email ?? 'null'}');
 
     try {
+      debugPrint('🎯 RegisterScreen: Calling authProvider.signInWithGoogle()');
       final success = await authProvider.signInWithGoogle();
+      debugPrint('🎯 RegisterScreen: authProvider.signInWithGoogle() returned: $success');
 
       if (success && mounted) {
+        debugPrint('✅ RegisterScreen: Sign-in successful, navigating to main screen');
         Navigator.of(context).pushReplacementNamed(AppRoutes.main);
+      } else if (!success) {
+        debugPrint('❌ RegisterScreen: Sign-in failed (success = false)');
+      } else if (!mounted) {
+        debugPrint('⚠️ RegisterScreen: Widget not mounted, skipping navigation');
       }
     } catch (e) {
+      debugPrint('❌ RegisterScreen: Exception caught during Google Sign-In');
+      debugPrint('❌ RegisterScreen: Exception type: ${e.runtimeType}');
+      debugPrint('❌ RegisterScreen: Exception message: ${e.toString()}');
+      debugPrint('❌ RegisterScreen: Is cancellation error: ${e.toString().contains('cancelled')}');
+      debugPrint('❌ RegisterScreen: Widget mounted: $mounted');
+      
       if (mounted && !e.toString().contains('cancelled')) {
+        debugPrint('🎯 RegisterScreen: Showing error SnackBar to user');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString()),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
+      } else if (e.toString().contains('cancelled')) {
+        debugPrint('🎯 RegisterScreen: User cancelled sign-in, not showing error message');
       }
     }
   }
@@ -492,16 +511,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   builder: (context, authProvider, child) {
                     return SizedBox(
                       height: 48,
-                      child: SignInButton(
-                        Buttons.google,
-                        onPressed: authProvider.isLoading
-                            ? () {}
-                            : _handleGoogleSignIn,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
+                      child: authProvider.isLoading
+                          ? Container(
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: colorScheme.outlineVariant,
+                                ),
+                              ),
+                              child: Center(
+                                child: SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : SignInButton(
+                              Buttons.google,
+                              onPressed: _handleGoogleSignIn,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
                     );
                   },
                 ),

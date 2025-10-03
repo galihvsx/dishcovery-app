@@ -23,14 +23,38 @@ class UserPreferencesService {
   }
 
   Future<bool> hasCompletedOnboarding({required String uid}) async {
-    final doc = await _collection.doc(uid).get();
-    if (!doc.exists || doc.data() == null) return false;
+    try {
+      final doc = await _collection.doc(uid).get();
+      
+      // If document doesn't exist, create initial document and return false
+      if (!doc.exists || doc.data() == null) {
+        await _createInitialDocument(uid);
+        return false;
+      }
 
-    final data = doc.data()!;
-    // Check if user has completed onboarding by checking if preferences document exists
-    // and has been explicitly set (not just default empty values)
-    return data.containsKey('onboardingCompleted') &&
-        data['onboardingCompleted'] == true;
+      final data = doc.data()!;
+      // Check if user has completed onboarding by checking if preferences document exists
+      // and has been explicitly set (not just default empty values)
+      return data.containsKey('onboardingCompleted') &&
+          data['onboardingCompleted'] == true;
+    } catch (e) {
+      // If there's an error (like permission denied), assume onboarding not completed
+      // This prevents infinite loading and allows the app to continue
+      return false;
+    }
+  }
+
+  /// Creates initial document for new users
+  Future<void> _createInitialDocument(String uid) async {
+    try {
+      await _collection.doc(uid).set({
+        'onboardingCompleted': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      // Silently fail if we can't create the document
+      // This prevents blocking the user flow
+    }
   }
 
   Future<void> markOnboardingCompleted({required String uid}) async {

@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../utils/routes/app_routes.dart';
 import '../../result/presentation/result_screen.dart';
@@ -55,7 +56,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     }
   }
 
-  Future<void> _initializeCamera() async {
+  Future<void> _initializeCamera({int retryCount = 0}) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -70,7 +71,7 @@ class _CaptureScreenState extends State<CaptureScreen>
           _hasPermission = false;
           _isPermanentlyDenied = true;
           _isLoading = false;
-          _errorMessage = 'Izin kamera ditolak secara permanen';
+          _errorMessage = 'Akses kamera telah diblokir.\nSilakan aktifkan izin kamera di pengaturan aplikasi untuk melanjutkan.';
         });
         return;
       }
@@ -83,7 +84,7 @@ class _CaptureScreenState extends State<CaptureScreen>
             _hasPermission = false;
             _isPermanentlyDenied = true;
             _isLoading = false;
-            _errorMessage = 'Izin kamera ditolak secara permanen';
+            _errorMessage = 'Akses kamera telah diblokir.\nSilakan aktifkan izin kamera di pengaturan aplikasi untuk melanjutkan.';
           });
           return;
         }
@@ -92,7 +93,7 @@ class _CaptureScreenState extends State<CaptureScreen>
           setState(() {
             _hasPermission = false;
             _isLoading = false;
-            _errorMessage = 'Izin kamera diperlukan untuk mengambil foto';
+            _errorMessage = 'Dishcovery memerlukan akses kamera untuk memindai makanan Anda.\nSilakan berikan izin untuk melanjutkan.';
           });
           return;
         }
@@ -104,7 +105,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       if (_cameras == null || _cameras!.isEmpty) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Tidak ada kamera tersedia';
+          _errorMessage = 'Kamera tidak tersedia di perangkat ini.\nPastikan kamera berfungsi dengan baik.';
         });
         return;
       }
@@ -123,9 +124,36 @@ class _CaptureScreenState extends State<CaptureScreen>
         _isLoading = false;
       });
     } catch (e) {
+      // Retry logic for camera in use or closing state
+      if (retryCount < 2 && (e.toString().contains('CameraException') ||
+          e.toString().contains('in use') ||
+          e.toString().contains('closing'))) {
+        // Wait a bit for camera to be released
+        await Future.delayed(Duration(milliseconds: 300 + (retryCount * 200)));
+        if (mounted) {
+          return _initializeCamera(retryCount: retryCount + 1);
+        }
+        return;
+      }
+
+      String friendlyMessage;
+
+      // Handle specific platform exceptions
+      if (e.toString().contains('PermissionHandler.PermissionManager')) {
+        if (e.toString().contains('already running')) {
+          friendlyMessage = 'Sedang memproses izin kamera.\nMohon tunggu sebentar dan coba lagi.';
+        } else {
+          friendlyMessage = 'Terjadi masalah dengan izin kamera.\nSilakan coba lagi dalam beberapa saat.';
+        }
+      } else if (e.toString().contains('CameraException')) {
+        friendlyMessage = 'Kamera sedang digunakan aplikasi lain.\nTutup aplikasi kamera lain dan coba lagi.';
+      } else {
+        friendlyMessage = 'Terjadi masalah saat mengakses kamera.\nPastikan kamera berfungsi dengan baik dan coba lagi.';
+      }
+
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Gagal menginisialisasi kamera: ${e.toString()}';
+        _errorMessage = friendlyMessage;
       });
     }
   }
@@ -161,7 +189,7 @@ class _CaptureScreenState extends State<CaptureScreen>
 
   Future<void> _takePicture() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
-      _showSnackBar('Kamera belum siap');
+      _showSnackBar('Kamera belum siap, mohon tunggu sebentar');
       return;
     }
 
@@ -182,10 +210,81 @@ class _CaptureScreenState extends State<CaptureScreen>
         arguments: AppRoutes.createArguments(imagePath: photo.path),
       );
     } catch (e) {
-      _showSnackBar('Gagal mengambil foto: ${e.toString()}');
+      String friendlyMessage;
+      if (e.toString().contains('CameraException')) {
+        friendlyMessage = 'Gagal mengambil foto. Pastikan kamera berfungsi dengan baik dan coba lagi.';
+      } else {
+        friendlyMessage = 'Terjadi masalah saat mengambil foto. Silakan coba lagi.';
+      }
+      _showSnackBar(friendlyMessage);
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    if (_isLoading || !_isInitialized) return;
+
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1920,
+      );
+
+      // Always reset loading state and ensure camera is properly reinitialized if needed
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        // Reinitialize camera if it was disposed during picker lifecycle
+        if (!_isInitialized) {
+          await _initializeCamera();
+        }
+      }
+
+      // If user canceled selection, just return without doing anything
+      if (image == null) {
+        return;
+      }
+
+      if (!mounted) return;
+
+      // Navigate to result screen with selected image
+      Navigator.of(context).pushReplacementNamed(
+        ResultScreen.path,
+        arguments: AppRoutes.createArguments(imagePath: image.path),
+      );
+    } catch (e) {
+      // Ensure loading state is reset and camera is reinitialized if needed
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        // Reinitialize camera if it was disposed during picker lifecycle
+        if (!_isInitialized) {
+          await _initializeCamera();
+        }
+      }
+
+      String friendlyMessage;
+      if (e.toString().contains('photo_access_denied')) {
+        friendlyMessage = 'Akses galeri ditolak. Silakan berikan izin akses galeri di pengaturan aplikasi.';
+      } else if (e.toString().contains('photo_access_restricted')) {
+        friendlyMessage = 'Akses galeri dibatasi. Periksa pengaturan privasi perangkat Anda.';
+      } else {
+        friendlyMessage = 'Terjadi masalah saat memilih gambar dari galeri. Silakan coba lagi.';
+      }
+      _showSnackBar(friendlyMessage);
     }
   }
 
@@ -200,7 +299,7 @@ class _CaptureScreenState extends State<CaptureScreen>
         _isFlashOn = !_isFlashOn;
       });
     } catch (e) {
-      _showSnackBar('Gagal mengubah flash: ${e.toString()}');
+      _showSnackBar('Flash tidak dapat digunakan pada perangkat ini');
     }
   }
 
@@ -365,7 +464,7 @@ class _CaptureScreenState extends State<CaptureScreen>
               ),
             ),
 
-          // Top Controls (Back button and Flash) - ABOVE gradients
+          // Top Controls (Back button) - ABOVE gradients
           if (_isInitialized)
             Positioned(
               top: MediaQuery.of(context).padding.top + 16,
@@ -378,13 +477,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                   _ControlButton(
                     icon: Icons.close,
                     onTap: () => Navigator.of(context).pop(),
-                  ),
-
-                  // Flash Toggle
-                  _ControlButton(
-                    icon: _isFlashOn ? Icons.flash_on : Icons.flash_off,
-                    iconColor: _isFlashOn ? Colors.amber : Colors.white,
-                    onTap: _toggleFlash,
                   ),
                 ],
               ),
@@ -432,52 +524,113 @@ class _CaptureScreenState extends State<CaptureScreen>
               ),
             ),
 
-          // Bottom Controls (Capture Button) - ABOVE gradients
+          // Bottom Controls (Capture Button and Gallery Button) - ABOVE gradients
           if (_isInitialized)
             Positioned(
               bottom: MediaQuery.of(context).padding.bottom + 40,
               left: 0,
               right: 0,
-              child: Center(
-                child: GestureDetector(
-                  onTap: _isLoading ? null : _takePicture,
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: theme.primaryColor, width: 5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.primaryColor.withValues(alpha: 0.4),
-                          blurRadius: 20,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: _isLoading
-                        ? Padding(
-                            padding: const EdgeInsets.all(18),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 4,
-                              color: theme.primaryColor,
-                            ),
-                          )
-                        : Container(
-                            margin: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: theme.primaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 28,
-                            ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Gallery Button
+                  GestureDetector(
+                    onTap: _isLoading ? null : _pickImageFromGallery,
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            spreadRadius: 1,
                           ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.photo_library,
+                        color: Colors.black87,
+                        size: 24,
+                      ),
+                    ),
                   ),
-                ),
+                  
+                  // Capture Button (Main)
+                  GestureDetector(
+                    onTap: _isLoading ? null : _takePicture,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: theme.primaryColor, width: 5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.primaryColor.withValues(alpha: 0.4),
+                            blurRadius: 20,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: _isLoading
+                          ? Padding(
+                              padding: const EdgeInsets.all(18),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 4,
+                                color: theme.primaryColor,
+                              ),
+                            )
+                          : Container(
+                              margin: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: theme.primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                    ),
+                  ),
+                  
+                  // Flash Toggle Button
+                  GestureDetector(
+                    onTap: _isLoading ? null : _toggleFlash,
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: _isFlashOn 
+                            ? theme.primaryColor.withValues(alpha: 0.9)
+                            : Colors.white.withValues(alpha: 0.9),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: _isFlashOn ? theme.primaryColor : Colors.white, 
+                          width: 2
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        _isFlashOn ? Icons.flash_on : Icons.flash_off,
+                        color: _isFlashOn ? Colors.white : Colors.black87,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
         ],

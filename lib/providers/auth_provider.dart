@@ -4,15 +4,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '../core/services/firebase_auth_service.dart';
+import '../core/services/user_service.dart';
 
 /// Provider for managing authentication state and operations
 class AuthProvider extends ChangeNotifier {
-  AuthProvider({FirebaseAuthService? authService})
-    : _authService = authService ?? FirebaseAuthService() {
+  AuthProvider({
+    FirebaseAuthService? authService,
+    UserService? userService,
+  }) : _authService = authService ?? FirebaseAuthService(),
+       _userService = userService ?? UserService() {
     _init();
   }
 
   final FirebaseAuthService _authService;
+  final UserService _userService;
   StreamSubscription<User?>? _authStateSubscription;
 
   // Authentication state
@@ -32,10 +37,30 @@ class AuthProvider extends ChangeNotifier {
   /// Initialize the provider and listen to auth state changes
   void _init() {
     _authStateSubscription = _authService.authStateChanges.listen(
-      (User? user) {
+      (User? user) async {
+        final previousUser = _user;
         _user = user;
         _isInitialized = true;
         _clearError();
+        
+        // If user just signed in (was null, now not null), create user document
+        if (previousUser == null && user != null) {
+          debugPrint('🔐 AuthProvider: User signed in, creating user document');
+          try {
+            await _userService.createUserDocument(
+              uid: user.uid,
+              email: user.email ?? '',
+              displayName: user.displayName,
+              photoURL: user.photoURL,
+              signInMethod: _getSignInMethod(user),
+            );
+            debugPrint('🔐 AuthProvider: User document created successfully');
+          } catch (e) {
+            debugPrint('🔐 AuthProvider: Error creating user document: $e');
+            // Don't set error state as this shouldn't block the user flow
+          }
+        }
+        
         notifyListeners();
       },
       onError: (error) {
@@ -84,8 +109,15 @@ class AuthProvider extends ChangeNotifier {
 
   /// Sign in with Google
   Future<bool> signInWithGoogle() async {
+    debugPrint('🔐 AuthProvider: Starting Google Sign-In process');
+    debugPrint('🔐 AuthProvider: Current loading state: $_isLoading');
+    debugPrint('🔐 AuthProvider: Current user state: ${_user?.email ?? 'null'}');
+    
     return _performAuthOperation(() async {
-      await _authService.signInWithGoogle();
+      debugPrint('🔐 AuthProvider: Calling FirebaseAuthService.signInWithGoogle()');
+      final result = await _authService.signInWithGoogle();
+      debugPrint('🔐 AuthProvider: FirebaseAuthService.signInWithGoogle() completed successfully');
+      debugPrint('🔐 AuthProvider: New user after sign-in: ${_authService.currentUser?.email ?? 'null'}');
       return true;
     });
   }
@@ -163,14 +195,20 @@ class AuthProvider extends ChangeNotifier {
   /// Helper method to perform authentication operations with loading state
   Future<T> _performAuthOperation<T>(Future<T> Function() operation) async {
     try {
+      debugPrint('🔄 AuthProvider: Setting loading state to true');
       _setLoading(true);
       _clearError();
+      debugPrint('🔄 AuthProvider: Starting authentication operation');
       final result = await operation();
+      debugPrint('🔄 AuthProvider: Authentication operation completed successfully');
       return result;
     } catch (e) {
+      debugPrint('❌ AuthProvider: Authentication operation failed with error: ${e.toString()}');
+      debugPrint('❌ AuthProvider: Error type: ${e.runtimeType}');
       _setError(e.toString());
       rethrow;
     } finally {
+      debugPrint('🔄 AuthProvider: Setting loading state to false');
       _setLoading(false);
     }
   }
@@ -193,6 +231,25 @@ class AuthProvider extends ChangeNotifier {
     if (_error != null) {
       _error = null;
       notifyListeners();
+    }
+  }
+
+  /// Get sign-in method from user provider data
+  String _getSignInMethod(User user) {
+    if (user.providerData.isEmpty) return 'unknown';
+    
+    final providerId = user.providerData.first.providerId;
+    switch (providerId) {
+      case 'google.com':
+        return 'google';
+      case 'password':
+        return 'email';
+      case 'facebook.com':
+        return 'facebook';
+      case 'apple.com':
+        return 'apple';
+      default:
+        return providerId;
     }
   }
 

@@ -23,7 +23,7 @@ class CameraErrorWidget extends StatelessWidget {
               const Icon(Icons.error_outline, size: 80, color: Colors.red),
               const SizedBox(height: 24),
               const Text(
-                'Camera Error',
+                'Terjadi Masalah',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -52,7 +52,7 @@ class CameraErrorWidget extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Try Again',
+                  'Coba Lagi',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
