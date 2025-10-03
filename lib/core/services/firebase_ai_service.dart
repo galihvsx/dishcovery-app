@@ -162,6 +162,9 @@ class FirebaseAiService {
           description:
               "Deskripsi singkat dan menarik tentang makanan dalam format Markdown.",
         ),
+        'isFood': Schema.boolean(
+          description: "Apakah ini adalah makanan?",
+        ),
         'history': Schema.string(
           description:
               "Cerita atau sejarah singkat di balik makanan dalam format Markdown.",
