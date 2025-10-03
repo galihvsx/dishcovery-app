@@ -22,7 +22,7 @@ class CameraPermissionWidget extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Camera Permission Required',
+                'Izin Kamera Diperlukan',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -32,7 +32,7 @@ class CameraPermissionWidget extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                'This app needs camera access to take photos. Please grant camera permission to continue.',
+                'Dishcovery memerlukan akses kamera untuk memindai makanan Anda.\nSilakan berikan izin untuk melanjutkan.',
                 style: TextStyle(color: Colors.white70, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -51,7 +51,7 @@ class CameraPermissionWidget extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Grant Permission',
+                  'Berikan Izin Kamera',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
