@@ -6,10 +6,27 @@ import 'package:google_sign_in/google_sign_in.dart';
 class FirebaseAuthService {
   static final FirebaseAuthService _instance = FirebaseAuthService._internal();
   factory FirebaseAuthService() => _instance;
-  FirebaseAuthService._internal();
+  FirebaseAuthService._internal() {
+    _initializeGoogleSignIn();
+  }
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  bool _googleSignInInitialized = false;
+
+  /// Initialize Google Sign-In (required for v7)
+  Future<void> _initializeGoogleSignIn() async {
+    if (_googleSignInInitialized) return;
+
+    try {
+      debugPrint('🚀 FirebaseAuthService: Initializing Google Sign-In');
+      await _googleSignIn.initialize();
+      _googleSignInInitialized = true;
+      debugPrint('✅ FirebaseAuthService: Google Sign-In initialized successfully');
+    } catch (e) {
+      debugPrint('❌ FirebaseAuthService: Failed to initialize Google Sign-In: $e');
+    }
+  }
 
   /// Get current user
   User? get currentUser => _auth.currentUser;
@@ -78,37 +95,52 @@ class FirebaseAuthService {
   Future<UserCredential?> signInWithGoogle() async {
     debugPrint('🚀 FirebaseAuthService: Starting Google Sign-In flow');
     debugPrint('🚀 FirebaseAuthService: Current Firebase user: ${_auth.currentUser?.email ?? 'null'}');
-    debugPrint('🚀 FirebaseAuthService: GoogleSignIn instance initialized: ${_googleSignIn.toString()}');
-    
-    try {
-      // Trigger the Google Sign-In flow
-      debugPrint('🚀 FirebaseAuthService: Triggering Google Sign-In dialog');
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      debugPrint('🚀 FirebaseAuthService: Google Sign-In dialog completed');
 
-      if (googleUser == null) {
-        // User canceled the sign-in
-        debugPrint('❌ FirebaseAuthService: User cancelled Google Sign-In');
-        throw Exception('Google sign-in was cancelled');
+    try {
+      // Ensure Google Sign-In is initialized
+      if (!_googleSignInInitialized) {
+        await _initializeGoogleSignIn();
       }
+
+      // Check if authenticate is supported on this platform
+      if (!_googleSignIn.supportsAuthenticate()) {
+        debugPrint('❌ FirebaseAuthService: Platform does not support authenticate method');
+        throw Exception('Google Sign-In is not supported on this platform');
+      }
+
+      // Trigger the Google Sign-In flow using the new authenticate method
+      // This replaces the old signIn() method
+      debugPrint('🚀 FirebaseAuthService: Triggering Google Sign-In authentication');
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+      debugPrint('🚀 FirebaseAuthService: Google Sign-In authentication completed');
 
       debugPrint('✅ FirebaseAuthService: Google user obtained: ${googleUser.email}');
       debugPrint('🚀 FirebaseAuthService: Google user display name: ${googleUser.displayName}');
       debugPrint('🚀 FirebaseAuthService: Google user ID: ${googleUser.id}');
 
-      // Obtain the auth details from the request
-      debugPrint('🚀 FirebaseAuthService: Obtaining Google authentication details');
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      debugPrint('✅ FirebaseAuthService: Google authentication details obtained');
-      debugPrint('🚀 FirebaseAuthService: Access token available: ${googleAuth.accessToken != null}');
-      debugPrint('🚀 FirebaseAuthService: ID token available: ${googleAuth.idToken != null}');
+      // In google_sign_in v7, we need to get the authentication tokens differently
+      // The authentication property returns tokens directly
+      debugPrint('🚀 FirebaseAuthService: Obtaining authentication tokens');
 
-      // Create a new credential
+      // Get the authentication object
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      debugPrint('✅ FirebaseAuthService: Google authentication object obtained');
+
+      // In v7, tokens are accessed directly from the authentication object
+      final String? idToken = googleAuth.idToken;
+
+      debugPrint('🚀 FirebaseAuthService: ID token available: ${idToken != null}');
+
+      if (idToken == null) {
+        debugPrint('❌ FirebaseAuthService: No ID token received');
+        throw Exception('Failed to get ID token from Google Sign-In');
+      }
+
+      // Create a new credential using the ID token
+      // For Firebase, we only need the ID token
       debugPrint('🚀 FirebaseAuthService: Creating Firebase credential from Google tokens');
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        idToken: idToken,
       );
       debugPrint('✅ FirebaseAuthService: Firebase credential created successfully');
 
@@ -120,8 +152,18 @@ class FirebaseAuthService {
       debugPrint('🚀 FirebaseAuthService: Firebase user UID: ${userCredential.user?.uid ?? 'null'}');
       debugPrint('🚀 FirebaseAuthService: Firebase user display name: ${userCredential.user?.displayName ?? 'null'}');
       debugPrint('🚀 FirebaseAuthService: Firebase user email verified: ${userCredential.user?.emailVerified ?? false}');
-      
+
       return userCredential;
+    } on GoogleSignInException catch (e) {
+      debugPrint('❌ FirebaseAuthService: GoogleSignInException occurred');
+      debugPrint('❌ FirebaseAuthService: Error code: ${e.code}');
+      debugPrint('❌ FirebaseAuthService: Error details: ${e.toString()}');
+
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        debugPrint('❌ FirebaseAuthService: User cancelled sign-in');
+        throw Exception('Google sign-in was cancelled');
+      }
+      throw Exception('Google Sign-In failed: ${e.toString()}');
     } on FirebaseAuthException catch (e) {
       debugPrint('❌ FirebaseAuthService: FirebaseAuthException occurred');
       debugPrint('❌ FirebaseAuthService: Error code: ${e.code}');
@@ -132,7 +174,7 @@ class FirebaseAuthService {
       debugPrint('❌ FirebaseAuthService: General exception occurred');
       debugPrint('❌ FirebaseAuthService: Exception type: ${e.runtimeType}');
       debugPrint('❌ FirebaseAuthService: Exception message: ${e.toString()}');
-      
+
       if (e.toString().contains('cancelled')) {
         debugPrint('❌ FirebaseAuthService: Re-throwing cancellation exception');
         rethrow;

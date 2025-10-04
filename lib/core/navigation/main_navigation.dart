@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconify_design/iconify_design.dart';
 
 import '../../features/capture/presentation/capture_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
@@ -24,7 +25,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<BottomNavigationBarItem> _bottomNavItems = [
     const BottomNavigationBarItem(
-      icon: Icon(Icons.home_outlined),
+      icon: IconifyIcon(icon: 'solar:home-angle-linear'),
       activeIcon: Icon(Icons.home),
       label: 'Home',
     ),
@@ -87,8 +88,8 @@ class _MainNavigationState extends State<MainNavigation> {
           context,
         ).bottomNavigationBarTheme.backgroundColor,
         elevation: 8,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
       ),
     );
   }
