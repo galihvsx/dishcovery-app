@@ -61,6 +61,8 @@ dependencies:
     flutter_markdown: ^0.7.7+1
     shimmer: ^3.0.0
     iconify_design: ^1.0.1
+    chucker_flutter: ^1.8.5
+    flutter_dotenv: ^6.0.0
 
 dev_dependencies:
     flutter_test:
@@ -80,6 +82,7 @@ dev_dependencies:
 flutter:
     assets:
         - assets/images/
+        - .env
     # The following line ensures that the Material Icons font is
     # included with your application, so that you can use the icons in
     # the material Icons class.

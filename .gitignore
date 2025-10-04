@@ -5,6 +5,7 @@
 *.swp
 .DS_Store
 .docs
+.env
 .atom/
 .build/
 .buildlog/
