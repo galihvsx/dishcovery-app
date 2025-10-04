@@ -112,9 +112,10 @@ class AuthProvider extends ChangeNotifier {
     debugPrint('🔐 AuthProvider: Starting Google Sign-In process');
     debugPrint('🔐 AuthProvider: Current loading state: $_isLoading');
     debugPrint('🔐 AuthProvider: Current user state: ${_user?.email ?? 'null'}');
-    
+
     return _performAuthOperation(() async {
       debugPrint('🔐 AuthProvider: Calling FirebaseAuthService.signInWithGoogle()');
+      await _authService.signInWithGoogle();
       debugPrint('🔐 AuthProvider: FirebaseAuthService.signInWithGoogle() completed successfully');
       debugPrint('🔐 AuthProvider: New user after sign-in: ${_authService.currentUser?.email ?? 'null'}');
       return true;
