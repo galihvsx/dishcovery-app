@@ -1,7 +1,7 @@
 import 'package:dishcovery_app/core/extensions/route_service_extension.dart';
 import 'package:dishcovery_app/features/capture/presentation/capture_screen.dart';
 import 'package:dishcovery_app/features/history/presentation/history_screen.dart';
-import 'package:dishcovery_app/features/home/presentation/home_screen_ui_example.dart';
+import 'package:dishcovery_app/features/home/presentation/dishcovery_home_page.dart';
 import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -119,7 +119,7 @@ Route<T> createAuthenticatedRoute<T extends Object?>(
 
 bool isAuthenticationRequired(String routeName) {
   const authenticatedRoutes = {
-    HomeScreen.path,
+    DishcoveryHomePage.path,
     CaptureScreen.path,
     HistoryScreen.path,
     SettingScreen.path,
@@ -130,5 +130,5 @@ bool isAuthenticationRequired(String routeName) {
 }
 
 String getInitialRoute(bool isAuthenticated) {
-  return isAuthenticated ? HomeScreen.path : LoginScreen.path;
+  return isAuthenticated ? DishcoveryHomePage.path : LoginScreen.path;
 }
