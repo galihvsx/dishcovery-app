@@ -34,7 +34,10 @@ class _ResultScreenState extends State<ResultScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ScanProvider>().processImage(widget.imagePath);
+      context.read<ScanProvider>().processImage(
+        widget.imagePath,
+        context: context,
+      );
     });
   }
 

@@ -27,6 +27,7 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
   bool _isLoading = false;
   String? _errorMessage;
   Position? _userLocation;
+  bool _isGenericSearch = false;
 
   @override
   void initState() {
@@ -69,6 +70,7 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
       if (mounted) {
         setState(() {
           _restaurants = response.places;
+          _isGenericSearch = response.isGenericSearch;
           _isLoading = false;
         });
       }
@@ -112,7 +114,7 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Nearby Restaurants',
+                    _isGenericSearch ? 'Indonesian Restaurants' : 'Nearby Restaurants',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onSurface,
@@ -120,7 +122,9 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Serving ${widget.foodName}',
+                    _isGenericSearch
+                        ? 'May serve ${widget.foodName}'
+                        : 'Serving ${widget.foodName}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -276,14 +280,18 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No restaurants found nearby',
+              _isGenericSearch
+                  ? 'No Indonesian restaurants found nearby'
+                  : 'No restaurants found nearby',
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Try searching with a different location or broader search',
+              _isGenericSearch
+                  ? 'Indonesian cuisine may be limited in your area'
+                  : 'Try searching with a different location or broader search',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),

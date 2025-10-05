@@ -53,84 +53,144 @@ class PlacesApiService {
         radius = 5000;
       }
 
-      // Build the search query
-      // Format: "restaurants serving [food] near me" or just "[food] restaurant"
-      String searchQuery = 'restaurants serving $foodName';
+      // Detect if we're in Indonesia based on location
+      bool isIndonesia = false;
+      String regionCode = 'US'; // Default to US
+      String languageCode = 'en'; // Default to English
 
-      // Build request body
-      final Map<String, dynamic> requestBody = {
-        'textQuery': searchQuery,
-        'maxResultCount': maxResults,
-        'languageCode': 'id', // Indonesian language preference
-        'regionCode': 'ID', // Indonesia region
-      };
-
-      // Add location bias if available
       if (location != null) {
-        requestBody['locationBias'] = {
-          'circle': {
-            'center': {
-              'latitude': location.latitude,
-              'longitude': location.longitude,
-            },
-            'radius': radius,
-          },
+        // Check if location is roughly in Indonesia
+        // Indonesia roughly spans:
+        // Latitude: -11 to 6
+        // Longitude: 95 to 141
+        if (location.latitude >= -11 && location.latitude <= 6 &&
+            location.longitude >= 95 && location.longitude <= 141) {
+          isIndonesia = true;
+          regionCode = 'ID';
+          languageCode = 'id';
+        }
+      }
+
+      // Build search queries with fallback strategy
+      List<String> searchQueries = [];
+
+      if (isIndonesia) {
+        // In Indonesia, search specifically for the food
+        searchQueries.add('restaurants serving $foodName');
+        searchQueries.add('$foodName restaurant');
+        searchQueries.add('warung $foodName'); // Local term
+      } else {
+        // Outside Indonesia, search more broadly
+        searchQueries.add('Indonesian restaurant'); // Generic Indonesian restaurants
+        searchQueries.add('Asian restaurant'); // Broader category
+        searchQueries.add('$foodName restaurant'); // Still try specific food
+      }
+
+      // Try each search query until we get results
+      PlacesSearchResponse? finalResponse;
+
+      for (int i = 0; i < searchQueries.length; i++) {
+        final searchQuery = searchQueries[i];
+
+        // Build request body
+        final Map<String, dynamic> requestBody = {
+          'textQuery': searchQuery,
+          'maxResultCount': maxResults,
+          'languageCode': languageCode,
+          'regionCode': regionCode,
         };
+
+        // Add location bias if available
+        if (location != null) {
+          requestBody['locationBias'] = {
+            'circle': {
+              'center': {
+                'latitude': location.latitude,
+                'longitude': location.longitude,
+              },
+              'radius': radius,
+            },
+          };
+        }
+
+        // Add filters
+        if (includeOnlyOpenNow) {
+          requestBody['openNow'] = true;
+        }
+
+        if (minRating != null && minRating >= 0 && minRating <= 5) {
+          // Round to nearest 0.5
+          requestBody['minRating'] = (minRating * 2).round() / 2;
+        }
+
+        if (priceLevels != null && priceLevels.isNotEmpty) {
+          requestBody['priceLevels'] = priceLevels
+              .where((level) => level >= 1 && level <= 4)
+              .map((level) => 'PRICE_LEVEL_${'I' * level}')
+              .toList();
+        }
+
+        // Rank by distance if location is provided, otherwise by relevance
+        requestBody['rankPreference'] = location != null ? 'DISTANCE' : 'RELEVANCE';
+
+        // Include restaurant type filter
+        requestBody['includedType'] = 'restaurant';
+        requestBody['strictTypeFiltering'] = false; // Allow other food places too
+
+        // Log request for debugging
+        if (kDebugMode) {
+          print('🔍 Places API Request (Attempt ${i + 1}/${searchQueries.length}):');
+          print('   Query: $searchQuery');
+          print('   Location: ${location?.latitude}, ${location?.longitude}');
+          print('   Radius: $radius meters');
+          print('   Max Results: $maxResults');
+          print('   Region: $regionCode');
+        }
+
+        // Make the API request
+        final response = await _httpService.post(
+          _baseUrl,
+          data: requestBody,
+          options: Options(
+            headers: {
+              'X-Goog-Api-Key': dotenv.env['GOOGLE_PLACES_API_KEY'],
+              'X-Goog-FieldMask': _getFieldMask(),
+            },
+          ),
+        );
+
+        // Parse response
+        final searchResponse = PlacesSearchResponse.fromJson(response.data);
+
+        if (kDebugMode) {
+          print('✅ Places API Response: Found ${searchResponse.places.length} places');
+        }
+
+        // If we found results, use them
+        if (searchResponse.places.isNotEmpty) {
+          // Determine if this is a generic search
+          bool isGeneric = !isIndonesia && (i > 0 || !searchQuery.contains(foodName));
+
+          finalResponse = PlacesSearchResponse(
+            places: searchResponse.places,
+            nextPageToken: searchResponse.nextPageToken,
+            searchQuery: searchQuery,
+            isGenericSearch: isGeneric,
+          );
+          break;
+        }
+
+        // If this was the last query and no results, return empty response
+        if (i == searchQueries.length - 1) {
+          finalResponse = PlacesSearchResponse(
+            places: [],
+            searchQuery: searchQuery,
+            isGenericSearch: !isIndonesia,
+          );
+        }
       }
 
-      // Add filters
-      if (includeOnlyOpenNow) {
-        requestBody['openNow'] = true;
-      }
-
-      if (minRating != null && minRating >= 0 && minRating <= 5) {
-        // Round to nearest 0.5
-        requestBody['minRating'] = (minRating * 2).round() / 2;
-      }
-
-      if (priceLevels != null && priceLevels.isNotEmpty) {
-        requestBody['priceLevels'] = priceLevels
-            .where((level) => level >= 1 && level <= 4)
-            .map((level) => 'PRICE_LEVEL_${'I' * level}')
-            .toList();
-      }
-
-      // Rank by distance if location is provided, otherwise by relevance
-      requestBody['rankPreference'] = location != null ? 'DISTANCE' : 'RELEVANCE';
-
-      // Include restaurant type filter
-      requestBody['includedType'] = 'restaurant';
-      requestBody['strictTypeFiltering'] = false; // Allow other food places too
-
-      // Log request for debugging
-      if (kDebugMode) {
-        print('🔍 Places API Request:');
-        print('   Query: $searchQuery');
-        print('   Location: ${location?.latitude}, ${location?.longitude}');
-        print('   Radius: $radius meters');
-        print('   Max Results: $maxResults');
-      }
-
-      // Make the API request
-      final response = await _httpService.post(
-        _baseUrl,
-        data: requestBody,
-        options: Options(
-          headers: {
-            'X-Goog-Api-Key': dotenv.env['GOOGLE_PLACES_API_KEY'],
-            'X-Goog-FieldMask': _getFieldMask(),
-          },
-        ),
-      );
-
-      // Parse response
-      final searchResponse = PlacesSearchResponse.fromJson(response.data);
-
-      if (kDebugMode) {
-        print('✅ Places API Response: Found ${searchResponse.places.length} places');
-      }
-
-      return searchResponse;
+      return finalResponse ?? PlacesSearchResponse(places: [], isGenericSearch: !isIndonesia);
     } on DioException catch (e) {
       if (kDebugMode) {
         print('❌ Places API Error: ${e.message}');

@@ -563,10 +563,14 @@ class SubDestination {
 class PlacesSearchResponse {
   final List<PlaceModel> places;
   final String? nextPageToken;
+  final String? searchQuery; // Track what query was successful
+  final bool isGenericSearch;
 
   PlacesSearchResponse({
     required this.places,
     this.nextPageToken,
+    this.searchQuery,
+    this.isGenericSearch = false,
   });
 
   factory PlacesSearchResponse.fromJson(Map<String, dynamic> json) {

@@ -16,12 +16,12 @@ class ScanProvider extends ChangeNotifier {
   ScanResult? _result;
   String? _error;
   String _loadingMessage = "Memproses gambar...";
+  BuildContext? _lastContext;
 
   bool get loading => _loading;
   ScanResult? get result => _result;
   String? get error => _error;
   String get loadingMessage => _loadingMessage;
-  final navigatorKey = GlobalKey<NavigatorState>();
 
   /// Optimize image before sending to API
   Future<Uint8List> _optimizeImage(String imagePath) async {
@@ -54,10 +54,11 @@ class ScanProvider extends ChangeNotifier {
     return Uint8List.fromList(optimized);
   }
 
-  Future<void> processImage(String imagePath) async {
+  Future<void> processImage(String imagePath, {BuildContext? context}) async {
     _loading = true;
     _error = null;
     _loadingMessage = "Memproses gambar...";
+    _lastContext = context;
     notifyListeners();
 
     try {
@@ -83,7 +84,17 @@ Jika makanan, berikan informasi singkat dan padat:
 """,
       );
 
-      final parsed = ScanResult.fromJson(res).copyWith(imagePath: imagePath);
+      // Safe parsing with error handling
+      final ScanResult parsed;
+      try {
+        parsed = ScanResult.fromJson(res).copyWith(imagePath: imagePath);
+        debugPrint("Parsed result: ${parsed.name}");
+        debugPrint("History: ${parsed.history}");
+      } catch (parseError) {
+        debugPrint("Error parsing result: $parseError");
+        throw Exception("Failed to parse API response: $parseError");
+      }
+
       _result = parsed;
 
       // Save to database
@@ -102,13 +113,22 @@ Jika makanan, berikan informasi singkat dan padat:
         }
       }
 
-      final historyProvider = Provider.of<HistoryProvider>(
-        navigatorKey.currentContext!,
-        listen: false,
-      );
-      await historyProvider.loadHistory();
-    } catch (e) {
-      _error = e.toString();
+      // Update history if context is available
+      if (_lastContext != null && _lastContext!.mounted) {
+        try {
+          final historyProvider = Provider.of<HistoryProvider>(
+            _lastContext!,
+            listen: false,
+          );
+          await historyProvider.loadHistory();
+        } catch (e) {
+          debugPrint("Could not update history provider: $e");
+        }
+      }
+    } catch (e, stackTrace) {
+      debugPrint("Error processing image: ${e.toString()}");
+      debugPrint("Stack trace: $stackTrace");
+      _error = "Gagal memproses gambar: ${e.toString()}";
     }
 
     _loading = false;
@@ -116,10 +136,11 @@ Jika makanan, berikan informasi singkat dan padat:
   }
 
   /// Alternative: Process image with streaming (experimental)
-  Future<void> processImageWithStream(String imagePath) async {
+  Future<void> processImageWithStream(String imagePath, {BuildContext? context}) async {
     _loading = true;
     _error = null;
     _loadingMessage = "Memproses gambar...";
+    _lastContext = context;
     notifyListeners();
 
     try {
@@ -148,7 +169,9 @@ Jika makanan, berikan informasi singkat dan padat:
       bool firstUpdate = true;
       await for (final res in stream) {
         try {
-          final parsed = ScanResult.fromJson(res).copyWith(imagePath: imagePath);
+          final parsed = ScanResult.fromJson(
+            res,
+          ).copyWith(imagePath: imagePath);
           _result = parsed;
 
           if (firstUpdate) {
@@ -159,7 +182,8 @@ Jika makanan, berikan informasi singkat dan padat:
           // Update loading message based on what we have
           if (parsed.name.isNotEmpty && parsed.description.isEmpty) {
             _loadingMessage = "Memuat detail makanan...";
-          } else if (parsed.description.isNotEmpty && parsed.recipe.ingredients.isEmpty) {
+          } else if (parsed.description.isNotEmpty &&
+              parsed.recipe.ingredients.isEmpty) {
             _loadingMessage = "Memuat resep...";
           }
 
@@ -187,19 +211,27 @@ Jika makanan, berikan informasi singkat dan padat:
         }
       }
 
-      final historyProvider = Provider.of<HistoryProvider>(
-        navigatorKey.currentContext!,
-        listen: false,
-      );
-      await historyProvider.loadHistory();
-    } catch (e) {
-      _error = e.toString();
+      // Update history if context is available
+      if (_lastContext != null && _lastContext!.mounted) {
+        try {
+          final historyProvider = Provider.of<HistoryProvider>(
+            _lastContext!,
+            listen: false,
+          );
+          await historyProvider.loadHistory();
+        } catch (e) {
+          debugPrint("Could not update history provider: $e");
+        }
+      }
+    } catch (e, stackTrace) {
+      debugPrint("Error processing image with stream: ${e.toString()}");
+      debugPrint("Stack trace: $stackTrace");
+      _error = "Gagal memproses gambar: ${e.toString()}";
     }
 
     _loading = false;
     notifyListeners();
   }
-
 
   void clear() {
     _result = null;
