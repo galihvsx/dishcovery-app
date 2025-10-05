@@ -10,11 +10,6 @@ import 'package:dishcovery_app/providers/scan_provider.dart';
 import 'package:dishcovery_app/providers/theme_provider.dart';
 import 'package:dishcovery_app/providers/user_preferences_provider.dart';
 import 'package:dishcovery_app/utils/routes/app_routes.dart';
-<<<<<<< HEAD
-=======
-
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
->>>>>>> feat/sqlite-history
 
 class App extends StatelessWidget {
   final SharedPreferences preferences;
@@ -66,7 +61,6 @@ class App extends StatelessWidget {
             themeMode: Provider.of<ThemeProvider>(context).themeMode,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
-            navigatorKey: navigatorKey,
             initialRoute: _initialRoute,
             onGenerateRoute: AppRoutes.generateRoute,
           );
