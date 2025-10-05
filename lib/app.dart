@@ -62,6 +62,7 @@ class App extends StatelessWidget {
             darkTheme: AppTheme.dark,
             initialRoute: _initialRoute,
             onGenerateRoute: AppRoutes.generateRoute,
+            navigatorObservers: [],
           );
         },
       ),
