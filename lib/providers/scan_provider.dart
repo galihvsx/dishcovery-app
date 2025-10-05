@@ -67,6 +67,68 @@ class ScanProvider extends ChangeNotifier {
       _loadingMessage = "Mengidentifikasi makanan...";
       notifyListeners();
 
+      // Use non-streaming version for stability
+      final res = await _aiService.imageToDishcovery(
+        imageBytes: optimizedBytes,
+        prompt: """
+Identifikasi makanan Indonesia dalam gambar ini.
+Jika bukan makanan, set name="bukan makanan" dan isFood=false.
+Jika makanan, berikan informasi singkat dan padat:
+- Fokus pada informasi penting saja
+- Deskripsi maksimal 2 paragraf
+- History maksimal 1 paragraf
+- Recipe dengan bahan dan langkah utama saja
+- Tags maksimal 5
+- Related foods maksimal 3
+""",
+      );
+
+      final parsed = ScanResult.fromJson(res).copyWith(imagePath: imagePath);
+      _result = parsed;
+
+      // Save to database
+      if (parsed.name.toLowerCase() != "bukan makanan") {
+        _loadingMessage = "Menyimpan hasil...";
+        notifyListeners();
+
+        final existing = await _dbHelper.getAllHistory();
+        final alreadyExists = existing.any(
+          (item) =>
+              item.name == parsed.name && item.imagePath == parsed.imagePath,
+        );
+
+        if (!alreadyExists) {
+          await _dbHelper.insertScanResult(parsed);
+        }
+      }
+
+      final historyProvider = Provider.of<HistoryProvider>(
+        navigatorKey.currentContext!,
+        listen: false,
+      );
+      await historyProvider.loadHistory();
+    } catch (e) {
+      _error = e.toString();
+    }
+
+    _loading = false;
+    notifyListeners();
+  }
+
+  /// Alternative: Process image with streaming (experimental)
+  Future<void> processImageWithStream(String imagePath) async {
+    _loading = true;
+    _error = null;
+    _loadingMessage = "Memproses gambar...";
+    notifyListeners();
+
+    try {
+      // Optimize image first
+      final optimizedBytes = await _optimizeImage(imagePath);
+
+      _loadingMessage = "Mengidentifikasi makanan...";
+      notifyListeners();
+
       // Use streaming for progressive response
       final stream = _aiService.imageToDishcoveryStream(
         imageBytes: optimizedBytes,
@@ -109,18 +171,19 @@ Jika makanan, berikan informasi singkat dan padat:
       }
 
       // Save to database after stream completes
-      if (_result != null && _result!.name.toLowerCase() != "bukan makanan") {
+      final result = _result;
+      if (result != null && result.name.toLowerCase() != "bukan makanan") {
         _loadingMessage = "Menyimpan hasil...";
         notifyListeners();
 
         final existing = await _dbHelper.getAllHistory();
         final alreadyExists = existing.any(
           (item) =>
-              item.name == _result!.name && item.imagePath == _result!.imagePath,
+              item.name == result.name && item.imagePath == result.imagePath,
         );
 
         if (!alreadyExists) {
-          await _dbHelper.insertScanResult(_result!);
+          await _dbHelper.insertScanResult(result);
         }
       }
 
@@ -137,66 +200,6 @@ Jika makanan, berikan informasi singkat dan padat:
     notifyListeners();
   }
 
-  /// Alternative: Process image without streaming (fallback)
-  Future<void> processImageNoStream(String imagePath) async {
-    _loading = true;
-    _error = null;
-    _loadingMessage = "Memproses gambar...";
-    notifyListeners();
-
-    try {
-      // Optimize image first
-      final optimizedBytes = await _optimizeImage(imagePath);
-
-      _loadingMessage = "Mengidentifikasi makanan...";
-      notifyListeners();
-
-      // Use simpler prompt for faster response
-      final res = await _aiService.imageToDishcovery(
-        imageBytes: optimizedBytes,
-        prompt: """
-Identifikasi makanan Indonesia dalam gambar ini.
-Jika bukan makanan, set name="bukan makanan" dan isFood=false.
-Jika makanan, berikan informasi singkat dan padat:
-- Fokus pada informasi penting saja
-- Deskripsi maksimal 2 paragraf
-- History maksimal 1 paragraf
-- Recipe dengan bahan dan langkah utama saja
-- Tags maksimal 5
-- Related foods maksimal 3
-""",
-      );
-
-      final parsed = ScanResult.fromJson(res).copyWith(imagePath: imagePath);
-      _result = parsed;
-
-      if (parsed.name.toLowerCase() != "bukan makanan") {
-        _loadingMessage = "Menyimpan hasil...";
-        notifyListeners();
-
-        final existing = await _dbHelper.getAllHistory();
-        final alreadyExists = existing.any(
-          (item) =>
-              item.name == parsed.name && item.imagePath == parsed.imagePath,
-        );
-
-        if (!alreadyExists) {
-          await _dbHelper.insertScanResult(parsed);
-        }
-      }
-
-      final historyProvider = Provider.of<HistoryProvider>(
-        navigatorKey.currentContext!,
-        listen: false,
-      );
-      await historyProvider.loadHistory();
-    } catch (e) {
-      _error = e.toString();
-    }
-
-    _loading = false;
-    notifyListeners();
-  }
 
   void clear() {
     _result = null;
