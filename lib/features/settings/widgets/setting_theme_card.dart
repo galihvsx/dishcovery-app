@@ -24,10 +24,36 @@ class SettingThemeCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Theme Mode',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Theme Mode',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            Consumer<ThemeProvider>(
+                              builder: (context, themeProvider, child) {
+                                if (themeProvider.themeMode ==
+                                    ThemeMode.system) {
+                                  final isDark = themeProvider.isDarkMode(
+                                    context,
+                                  );
+                                  return Text(
+                                    'Currently: ${isDark ? 'Dark' : 'Light'} (System)',
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
+                          ],
                         ),
                       ),
                       Consumer<ThemeProvider>(
@@ -36,9 +62,12 @@ class SettingThemeCard extends StatelessWidget {
                             final isDark = themeProvider.isDarkMode(context);
                             return Text(
                               'Currently: ${isDark ? 'Dark' : 'Light'} (System)',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
                             );
                           }
                           return const SizedBox.shrink();
@@ -85,7 +114,17 @@ class SettingThemeCard extends StatelessWidget {
                               Icon(Icons.light_mode, size: 20),
                               const SizedBox(width: 8),
                               const Text('Light'),
-                              if (themeProvider.themeMode == ThemeMode.light) ...[
+                              if (themeProvider.themeMode ==
+                                  ThemeMode.light) ...[
+                                const Spacer(),
+                                Icon(
+                                  Icons.check,
+                                  size: 18,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ],
+                              if (themeProvider.themeMode ==
+                                  ThemeMode.light) ...[
                                 const Spacer(),
                                 Icon(
                                   Icons.check,
@@ -103,7 +142,17 @@ class SettingThemeCard extends StatelessWidget {
                               Icon(Icons.dark_mode, size: 20),
                               const SizedBox(width: 8),
                               const Text('Dark'),
-                              if (themeProvider.themeMode == ThemeMode.dark) ...[
+                              if (themeProvider.themeMode ==
+                                  ThemeMode.dark) ...[
+                                const Spacer(),
+                                Icon(
+                                  Icons.check,
+                                  size: 18,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ],
+                              if (themeProvider.themeMode ==
+                                  ThemeMode.dark) ...[
                                 const Spacer(),
                                 Icon(
                                   Icons.check,
@@ -121,7 +170,17 @@ class SettingThemeCard extends StatelessWidget {
                               Icon(Icons.auto_mode, size: 20),
                               const SizedBox(width: 8),
                               const Text('System'),
-                              if (themeProvider.themeMode == ThemeMode.system) ...[
+                              if (themeProvider.themeMode ==
+                                  ThemeMode.system) ...[
+                                const Spacer(),
+                                Icon(
+                                  Icons.check,
+                                  size: 18,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ],
+                              if (themeProvider.themeMode ==
+                                  ThemeMode.system) ...[
                                 const Spacer(),
                                 Icon(
                                   Icons.check,

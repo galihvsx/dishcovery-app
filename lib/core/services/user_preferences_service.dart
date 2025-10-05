@@ -25,7 +25,7 @@ class UserPreferencesService {
   Future<bool> hasCompletedOnboarding({required String uid}) async {
     try {
       final doc = await _collection.doc(uid).get();
-      
+
       // If document doesn't exist, create initial document and return false
       if (!doc.exists || doc.data() == null) {
         await _createInitialDocument(uid);

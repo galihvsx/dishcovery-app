@@ -5,10 +5,12 @@ import 'dart:typed_data';
 import 'package:firebase_ai/firebase_ai.dart';
 
 class FirebaseAiService {
-  FirebaseAiService({GenerativeModel? model})
+  FirebaseAiService({GenerativeModel? model, String? modelName})
     : _model =
           model ??
-          FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
+          FirebaseAI.googleAI().generativeModel(
+            model: modelName ?? 'gemini-1.5-flash', // Use faster model by default
+          );
 
   final GenerativeModel _model;
 
@@ -162,9 +164,7 @@ class FirebaseAiService {
           description:
               "Deskripsi singkat dan menarik tentang makanan dalam format Markdown.",
         ),
-        'isFood': Schema.boolean(
-          description: "Apakah ini adalah makanan?",
-        ),
+        'isFood': Schema.boolean(description: "Apakah ini adalah makanan?"),
         'history': Schema.string(
           description:
               "Cerita atau sejarah singkat di balik makanan dalam format Markdown.",

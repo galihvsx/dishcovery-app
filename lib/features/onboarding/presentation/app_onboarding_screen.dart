@@ -34,7 +34,7 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          
+
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -53,7 +53,7 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
               ),
             ),
           ),
-          
+
           // Content overlay
           SafeArea(
             child: Padding(
@@ -61,7 +61,7 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
               child: Column(
                 children: [
                   const Spacer(flex: 3),
-                  
+
                   // Title and description
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,9 +87,9 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // Get Started Button
                   SizedBox(
                     width: double.infinity,
@@ -114,7 +114,7 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
                 ],
               ),
