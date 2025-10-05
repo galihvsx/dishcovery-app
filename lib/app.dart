@@ -64,7 +64,6 @@ class App extends StatelessWidget {
             initialRoute: _initialRoute,
             onGenerateRoute: AppRoutes.generateRoute,
             navigatorObservers: [],
-            navigatorObservers: [ChuckerFlutter.navigatorObserver],
           );
         },
       ),
