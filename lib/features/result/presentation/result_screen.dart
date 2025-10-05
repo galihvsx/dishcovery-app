@@ -2,7 +2,7 @@ import 'package:dishcovery_app/providers/scan_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:dishcovery_app/features/result/presentation/widgets/related_foods_widget.dart';
+import 'package:dishcovery_app/features/result/widgets/nearby_restaurants_section.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/result_actions_widget.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/result_image_widget.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/result_info_widget.dart';
@@ -90,10 +90,12 @@ class _ResultScreenState extends State<ResultScreen> {
                   const SizedBox(height: 12),
                   const ResultActionsWidget(),
                   const SizedBox(height: 20),
-                  if (scanProvider.result!.relatedFoods.isNotEmpty)
-                    RelatedFoodsWidget(
-                      related: scanProvider.result!.relatedFoods,
-                    ),
+                  // Show nearby restaurants that sell this food
+                  NearbyRestaurantsSection(
+                    foodName: scanProvider.result!.name,
+                    autoLoad: true,
+                  ),
+                  const SizedBox(height: 20),
                   if (widget.fromHistory)
                     const Padding(
                       padding: EdgeInsets.only(top: 12.0),
