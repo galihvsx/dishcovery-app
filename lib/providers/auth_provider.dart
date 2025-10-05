@@ -3,16 +3,14 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-import '../core/services/firebase_auth_service.dart';
-import '../core/services/user_service.dart';
+import 'package:dishcovery_app/core/services/firebase_auth_service.dart';
+import 'package:dishcovery_app/core/services/user_service.dart';
 
 /// Provider for managing authentication state and operations
 class AuthProvider extends ChangeNotifier {
-  AuthProvider({
-    FirebaseAuthService? authService,
-    UserService? userService,
-  }) : _authService = authService ?? FirebaseAuthService(),
-       _userService = userService ?? UserService() {
+  AuthProvider({FirebaseAuthService? authService, UserService? userService})
+    : _authService = authService ?? FirebaseAuthService(),
+      _userService = userService ?? UserService() {
     _init();
   }
 
@@ -42,7 +40,7 @@ class AuthProvider extends ChangeNotifier {
         _user = user;
         _isInitialized = true;
         _clearError();
-        
+
         // If user just signed in (was null, now not null), create user document
         if (previousUser == null && user != null) {
           debugPrint('🔐 AuthProvider: User signed in, creating user document');
@@ -60,7 +58,7 @@ class AuthProvider extends ChangeNotifier {
             // Don't set error state as this shouldn't block the user flow
           }
         }
-        
+
         notifyListeners();
       },
       onError: (error) {
@@ -111,12 +109,21 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> signInWithGoogle() async {
     debugPrint('🔐 AuthProvider: Starting Google Sign-In process');
     debugPrint('🔐 AuthProvider: Current loading state: $_isLoading');
-    debugPrint('🔐 AuthProvider: Current user state: ${_user?.email ?? 'null'}');
-    
+    debugPrint(
+      '🔐 AuthProvider: Current user state: ${_user?.email ?? 'null'}',
+    );
+
     return _performAuthOperation(() async {
-      debugPrint('🔐 AuthProvider: Calling FirebaseAuthService.signInWithGoogle()');
-      debugPrint('🔐 AuthProvider: FirebaseAuthService.signInWithGoogle() completed successfully');
-      debugPrint('🔐 AuthProvider: New user after sign-in: ${_authService.currentUser?.email ?? 'null'}');
+      debugPrint(
+        '🔐 AuthProvider: Calling FirebaseAuthService.signInWithGoogle()',
+      );
+      await _authService.signInWithGoogle();
+      debugPrint(
+        '🔐 AuthProvider: FirebaseAuthService.signInWithGoogle() completed successfully',
+      );
+      debugPrint(
+        '🔐 AuthProvider: New user after sign-in: ${_authService.currentUser?.email ?? 'null'}',
+      );
       return true;
     });
   }
@@ -199,10 +206,14 @@ class AuthProvider extends ChangeNotifier {
       _clearError();
       debugPrint('🔄 AuthProvider: Starting authentication operation');
       final result = await operation();
-      debugPrint('🔄 AuthProvider: Authentication operation completed successfully');
+      debugPrint(
+        '🔄 AuthProvider: Authentication operation completed successfully',
+      );
       return result;
     } catch (e) {
-      debugPrint('❌ AuthProvider: Authentication operation failed with error: ${e.toString()}');
+      debugPrint(
+        '❌ AuthProvider: Authentication operation failed with error: ${e.toString()}',
+      );
       debugPrint('❌ AuthProvider: Error type: ${e.runtimeType}');
       _setError(e.toString());
       rethrow;
@@ -236,7 +247,7 @@ class AuthProvider extends ChangeNotifier {
   /// Get sign-in method from user provider data
   String _getSignInMethod(User user) {
     if (user.providerData.isEmpty) return 'unknown';
-    
+
     final providerId = user.providerData.first.providerId;
     switch (providerId) {
       case 'google.com':

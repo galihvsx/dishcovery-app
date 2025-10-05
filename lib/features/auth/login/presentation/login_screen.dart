@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 
-import '../../../../core/widgets/app_logo.dart';
-import '../../../../providers/auth_provider.dart';
-import '../../../../utils/routes/app_routes.dart';
+import 'package:dishcovery_app/core/widgets/app_logo.dart';
+import 'package:dishcovery_app/providers/auth_provider.dart';
+import 'package:dishcovery_app/utils/routes/app_routes.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String path = '/login';
@@ -57,16 +57,24 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleGoogleSignIn() async {
     debugPrint('🎯 LoginScreen: Google Sign-In button pressed');
     final authProvider = context.read<AuthProvider>();
-    debugPrint('🎯 LoginScreen: AuthProvider obtained, current loading state: ${authProvider.isLoading}');
-    debugPrint('🎯 LoginScreen: AuthProvider current user: ${authProvider.user?.email ?? 'null'}');
+    debugPrint(
+      '🎯 LoginScreen: AuthProvider obtained, current loading state: ${authProvider.isLoading}',
+    );
+    debugPrint(
+      '🎯 LoginScreen: AuthProvider current user: ${authProvider.user?.email ?? 'null'}',
+    );
 
     try {
       debugPrint('🎯 LoginScreen: Calling authProvider.signInWithGoogle()');
       final success = await authProvider.signInWithGoogle();
-      debugPrint('🎯 LoginScreen: authProvider.signInWithGoogle() returned: $success');
+      debugPrint(
+        '🎯 LoginScreen: authProvider.signInWithGoogle() returned: $success',
+      );
 
       if (success && mounted) {
-        debugPrint('✅ LoginScreen: Sign-in successful, navigating to main screen');
+        debugPrint(
+          '✅ LoginScreen: Sign-in successful, navigating to main screen',
+        );
         Navigator.of(context).pushReplacementNamed(AppRoutes.main);
       } else if (!success) {
         debugPrint('❌ LoginScreen: Sign-in failed (success = false)');
@@ -77,9 +85,11 @@ class _LoginScreenState extends State<LoginScreen> {
       debugPrint('❌ LoginScreen: Exception caught during Google Sign-In');
       debugPrint('❌ LoginScreen: Exception type: ${e.runtimeType}');
       debugPrint('❌ LoginScreen: Exception message: ${e.toString()}');
-      debugPrint('❌ LoginScreen: Is cancellation error: ${e.toString().contains('cancelled')}');
+      debugPrint(
+        '❌ LoginScreen: Is cancellation error: ${e.toString().contains('cancelled')}',
+      );
       debugPrint('❌ LoginScreen: Widget mounted: $mounted');
-      
+
       if (mounted && !e.toString().contains('cancelled')) {
         debugPrint('🎯 LoginScreen: Showing error SnackBar to user');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,7 +99,9 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else if (e.toString().contains('cancelled')) {
-        debugPrint('🎯 LoginScreen: User cancelled sign-in, not showing error message');
+        debugPrint(
+          '🎯 LoginScreen: User cancelled sign-in, not showing error message',
+        );
       }
     }
   }

@@ -1,13 +1,13 @@
+import 'package:dishcovery_app/features/result/presentation/widgets/not_food_widget.dart';
+import 'package:dishcovery_app/features/result/presentation/widgets/related_foods_widget.dart';
+import 'package:dishcovery_app/features/result/presentation/widgets/result_actions_widget.dart';
+import 'package:dishcovery_app/features/result/presentation/widgets/result_image_widget.dart';
+import 'package:dishcovery_app/features/result/presentation/widgets/result_info_widget.dart';
+import 'package:dishcovery_app/features/result/presentation/widgets/result_tags_widget.dart';
 import 'package:dishcovery_app/providers/scan_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'widgets/related_foods_widget.dart';
-import 'widgets/result_actions_widget.dart';
-import 'widgets/result_image_widget.dart';
-import 'widgets/result_info_widget.dart';
-import 'widgets/result_skeleton_loader.dart';
-import 'widgets/result_tags_widget.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class ResultScreen extends StatefulWidget {
   final String imagePath;
@@ -52,6 +52,8 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     final scanProvider = context.watch<ScanProvider>();
+    final isLoading = scanProvider.loading;
+    final result = scanProvider.result;
 
     return Scaffold(
       appBar: AppBar(
@@ -64,51 +66,65 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
         ],
       ),
-      body: scanProvider.loading
-          ? const ResultSkeletonLoader()
-          : scanProvider.error != null
-          ? Center(child: Text("Error: ${scanProvider.error}"))
-          : scanProvider.result == null
-          ? const Center(child: Text("No result"))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ResultImageWidget(imagePath: widget.imagePath),
-                  const SizedBox(height: 16),
-                  ResultInfoWidget(
-                    name: scanProvider.result!.name,
-                    origin: scanProvider.result!.origin,
-                    description: scanProvider.result!.description,
-                    history: scanProvider.result!.history,
-                    recipe: scanProvider.result!.recipe,
-                  ),
-                  const SizedBox(height: 12),
-                  if (scanProvider.result!.tags.isNotEmpty)
-                    ResultTagsWidget(tags: scanProvider.result!.tags),
-                  const SizedBox(height: 12),
-                  const ResultActionsWidget(),
-                  const SizedBox(height: 20),
-                  if (scanProvider.result!.relatedFoods.isNotEmpty)
-                    RelatedFoodsWidget(
-                      related: scanProvider.result!.relatedFoods,
-                    ),
-                  if (widget.fromHistory)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 12.0),
-                      child: Text(
-                        "Dibuka dari History",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontStyle: FontStyle.italic,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ResultImageWidget(imagePath: widget.imagePath),
+              const SizedBox(height: 16),
+
+              Skeletonizer(
+                enabled: isLoading,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (scanProvider.error != null)
+                      Center(child: Text("Error: ${scanProvider.error}"))
+                    else if (result == null && !isLoading)
+                      const Center(child: Text("Tidak ada hasil"))
+                    else if (result != null) ...[
+                      if (result.isFood == false) ...[
+                        const NotFoodWidget(),
+                      ] else ...[
+                        ResultInfoWidget(
+                          name: result.name,
+                          origin: result.origin,
+                          description: result.description,
+                          history: result.history,
+                          recipe: result.recipe,
                         ),
-                      ),
-                    ),
-                ],
+                        const SizedBox(height: 12),
+                        if (result.tags.isNotEmpty)
+                          ResultTagsWidget(tags: result.tags),
+                        const SizedBox(height: 12),
+                        const ResultActionsWidget(),
+                        const SizedBox(height: 20),
+                        if (result.relatedFoods.isNotEmpty)
+                          RelatedFoodsWidget(related: result.relatedFoods),
+                      ],
+                    ],
+                  ],
+                ),
               ),
-            ),
+
+              if (widget.fromHistory)
+                const Padding(
+                  padding: EdgeInsets.only(top: 12.0),
+                  child: Text(
+                    "Dibuka dari History",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
