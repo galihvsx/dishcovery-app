@@ -7,11 +7,7 @@ class RestaurantCard extends StatelessWidget {
   final PlaceModel place;
   final VoidCallback? onTap;
 
-  const RestaurantCard({
-    super.key,
-    required this.place,
-    this.onTap,
-  });
+  const RestaurantCard({super.key, required this.place, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +29,6 @@ class RestaurantCard extends StatelessWidget {
             color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             width: 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +59,7 @@ class RestaurantCard extends StatelessWidget {
                     if (place.rating != null || place.priceLevel != null)
                       _buildRatingAndPrice(theme, colorScheme),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
 
                     // Address
                     Expanded(
@@ -79,8 +68,8 @@ class RestaurantCard extends StatelessWidget {
                         children: [
                           Text(
                             place.formattedAddress ??
-                            place.shortFormattedAddress ??
-                            'Address not available',
+                                place.shortFormattedAddress ??
+                                'Address not available',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -153,23 +142,18 @@ class RestaurantCard extends StatelessWidget {
           // Placeholder for actual image
           Container(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Colors.grey.shade300,
-                  Colors.grey.shade400,
-                ],
+                colors: [Colors.grey.shade300, Colors.grey.shade400],
               ),
             ),
           ),
           const Center(
-            child: Icon(
-              Icons.restaurant,
-              size: 40,
-              color: Colors.white70,
-            ),
+            child: Icon(Icons.restaurant, size: 40, color: Colors.white70),
           ),
         ],
       ),
@@ -190,11 +174,7 @@ class RestaurantCard extends StatelessWidget {
     return Row(
       children: [
         if (place.rating != null) ...[
-          Icon(
-            Icons.star,
-            size: 16,
-            color: Colors.amber.shade600,
-          ),
+          Icon(Icons.star, size: 16, color: Colors.amber.shade600),
           const SizedBox(width: 4),
           Text(
             place.rating!.toStringAsFixed(1),
@@ -227,7 +207,11 @@ class RestaurantCard extends StatelessWidget {
     );
   }
 
-  Widget _buildNavigateButton(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildNavigateButton(
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -236,9 +220,7 @@ class RestaurantCard extends StatelessWidget {
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         icon: const Icon(Icons.directions, size: 18),
         label: Text(
@@ -302,8 +284,12 @@ class RestaurantCard extends StatelessWidget {
       final name = Uri.encodeComponent(place.displayName?.text ?? 'Restaurant');
 
       // Try Google Maps URL scheme
-      final googleMapsUrl = Uri.parse('google.navigation:q=$lat,$lng&title=$name');
-      final googleMapsWebUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+      final googleMapsUrl = Uri.parse(
+        'google.navigation:q=$lat,$lng&title=$name',
+      );
+      final googleMapsWebUrl = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+      );
 
       if (await canLaunchUrl(googleMapsUrl)) {
         await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);

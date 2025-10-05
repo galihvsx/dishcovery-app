@@ -17,7 +17,8 @@ class NearbyRestaurantsSection extends StatefulWidget {
   });
 
   @override
-  State<NearbyRestaurantsSection> createState() => _NearbyRestaurantsSectionState();
+  State<NearbyRestaurantsSection> createState() =>
+      _NearbyRestaurantsSectionState();
 }
 
 class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
@@ -112,7 +113,7 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                 children: [
                   Text(
                     'Nearby Restaurants',
-                    style: theme.textTheme.titleLarge?.copyWith(
+                    style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onSurface,
                     ),
@@ -120,6 +121,8 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                   const SizedBox(height: 4),
                   Text(
                     'Serving ${widget.foodName}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -127,10 +130,9 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                 ],
               ),
               if (!_isLoading && _restaurants != null)
-                TextButton.icon(
+                IconButton(
                   onPressed: _loadNearbyRestaurants,
                   icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text('Refresh'),
                   style: TextButton.styleFrom(
                     foregroundColor: colorScheme.primary,
                   ),
@@ -139,8 +141,6 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
           ),
         ),
         const SizedBox(height: 16),
-
-        // Content
         if (_isLoading)
           _buildLoadingState()
         else if (_errorMessage != null)
@@ -174,7 +174,9 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                     height: 120,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
                     ),
                   ),
                   Padding(
@@ -182,23 +184,11 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          height: 16,
-                          width: 150,
-                          color: Colors.white,
-                        ),
+                        Container(height: 16, width: 150, color: Colors.white),
                         const SizedBox(height: 8),
-                        Container(
-                          height: 12,
-                          width: 200,
-                          color: Colors.white,
-                        ),
+                        Container(height: 12, width: 200, color: Colors.white),
                         const SizedBox(height: 4),
-                        Container(
-                          height: 12,
-                          width: 180,
-                          color: Colors.white,
-                        ),
+                        Container(height: 12, width: 180, color: Colors.white),
                       ],
                     ),
                   ),
@@ -222,19 +212,13 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
       decoration: BoxDecoration(
         color: colorScheme.errorContainer.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colorScheme.error.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.2)),
       ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 48, color: colorScheme.error),
             const SizedBox(height: 16),
             Text(
               _errorMessage!,
@@ -335,7 +319,11 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
     );
   }
 
-  void _showRestaurantDetails(BuildContext context, PlaceModel restaurant, String? distance) {
+  void _showRestaurantDetails(
+    BuildContext context,
+    PlaceModel restaurant,
+    String? distance,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
