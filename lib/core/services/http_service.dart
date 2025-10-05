@@ -1,4 +1,3 @@
-import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -36,11 +35,6 @@ class HttpService {
   }
 
   void _addInterceptors() {
-    // Add Chucker interceptor for debugging (only in debug mode)
-    if (kDebugMode) {
-      _dio.interceptors.add(ChuckerDioInterceptor());
-    }
-
     // Add logging interceptor
     if (kDebugMode) {
       _dio.interceptors.add(

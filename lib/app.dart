@@ -1,4 +1,3 @@
-import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -63,7 +62,6 @@ class App extends StatelessWidget {
             darkTheme: AppTheme.dark,
             initialRoute: _initialRoute,
             onGenerateRoute: AppRoutes.generateRoute,
-            navigatorObservers: [],
           );
         },
       ),
