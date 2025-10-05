@@ -75,8 +75,9 @@ class _ResultScreenState extends State<ResultScreen> {
               ResultImageWidget(imagePath: widget.imagePath),
               const SizedBox(height: 16),
 
-              if (isLoading) ...[
-                // Show custom loading UI instead of skeletonizer
+              // Show content progressively as it loads
+              if (isLoading && result == null) ...[
+                // Initial loading state
                 Container(
                   padding: const EdgeInsets.all(32),
                   child: Column(
@@ -130,26 +131,104 @@ class _ResultScreenState extends State<ResultScreen> {
                       if (result.isFood == false) ...[
                         const NotFoodWidget(),
                       ] else ...[
-                        ResultInfoWidget(
-                          name: result.name,
-                          origin: result.origin,
-                          description: result.description,
-                          history: result.history,
-                          recipe: result.recipe,
-                        ),
-                        const SizedBox(height: 12),
-                        if (result.tags.isNotEmpty)
-                          ResultTagsWidget(tags: result.tags),
-                        const SizedBox(height: 12),
-                        const ResultActionsWidget(),
-                        const SizedBox(height: 20),
-                        if (result.relatedFoods.isNotEmpty)
-                          RelatedFoodsWidget(related: result.relatedFoods),
-                        const SizedBox(height: 20),
-                        // Show nearby restaurants that sell this food
-                        NearbyRestaurantsSection(
-                          foodName: result.name,
-                          autoLoad: true,
+                        // Show data progressively with loading indicators for missing parts
+                        Stack(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ResultInfoWidget(
+                                  name: result.name.isNotEmpty
+                                      ? result.name
+                                      : "Memuat nama...",
+                                  origin: result.origin.isNotEmpty
+                                      ? result.origin
+                                      : (result.name.isNotEmpty ? "Memuat asal..." : ""),
+                                  description: result.description.isNotEmpty
+                                      ? result.description
+                                      : (result.name.isNotEmpty ? "Memuat deskripsi..." : ""),
+                                  history: result.history.isNotEmpty
+                                      ? result.history
+                                      : (result.description.isNotEmpty ? "Memuat sejarah..." : ""),
+                                  recipe: result.recipe,
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Show loading indicator for tags if name exists but tags are empty
+                                if (result.tags.isNotEmpty)
+                                  ResultTagsWidget(tags: result.tags)
+                                else if (result.name.isNotEmpty && scanProvider.loading)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: LinearProgressIndicator(),
+                                  ),
+
+                                const SizedBox(height: 12),
+                                const ResultActionsWidget(),
+                                const SizedBox(height: 20),
+
+                                // Show related foods or loading indicator
+                                if (result.relatedFoods.isNotEmpty)
+                                  RelatedFoodsWidget(related: result.relatedFoods)
+                                else if (result.description.isNotEmpty && scanProvider.loading)
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Column(
+                                      children: [
+                                        Text("Memuat makanan serupa..."),
+                                        SizedBox(height: 8),
+                                        LinearProgressIndicator(),
+                                      ],
+                                    ),
+                                  ),
+
+                                const SizedBox(height: 20),
+                                // Show nearby restaurants that sell this food
+                                NearbyRestaurantsSection(
+                                  foodName: result.name,
+                                  autoLoad: true,
+                                ),
+                              ],
+                            ),
+
+                            // Subtle loading overlay if still loading partial data
+                            if (scanProvider.loading && result.name.isNotEmpty)
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor.withAlpha(26), // 0.1 * 255 ≈ 26
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        width: 12,
+                                        height: 12,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            Theme.of(context).primaryColor,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Text(
+                                        "Memuat...",
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ],
                     ],

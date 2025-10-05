@@ -9,7 +9,7 @@ class FirebaseAiService {
     : _model =
           model ??
           FirebaseAI.googleAI().generativeModel(
-            model: modelName ?? 'gemini-1.5-flash', // Use faster model by default
+            model: modelName ?? 'gemini-2.5-flash', // Keep using 2.5-flash
           );
 
   final GenerativeModel _model;
@@ -116,6 +116,56 @@ class FirebaseAiService {
       throw FirebaseAIException('Non-object JSON returned');
     }
     return decoded;
+  }
+
+  /// Convert image to Dishcovery with streaming response
+  Stream<Map<String, dynamic>> imageToDishcoveryStream({
+    required Uint8List imageBytes,
+    String prompt = '',
+  }) async* {
+    final parts = <Part>[];
+    if (prompt.trim().isNotEmpty) {
+      parts.add(TextPart(prompt));
+    }
+    parts.add(InlineDataPart('image/jpeg', imageBytes));
+
+    final stream = _model.generateContentStream(
+      [Content.multi(parts)],
+      generationConfig: GenerationConfig(
+        responseMimeType: 'application/json',
+        responseSchema: _dishcoverySchema(),
+      ),
+    );
+
+    String accumulatedText = '';
+
+    await for (final response in stream) {
+      if (response.text != null && response.text!.isNotEmpty) {
+        accumulatedText += response.text!;
+
+        // Try to parse accumulated JSON
+        try {
+          final decoded = json.decode(accumulatedText);
+          if (decoded is Map<String, dynamic>) {
+            yield decoded;
+          }
+        } catch (e) {
+          // JSON not complete yet, continue accumulating
+        }
+      }
+    }
+
+    // Final parse if we haven't yielded anything yet
+    if (accumulatedText.isNotEmpty) {
+      try {
+        final decoded = json.decode(accumulatedText);
+        if (decoded is Map<String, dynamic>) {
+          yield decoded;
+        }
+      } catch (e) {
+        throw FirebaseAIException('Failed to parse final JSON: $e');
+      }
+    }
   }
 
   /// Read image from file path into bytes
