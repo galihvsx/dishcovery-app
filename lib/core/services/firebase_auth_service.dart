@@ -2,22 +2,53 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-/// Service class for handling Firebase Authentication operations
+/// A service class that handles Firebase authentication operations.
+/// A service class that handles Firebase authentication operations.
 class FirebaseAuthService {
   static final FirebaseAuthService _instance = FirebaseAuthService._internal();
+
+  /// Factory constructor that returns the singleton instance.
   factory FirebaseAuthService() => _instance;
-  FirebaseAuthService._internal();
+
+  FirebaseAuthService._internal() {
+    _initializeGoogleSignIn();
+  }
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  bool _googleSignInInitialized = false;
 
-  /// Get current user
+  static const String _serverClientId =
+      '222073084834-ocgjatr2d87br6osblqvildtnr04m3b1.apps.googleusercontent.com';
+
+  /// Initializes the Google Sign-In service.
+  ///
+  /// This method is called automatically when the service is instantiated.
+  Future<void> _initializeGoogleSignIn() async {
+    if (_googleSignInInitialized) return;
+
+    try {
+      debugPrint('🚀 FirebaseAuthService: Initializing Google Sign-In');
+
+      await _googleSignIn.initialize(serverClientId: _serverClientId);
+      _googleSignInInitialized = true;
+      debugPrint(
+        '✅ FirebaseAuthService: Google Sign-In initialized successfully',
+      );
+    } catch (e) {
+      debugPrint(
+        '❌ FirebaseAuthService: Failed to initialize Google Sign-In: $e',
+      );
+    }
+  }
+
+  /// Returns the currently signed-in user.
   User? get currentUser => _auth.currentUser;
 
-  /// Get authentication state stream
+  /// Returns a stream of authentication state changes.
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  /// Check if user is authenticated
+  /// Returns whether a user is currently authenticated.
   bool get isAuthenticated => currentUser != null;
 
   /// Sign in with email and password
@@ -50,7 +81,6 @@ class FirebaseAuthService {
         password: password,
       );
 
-      // Update display name if provided
       if (displayName != null && displayName.isNotEmpty) {
         await credential.user?.updateDisplayName(displayName);
       }
@@ -76,67 +106,31 @@ class FirebaseAuthService {
 
   /// Sign in with Google
   Future<UserCredential?> signInWithGoogle() async {
-    debugPrint('🚀 FirebaseAuthService: Starting Google Sign-In flow');
-    debugPrint('🚀 FirebaseAuthService: Current Firebase user: ${_auth.currentUser?.email ?? 'null'}');
-    debugPrint('🚀 FirebaseAuthService: GoogleSignIn instance initialized: ${_googleSignIn.toString()}');
-    
     try {
-      // Trigger the Google Sign-In flow
-      debugPrint('🚀 FirebaseAuthService: Triggering Google Sign-In dialog');
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      debugPrint('🚀 FirebaseAuthService: Google Sign-In dialog completed');
+      if (!_googleSignInInitialized) await _initializeGoogleSignIn();
+      if (!_googleSignIn.supportsAuthenticate()) {
+        throw Exception('Google Sign-In is not supported on this platform');
+      }
 
-      if (googleUser == null) {
-        // User canceled the sign-in
-        debugPrint('❌ FirebaseAuthService: User cancelled Google Sign-In');
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        throw Exception('Failed to get ID token from Google Sign-In');
+      }
+
+      final credential = GoogleAuthProvider.credential(idToken: idToken);
+      return await _auth.signInWithCredential(credential);
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
         throw Exception('Google sign-in was cancelled');
       }
-
-      debugPrint('✅ FirebaseAuthService: Google user obtained: ${googleUser.email}');
-      debugPrint('🚀 FirebaseAuthService: Google user display name: ${googleUser.displayName}');
-      debugPrint('🚀 FirebaseAuthService: Google user ID: ${googleUser.id}');
-
-      // Obtain the auth details from the request
-      debugPrint('🚀 FirebaseAuthService: Obtaining Google authentication details');
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      debugPrint('✅ FirebaseAuthService: Google authentication details obtained');
-      debugPrint('🚀 FirebaseAuthService: Access token available: ${googleAuth.accessToken != null}');
-      debugPrint('🚀 FirebaseAuthService: ID token available: ${googleAuth.idToken != null}');
-
-      // Create a new credential
-      debugPrint('🚀 FirebaseAuthService: Creating Firebase credential from Google tokens');
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      debugPrint('✅ FirebaseAuthService: Firebase credential created successfully');
-
-      // Sign in to Firebase with the Google credential
-      debugPrint('🚀 FirebaseAuthService: Signing in to Firebase with Google credential');
-      final userCredential = await _auth.signInWithCredential(credential);
-      debugPrint('✅ FirebaseAuthService: Firebase sign-in completed successfully');
-      debugPrint('🚀 FirebaseAuthService: Firebase user: ${userCredential.user?.email ?? 'null'}');
-      debugPrint('🚀 FirebaseAuthService: Firebase user UID: ${userCredential.user?.uid ?? 'null'}');
-      debugPrint('🚀 FirebaseAuthService: Firebase user display name: ${userCredential.user?.displayName ?? 'null'}');
-      debugPrint('🚀 FirebaseAuthService: Firebase user email verified: ${userCredential.user?.emailVerified ?? false}');
-      
-      return userCredential;
+      throw Exception('Google Sign-In failed: ${e.toString()}');
     } on FirebaseAuthException catch (e) {
-      debugPrint('❌ FirebaseAuthService: FirebaseAuthException occurred');
-      debugPrint('❌ FirebaseAuthService: Error code: ${e.code}');
-      debugPrint('❌ FirebaseAuthService: Error message: ${e.message}');
-      debugPrint('❌ FirebaseAuthService: Error details: ${e.toString()}');
       throw _handleAuthException(e);
     } catch (e) {
-      debugPrint('❌ FirebaseAuthService: General exception occurred');
-      debugPrint('❌ FirebaseAuthService: Exception type: ${e.runtimeType}');
-      debugPrint('❌ FirebaseAuthService: Exception message: ${e.toString()}');
-      
-      if (e.toString().contains('cancelled')) {
-        debugPrint('❌ FirebaseAuthService: Re-throwing cancellation exception');
-        rethrow;
-      }
+      if (e.toString().contains('cancelled')) rethrow;
       throw Exception('Failed to sign in with Google: ${e.toString()}');
     }
   }
