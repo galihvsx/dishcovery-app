@@ -10,4 +10,8 @@ class Recipe {
       steps: List<String>.from(json['steps'] ?? []),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {'ingredients': ingredients, 'steps': steps};
+  }
 }

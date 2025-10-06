@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dishcovery_app/core/widgets/custom_app_bar.dart';
@@ -145,13 +146,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       },
                     ),
                     onTap: () {
-                      Navigator.pushNamed(
+                      Navigator.push(
                         context,
-                        '/result',
-                        arguments: {
-                          'imagePath': item.imagePath,
-                          'fromHistory': true,
-                        },
+                        MaterialPageRoute(
+                          builder: (context) => ResultScreen(initialData: item),
+                        ),
                       );
                     },
                   ),
