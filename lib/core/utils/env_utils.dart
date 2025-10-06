@@ -10,8 +10,15 @@ class EnvUtils {
   /// 
   /// Returns the environment variable value or the default value
   static String? getEnv(String key, [String? defaultValue]) {
-    // First try to get from dotenv (which could be loaded from .env file or system env)
-    String? value = dotenv.env[key];
+    String? value;
+    
+    try {
+      // First try to get from dotenv (which could be loaded from .env file or system env)
+      value = dotenv.env[key];
+    } catch (e) {
+      // If dotenv is not initialized yet, just continue to system environment
+      value = null;
+    }
     
     // If not found in dotenv, try system environment directly
     value ??= Platform.environment[key];
