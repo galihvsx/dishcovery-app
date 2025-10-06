@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,16 +18,19 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
-  String _selectedLanguage = 'Bahasa Indonesia';
+  String get _currentLanguage {
+    final currentLocale = context.locale.languageCode;
+    return currentLocale == 'id' ? 'Bahasa Indonesia' : 'English';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: const Text(
-          'Settings',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          'settings'.tr(),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
@@ -36,7 +40,7 @@ class _SettingScreenState extends State<SettingScreen> {
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications coming soon')),
+                SnackBar(content: Text('notifications_coming_soon'.tr())),
               );
             },
           ),
@@ -50,33 +54,33 @@ class _SettingScreenState extends State<SettingScreen> {
             const SettingsProfileHeader(),
 
             // Account Section
-            const SettingsSectionHeader(title: 'Account'),
+            SettingsSectionHeader(title: 'account'.tr()),
             SettingsMenuItem(
               icon: Icons.person_outline,
-              title: 'Personal Information',
-              subtitle: 'Manage your account details',
+              title: 'personal_information'.tr(),
+              subtitle: 'manage_account_details'.tr(),
               onTap: () {
                 Navigator.pushNamed(context, '/edit-profile');
               },
             ),
             SettingsMenuItem(
               icon: Icons.restaurant_menu,
-              title: 'Food Preferences',
-              subtitle: 'Set your taste and allergies',
+              title: 'food_preferences'.tr(),
+              subtitle: 'set_taste_allergies'.tr(),
               onTap: () {
                 Navigator.pushNamed(context, '/preferences');
               },
             ),
 
             // Appearance Section
-            const SettingsSectionHeader(title: 'Appearance'),
+            SettingsSectionHeader(title: 'appearance'.tr()),
             Consumer<ThemeProvider>(
               builder: (context, themeProvider, child) {
                 final isDark = themeProvider.themeMode == ThemeMode.dark;
                 return SettingsMenuItem(
                   icon: Icons.palette_outlined,
-                  title: 'Theme Mode',
-                  subtitle: isDark ? 'Dark' : 'Light',
+                  title: 'theme'.tr(),
+                  subtitle: isDark ? 'dark'.tr() : 'light'.tr(),
                   trailing: Switch(
                     value: isDark,
                     onChanged: (value) {
@@ -96,58 +100,56 @@ class _SettingScreenState extends State<SettingScreen> {
             ),
             SettingsMenuItem(
               icon: Icons.language_outlined,
-              title: 'Language',
-              subtitle: _selectedLanguage,
+              title: 'language'.tr(),
+              subtitle: _currentLanguage,
               onTap: () {
                 _showLanguageDialog();
               },
             ),
 
             // General Section
-            const SettingsSectionHeader(title: 'General'),
+            SettingsSectionHeader(title: 'general'.tr()),
             SettingsMenuItem(
               icon: Icons.notifications_outlined,
-              title: 'Notifications',
-              subtitle: 'Manage notification settings',
+              title: 'notifications'.tr(),
+              subtitle: 'manage_notification_settings'.tr(),
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Notifications settings coming soon'),
+                  SnackBar(
+                    content: Text('notifications_settings_coming_soon'.tr()),
                   ),
                 );
               },
             ),
             SettingsMenuItem(
               icon: Icons.security_outlined,
-              title: 'Security',
-              subtitle: 'Privacy and security settings',
+              title: 'security'.tr(),
+              subtitle: 'privacy_security_settings'.tr(),
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Security settings coming soon'),
-                  ),
+                  SnackBar(content: Text('security_settings_coming_soon'.tr())),
                 );
               },
             ),
             SettingsMenuItem(
               icon: Icons.help_outline,
-              title: 'Help Center',
-              subtitle: 'Get help and support',
+              title: 'help_center'.tr(),
+              subtitle: 'get_help_support'.tr(),
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Help center coming soon')),
+                  SnackBar(content: Text('help_center_coming_soon'.tr())),
                 );
               },
             ),
 
             // Sign Out
-            const SettingsSectionHeader(title: 'Account Actions'),
+            SettingsSectionHeader(title: 'account_actions'.tr()),
             Consumer<AuthProvider>(
               builder: (context, authProvider, child) {
                 return SettingsMenuItem(
                   icon: Icons.logout,
-                  title: 'Sign Out',
-                  subtitle: 'Sign out from your account',
+                  title: 'logout'.tr(),
+                  subtitle: 'sign_out_subtitle'.tr(),
                   iconColor: Theme.of(context).colorScheme.error,
                   textColor: Theme.of(context).colorScheme.error,
                   showDivider: false,
@@ -183,32 +185,69 @@ class _SettingScreenState extends State<SettingScreen> {
   }
 
   void _showLanguageDialog() {
+    final currentLanguage = _currentLanguage;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Language'),
-        content: RadioGroup<String>(
-          groupValue: _selectedLanguage,
-          onChanged: (value) {
-            setState(() {
-              _selectedLanguage = value!;
-            });
-            Navigator.pop(context);
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<String>(
-                title: const Text('Bahasa Indonesia'),
-                value: 'Bahasa Indonesia',
-              ),
-              RadioListTile<String>(
-                title: const Text('English'),
-                value: 'English',
-              ),
-            ],
-          ),
+      builder: (dialogContext) => AlertDialog(
+        title: Text('language'.tr()),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Text('🇮🇩'),
+              title: const Text('Bahasa Indonesia'),
+              trailing: currentLanguage == 'Bahasa Indonesia'
+                  ? const Icon(Icons.check, color: Colors.green)
+                  : null,
+              onTap: () async {
+                if (currentLanguage != 'Bahasa Indonesia' && mounted) {
+                  await context.setLocale(const Locale('id'));
+                  if (mounted) {
+                    navigator.pop(); // Use stored navigator
+                    scaffoldMessenger.showSnackBar(
+                      SnackBar(
+                        content: Text('language_changed_to_indonesian'.tr()),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                    setState(() {}); // Refresh UI
+                  }
+                }
+              },
+            ),
+            ListTile(
+              leading: const Text('🇺🇸'),
+              title: const Text('English'),
+              trailing: currentLanguage == 'English'
+                  ? const Icon(Icons.check, color: Colors.green)
+                  : null,
+              onTap: () async {
+                if (currentLanguage != 'English' && mounted) {
+                  await context.setLocale(const Locale('en'));
+                  if (mounted) {
+                    navigator.pop(); // Use stored navigator
+                    scaffoldMessenger.showSnackBar(
+                      SnackBar(
+                        content: Text('language_changed_to_english'.tr()),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                    setState(() {}); // Refresh UI
+                  }
+                }
+              },
+            ),
+          ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text('cancel'.tr()),
+          ),
+        ],
       ),
     );
   }
@@ -217,21 +256,19 @@ class _SettingScreenState extends State<SettingScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text(
-          'Are you sure you want to sign out from your account?',
-        ),
+        title: Text('logout'.tr()),
+        content: Text('confirm_sign_out'.tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text('cancel'.tr()),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Sign Out'),
+            child: Text('logout'.tr()),
           ),
         ],
       ),
@@ -246,7 +283,7 @@ class _SettingScreenState extends State<SettingScreen> {
       if (!mounted) return;
 
       messenger.showSnackBar(
-        const SnackBar(content: Text('Signed out successfully')),
+        SnackBar(content: Text('signed_out_successfully'.tr())),
       );
 
       navigator.pushNamedAndRemoveUntil('/login', (route) => false);
