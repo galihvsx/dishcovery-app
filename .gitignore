@@ -58,3 +58,5 @@ gha-creds-*.json
 .fvm/
 *.md
 !README.md
+.env
+.env.*
