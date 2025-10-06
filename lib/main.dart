@@ -22,13 +22,10 @@ void main() async {
   final preferences = await SharedPreferences.getInstance();
 
   runApp(App(preferences: preferences));
-  
+
   runApp(
     EasyLocalization(
-      supportedLocales: const [
-        Locale('en'),
-        Locale('id'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('id')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       child: App(preferences: preferences),
@@ -53,6 +50,8 @@ Future<void> _initializeEnvironment() async {
   } catch (e) {
     // Fallback to system environment variables if .env loading fails
     dotenv.env.addAll(Platform.environment);
-    print('⚠️ Failed to load .env file, using system environment variables: $e');
+    print(
+      '⚠️ Failed to load .env file, using system environment variables: $e',
+    );
   }
 }
