@@ -58,16 +58,24 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleGoogleSignIn() async {
     debugPrint('🎯 LoginScreen: Google Sign-In button pressed');
     final authProvider = context.read<AuthProvider>();
-    debugPrint('🎯 LoginScreen: AuthProvider obtained, current loading state: ${authProvider.isLoading}');
-    debugPrint('🎯 LoginScreen: AuthProvider current user: ${authProvider.user?.email ?? 'null'}');
+    debugPrint(
+      '🎯 LoginScreen: AuthProvider obtained, current loading state: ${authProvider.isLoading}',
+    );
+    debugPrint(
+      '🎯 LoginScreen: AuthProvider current user: ${authProvider.user?.email ?? 'null'}',
+    );
 
     try {
       debugPrint('🎯 LoginScreen: Calling authProvider.signInWithGoogle()');
       final success = await authProvider.signInWithGoogle();
-      debugPrint('🎯 LoginScreen: authProvider.signInWithGoogle() returned: $success');
+      debugPrint(
+        '🎯 LoginScreen: authProvider.signInWithGoogle() returned: $success',
+      );
 
       if (success && mounted) {
-        debugPrint('✅ LoginScreen: Sign-in successful, navigating to main screen');
+        debugPrint(
+          '✅ LoginScreen: Sign-in successful, navigating to main screen',
+        );
         Navigator.of(context).pushReplacementNamed(AppRoutes.main);
       } else if (!success) {
         debugPrint('❌ LoginScreen: Sign-in failed (success = false)');
@@ -78,9 +86,11 @@ class _LoginScreenState extends State<LoginScreen> {
       debugPrint('❌ LoginScreen: Exception caught during Google Sign-In');
       debugPrint('❌ LoginScreen: Exception type: ${e.runtimeType}');
       debugPrint('❌ LoginScreen: Exception message: ${e.toString()}');
-      debugPrint('❌ LoginScreen: Is cancellation error: ${e.toString().contains('cancelled')}');
+      debugPrint(
+        '❌ LoginScreen: Is cancellation error: ${e.toString().contains('cancelled')}',
+      );
       debugPrint('❌ LoginScreen: Widget mounted: $mounted');
-      
+
       if (mounted && !e.toString().contains('cancelled')) {
         debugPrint('🎯 LoginScreen: Showing error SnackBar to user');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,7 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else if (e.toString().contains('cancelled')) {
-        debugPrint('🎯 LoginScreen: User cancelled sign-in, not showing error message');
+        debugPrint(
+          '🎯 LoginScreen: User cancelled sign-in, not showing error message',
+        );
       }
     }
   }
@@ -117,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
 
                 Text(
-                  'welcome'.tr(),
+                  'auth.welcome'.tr(),
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.onSurface,
@@ -126,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Log in now to access your\naccount all the features built for you',
+                  'auth.login_subtitle'.tr(),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -142,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   textInputAction: TextInputAction.next,
                   style: TextStyle(color: colorScheme.onSurface),
                   decoration: InputDecoration(
-                    labelText: 'email'.tr(),
+                    labelText: 'auth.email'.tr(),
                     hintText: 'evancarter@email.com',
                     prefixIcon: Icon(
                       Icons.email_outlined,
@@ -176,12 +188,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'auth.please_enter_email'.tr();
                     }
                     if (!RegExp(
                       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                     ).hasMatch(value)) {
-                      return 'Please enter a valid email';
+                      return 'auth.please_enter_valid_email'.tr();
                     }
                     return null;
                   },
@@ -196,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   textInputAction: TextInputAction.done,
                   style: TextStyle(color: colorScheme.onSurface),
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'auth.password'.tr(),
                     hintText: '••••••••',
                     prefixIcon: Icon(
                       Icons.lock_outlined,
@@ -243,10 +255,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'auth.please_enter_password'.tr();
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'auth.password_min_length'.tr();
                     }
                     return null;
                   },
@@ -267,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ).pushNamed(AppRoutes.forgotPassword);
                       },
                       child: Text(
-                        'Forgot Password?',
+                        'auth.forgot_password'.tr(),
                         style: TextStyle(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.w600,
@@ -302,9 +314,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: colorScheme.onPrimary,
                               ),
                             )
-                          : const Text(
-                              'Login',
-                              style: TextStyle(
+                          : Text(
+                              'auth.login'.tr(),
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -322,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Or Log in with',
+                        'auth.or_login_with'.tr(),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -378,7 +390,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account? ",
+                      'auth.dont_have_account_text'.tr(),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -393,7 +405,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Create an account',
+                        'auth.create_account'.tr(),
                         style: TextStyle(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.bold,
