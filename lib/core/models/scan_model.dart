@@ -10,7 +10,6 @@ class ScanResult {
   final String history;
   final Recipe recipe;
   final List<String> tags;
-  final List<String> relatedFoods;
 
   ScanResult({
     this.id,
@@ -22,7 +21,6 @@ class ScanResult {
     required this.history,
     required this.recipe,
     required this.tags,
-    required this.relatedFoods,
   });
 
   factory ScanResult.fromJson(Map<String, dynamic> json) {
@@ -50,9 +48,6 @@ class ScanResult {
       tags: (json['tags'] is List)
           ? List<String>.from(json['tags'].map((e) => e.toString()))
           : const [],
-      relatedFoods: (json['relatedFoods'] is List)
-          ? List<String>.from(json['relatedFoods'].map((e) => e.toString()))
-          : const [],
     );
   }
 
@@ -67,7 +62,6 @@ class ScanResult {
       'history': history,
       'recipe': recipe,
       'tags': tags.join(','),
-      'relatedFoods': relatedFoods.join(','),
     };
   }
 
@@ -93,7 +87,6 @@ class ScanResult {
       history: history ?? this.history,
       recipe: recipe ?? this.recipe,
       tags: tags ?? this.tags,
-      relatedFoods: relatedFoods ?? this.relatedFoods,
     );
   }
 }

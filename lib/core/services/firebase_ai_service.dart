@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter/material.dart';
 
 class FirebaseAiService {
   FirebaseAiService({GenerativeModel? model, String? modelName})
@@ -143,14 +144,13 @@ class FirebaseAiService {
       if (response.text != null && response.text!.isNotEmpty) {
         accumulatedText += response.text!;
 
-        // Try to parse accumulated JSON
         try {
           final decoded = json.decode(accumulatedText);
           if (decoded is Map<String, dynamic>) {
             yield decoded;
           }
         } catch (e) {
-          // JSON not complete yet, continue accumulating
+          debugPrint('Error parsing JSON: $e');
         }
       }
     }
@@ -208,7 +208,8 @@ class FirebaseAiService {
           description: "Nama makanan dalam Bahasa Indonesia.",
         ),
         'origin': Schema.string(
-          description: "Daerah asal makanan, contoh: 'Bandung, Jawa Barat'.",
+          description:
+              "Daerah asal makanan, dengan format 'Nama Kota, Nama Provinsi' - contoh: 'Bandung, Jawa Barat'.",
         ),
         'description': Schema.string(
           description:
@@ -217,7 +218,7 @@ class FirebaseAiService {
         'isFood': Schema.boolean(description: "Apakah ini adalah makanan?"),
         'history': Schema.string(
           description:
-              "Cerita atau sejarah singkat di balik makanan dalam format Markdown.",
+              "Cerita atau sejarah singkat atau fakta unik di balik makanan dalam format Markdown.",
         ), // <-- FIELD BARU
         'recipe': Schema.object(
           // <-- OBJEK BARU
@@ -232,8 +233,10 @@ class FirebaseAiService {
             ),
           },
         ),
-        'tags': Schema.array(items: Schema.string()),
-        'relatedFoods': Schema.array(items: Schema.string()),
+        'tags': Schema.array(
+          items: Schema.string(),
+          description: "Tag - tag untuk pengkategorian makanan.",
+        ),
       },
     );
   }

@@ -136,7 +136,10 @@ Jika makanan, berikan informasi singkat dan padat:
   }
 
   /// Alternative: Process image with streaming (experimental)
-  Future<void> processImageWithStream(String imagePath, {BuildContext? context}) async {
+  Future<void> processImageWithStream(
+    String imagePath, {
+    BuildContext? context,
+  }) async {
     _loading = true;
     _error = null;
     _loadingMessage = "Memproses gambar...";
@@ -162,7 +165,6 @@ Jika makanan, berikan informasi singkat dan padat:
 - History maksimal 1 paragraf
 - Recipe dengan bahan dan langkah utama saja
 - Tags maksimal 5
-- Related foods maksimal 3
 """,
       );
 
