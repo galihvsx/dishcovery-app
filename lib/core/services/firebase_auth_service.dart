@@ -3,12 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 /// A service class that handles Firebase authentication operations.
+/// A service class that handles Firebase authentication operations.
 class FirebaseAuthService {
   static final FirebaseAuthService _instance = FirebaseAuthService._internal();
-  
+
   /// Factory constructor that returns the singleton instance.
   factory FirebaseAuthService() => _instance;
-  
+
   FirebaseAuthService._internal() {
     _initializeGoogleSignIn();
   }
@@ -17,10 +18,11 @@ class FirebaseAuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   bool _googleSignInInitialized = false;
 
-  static const String _serverClientId = '222073084834-ocgjatr2d87br6osblqvildtnr04m3b1.apps.googleusercontent.com';
+  static const String _serverClientId =
+      '222073084834-ocgjatr2d87br6osblqvildtnr04m3b1.apps.googleusercontent.com';
 
   /// Initializes the Google Sign-In service.
-  /// 
+  ///
   /// This method is called automatically when the service is instantiated.
   Future<void> _initializeGoogleSignIn() async {
     if (_googleSignInInitialized) return;
@@ -28,13 +30,15 @@ class FirebaseAuthService {
     try {
       debugPrint('🚀 FirebaseAuthService: Initializing Google Sign-In');
 
-      await _googleSignIn.initialize(
-        serverClientId: _serverClientId,
-      );
+      await _googleSignIn.initialize(serverClientId: _serverClientId);
       _googleSignInInitialized = true;
-      debugPrint('✅ FirebaseAuthService: Google Sign-In initialized successfully');
+      debugPrint(
+        '✅ FirebaseAuthService: Google Sign-In initialized successfully',
+      );
     } catch (e) {
-      debugPrint('❌ FirebaseAuthService: Failed to initialize Google Sign-In: $e');
+      debugPrint(
+        '❌ FirebaseAuthService: Failed to initialize Google Sign-In: $e',
+      );
     }
   }
 
@@ -47,11 +51,7 @@ class FirebaseAuthService {
   /// Returns whether a user is currently authenticated.
   bool get isAuthenticated => currentUser != null;
 
-  /// Signs in a user with email and password.
-  /// 
-  /// Returns a [UserCredential] if successful.
-  /// 
-  /// Throws an exception with a user-friendly message if authentication fails.
+  /// Sign in with email and password
   Future<UserCredential?> signInWithEmailAndPassword({
     required String email,
     required String password,
@@ -69,13 +69,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Registers a new user with email and password.
-  /// 
-  /// Optionally updates the user's display name if provided.
-  /// 
-  /// Returns a [UserCredential] if successful.
-  /// 
-  /// Throws an exception with a user-friendly message if registration fails.
+  /// Register with email and password
   Future<UserCredential?> registerWithEmailAndPassword({
     required String email,
     required String password,
@@ -99,9 +93,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Sends a password reset email to the specified email address.
-  /// 
-  /// Throws an exception with a user-friendly message if the operation fails.
+  /// Send password reset email
   Future<void> sendPasswordResetEmail({required String email}) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
@@ -112,11 +104,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Authenticates the user with Google Sign-In.
-  /// 
-  /// Returns a [UserCredential] containing the signed-in Firebase user.
-  /// 
-  /// Throws an exception with a user-friendly message if authentication fails.
+  /// Sign in with Google
   Future<UserCredential?> signInWithGoogle() async {
     try {
       if (!_googleSignInInitialized) await _initializeGoogleSignIn();
@@ -146,12 +134,8 @@ class FirebaseAuthService {
       throw Exception('Failed to sign in with Google: ${e.toString()}');
     }
   }
-  
-  /// Signs the current user out of the Google Sign-In session.
-  /// 
-  /// This method only revokes the Google OAuth tokens; the Firebase
-  /// authentication session remains active. To sign out completely
-  /// (Firebase + Google) use [signOut] instead.
+
+  /// Sign out from Google
   Future<void> signOutFromGoogle() async {
     try {
       await _googleSignIn.signOut();
@@ -162,9 +146,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Signs out the current user from both Firebase and Google.
-  /// 
-  /// Throws an exception with a user-friendly message if the operation fails.
+  /// Sign out
   Future<void> signOut() async {
     try {
       await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
@@ -173,9 +155,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Deletes the current user's account.
-  /// 
-  /// Throws an exception with a user-friendly message if the operation fails.
+  /// Delete current user account
   Future<void> deleteAccount() async {
     try {
       final user = currentUser;
@@ -191,9 +171,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Updates the current user's profile information.
-  /// 
-  /// Throws an exception with a user-friendly message if the operation fails.
+  /// Update user profile
   Future<void> updateProfile({String? displayName, String? photoURL}) async {
     try {
       final user = currentUser;
@@ -208,11 +186,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Updates the current user's email address.
-  /// 
-  /// Sends a verification email to the new email address.
-  /// 
-  /// Throws an exception with a user-friendly message if the operation fails.
+  /// Update user email
   Future<void> updateEmail({required String newEmail}) async {
     try {
       final user = currentUser;
@@ -228,9 +202,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Updates the current user's password.
-  /// 
-  /// Throws an exception with a user-friendly message if the operation fails.
+  /// Update user password
   Future<void> updatePassword({required String newPassword}) async {
     try {
       final user = currentUser;
@@ -246,9 +218,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Sends an email verification to the current user.
-  /// 
-  /// Throws an exception with a user-friendly message if the operation fails.
+  /// Send email verification
   Future<void> sendEmailVerification() async {
     try {
       final user = currentUser;
@@ -266,9 +236,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Reloads the current user to get updated information.
-  /// 
-  /// Any errors are logged in debug mode but not thrown.
+  /// Reload current user to get updated information
   Future<void> reloadUser() async {
     try {
       await currentUser?.reload();
@@ -279,9 +247,7 @@ class FirebaseAuthService {
     }
   }
 
-  /// Handles Firebase Auth exceptions and returns user-friendly messages.
-  /// 
-  /// Takes a [FirebaseAuthException] and returns a user-friendly error message.
+  /// Handle Firebase Auth exceptions and return user-friendly messages
   String _handleAuthException(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
@@ -314,4 +280,3 @@ class FirebaseAuthService {
     }
   }
 }
-

@@ -79,29 +79,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _handleGoogleSignIn() async {
     debugPrint('🎯 RegisterScreen: Google Sign-In button pressed');
     final authProvider = context.read<AuthProvider>();
-    debugPrint('🎯 RegisterScreen: AuthProvider obtained, current loading state: ${authProvider.isLoading}');
-    debugPrint('🎯 RegisterScreen: AuthProvider current user: ${authProvider.user?.email ?? 'null'}');
+    debugPrint(
+      '🎯 RegisterScreen: AuthProvider obtained, current loading state: ${authProvider.isLoading}',
+    );
+    debugPrint(
+      '🎯 RegisterScreen: AuthProvider current user: ${authProvider.user?.email ?? 'null'}',
+    );
 
     try {
       debugPrint('🎯 RegisterScreen: Calling authProvider.signInWithGoogle()');
       final success = await authProvider.signInWithGoogle();
-      debugPrint('🎯 RegisterScreen: authProvider.signInWithGoogle() returned: $success');
+      debugPrint(
+        '🎯 RegisterScreen: authProvider.signInWithGoogle() returned: $success',
+      );
 
       if (success && mounted) {
-        debugPrint('✅ RegisterScreen: Sign-in successful, navigating to main screen');
+        debugPrint(
+          '✅ RegisterScreen: Sign-in successful, navigating to main screen',
+        );
         Navigator.of(context).pushReplacementNamed(AppRoutes.main);
       } else if (!success) {
         debugPrint('❌ RegisterScreen: Sign-in failed (success = false)');
       } else if (!mounted) {
-        debugPrint('⚠️ RegisterScreen: Widget not mounted, skipping navigation');
+        debugPrint(
+          '⚠️ RegisterScreen: Widget not mounted, skipping navigation',
+        );
       }
     } catch (e) {
       debugPrint('❌ RegisterScreen: Exception caught during Google Sign-In');
       debugPrint('❌ RegisterScreen: Exception type: ${e.runtimeType}');
       debugPrint('❌ RegisterScreen: Exception message: ${e.toString()}');
-      debugPrint('❌ RegisterScreen: Is cancellation error: ${e.toString().contains('cancelled')}');
+      debugPrint(
+        '❌ RegisterScreen: Is cancellation error: ${e.toString().contains('cancelled')}',
+      );
       debugPrint('❌ RegisterScreen: Widget mounted: $mounted');
-      
+
       if (mounted && !e.toString().contains('cancelled')) {
         debugPrint('🎯 RegisterScreen: Showing error SnackBar to user');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -111,7 +123,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
       } else if (e.toString().contains('cancelled')) {
-        debugPrint('🎯 RegisterScreen: User cancelled sign-in, not showing error message');
+        debugPrint(
+          '🎯 RegisterScreen: User cancelled sign-in, not showing error message',
+        );
       }
     }
   }

@@ -24,7 +24,8 @@ class FeedCard extends StatefulWidget {
   State<FeedCard> createState() => _FeedCardState();
 }
 
-class _FeedCardState extends State<FeedCard> with SingleTickerProviderStateMixin {
+class _FeedCardState extends State<FeedCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _heartAnimationController;
   late Animation<double> _heartAnimation;
   bool _isLiked = false;
@@ -43,7 +44,10 @@ class _FeedCardState extends State<FeedCard> with SingleTickerProviderStateMixin
       vsync: this,
     );
     _heartAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
-      CurvedAnimation(parent: _heartAnimationController, curve: Curves.elasticOut),
+      CurvedAnimation(
+        parent: _heartAnimationController,
+        curve: Curves.elasticOut,
+      ),
     );
   }
 
@@ -95,10 +99,7 @@ class _FeedCardState extends State<FeedCard> with SingleTickerProviderStateMixin
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [
-                      colorScheme.primary,
-                      colorScheme.secondary,
-                    ],
+                    colors: [colorScheme.primary, colorScheme.secondary],
                   ),
                 ),
                 padding: const EdgeInsets.all(2),
@@ -109,7 +110,9 @@ class _FeedCardState extends State<FeedCard> with SingleTickerProviderStateMixin
                   ),
                   padding: const EdgeInsets.all(2),
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(widget.feedItem.userAvatarUrl),
+                    backgroundImage: NetworkImage(
+                      widget.feedItem.userAvatarUrl,
+                    ),
                     backgroundColor: colorScheme.surfaceContainerHighest,
                   ),
                 ),
@@ -169,7 +172,7 @@ class _FeedCardState extends State<FeedCard> with SingleTickerProviderStateMixin
                         child: CircularProgressIndicator(
                           value: loadingProgress.expectedTotalBytes != null
                               ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
+                                    loadingProgress.expectedTotalBytes!
                               : null,
                           strokeWidth: 2,
                         ),
@@ -193,7 +196,10 @@ class _FeedCardState extends State<FeedCard> with SingleTickerProviderStateMixin
                   top: 12,
                   right: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.surface.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(12),
@@ -201,11 +207,7 @@ class _FeedCardState extends State<FeedCard> with SingleTickerProviderStateMixin
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.star,
-                          size: 16,
-                          color: Colors.amber,
-                        ),
+                        Icon(Icons.star, size: 16, color: Colors.amber),
                         const SizedBox(width: 4),
                         Text(
                           widget.feedItem.rating!.toStringAsFixed(1),
@@ -342,7 +344,9 @@ class _FeedCardState extends State<FeedCard> with SingleTickerProviderStateMixin
                     Expanded(
                       child: Text(
                         widget.feedItem.ingredients.take(3).join(', ') +
-                            (widget.feedItem.ingredients.length > 3 ? '...' : ''),
+                            (widget.feedItem.ingredients.length > 3
+                                ? '...'
+                                : ''),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),

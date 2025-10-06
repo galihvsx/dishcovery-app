@@ -3,12 +3,15 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter/material.dart';
 
 class FirebaseAiService {
-  FirebaseAiService({GenerativeModel? model})
+  FirebaseAiService({GenerativeModel? model, String? modelName})
     : _model =
           model ??
-          FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
+          FirebaseAI.googleAI().generativeModel(
+            model: modelName ?? 'gemini-2.5-flash', // Keep using 2.5-flash
+          );
 
   final GenerativeModel _model;
 
@@ -116,6 +119,55 @@ class FirebaseAiService {
     return decoded;
   }
 
+  /// Convert image to Dishcovery with streaming response
+  Stream<Map<String, dynamic>> imageToDishcoveryStream({
+    required Uint8List imageBytes,
+    String prompt = '',
+  }) async* {
+    final parts = <Part>[];
+    if (prompt.trim().isNotEmpty) {
+      parts.add(TextPart(prompt));
+    }
+    parts.add(InlineDataPart('image/jpeg', imageBytes));
+
+    final stream = _model.generateContentStream(
+      [Content.multi(parts)],
+      generationConfig: GenerationConfig(
+        responseMimeType: 'application/json',
+        responseSchema: _dishcoverySchema(),
+      ),
+    );
+
+    String accumulatedText = '';
+
+    await for (final response in stream) {
+      if (response.text != null && response.text!.isNotEmpty) {
+        accumulatedText += response.text!;
+
+        try {
+          final decoded = json.decode(accumulatedText);
+          if (decoded is Map<String, dynamic>) {
+            yield decoded;
+          }
+        } catch (e) {
+          debugPrint('Error parsing JSON: $e');
+        }
+      }
+    }
+
+    // Final parse if we haven't yielded anything yet
+    if (accumulatedText.isNotEmpty) {
+      try {
+        final decoded = json.decode(accumulatedText);
+        if (decoded is Map<String, dynamic>) {
+          yield decoded;
+        }
+      } catch (e) {
+        throw FirebaseAIException('Failed to parse final JSON: $e');
+      }
+    }
+  }
+
   /// Read image from file path into bytes
   Future<Uint8List> readImageFile(String path) async {
     final f = File(path);
@@ -156,18 +208,17 @@ class FirebaseAiService {
           description: "Nama makanan dalam Bahasa Indonesia.",
         ),
         'origin': Schema.string(
-          description: "Daerah asal makanan, contoh: 'Bandung, Jawa Barat'.",
+          description:
+              "Daerah asal makanan, dengan format 'Nama Kota, Nama Provinsi' - contoh: 'Bandung, Jawa Barat'.",
         ),
         'description': Schema.string(
           description:
               "Deskripsi singkat dan menarik tentang makanan dalam format Markdown.",
         ),
-        'isFood': Schema.boolean(
-          description: "Apakah ini adalah makanan?",
-        ),
+        'isFood': Schema.boolean(description: "Apakah ini adalah makanan?"),
         'history': Schema.string(
           description:
-              "Cerita atau sejarah singkat di balik makanan dalam format Markdown.",
+              "Cerita atau sejarah singkat atau fakta unik di balik makanan dalam format Markdown.",
         ), // <-- FIELD BARU
         'recipe': Schema.object(
           // <-- OBJEK BARU
@@ -182,8 +233,10 @@ class FirebaseAiService {
             ),
           },
         ),
-        'tags': Schema.array(items: Schema.string()),
-        'relatedFoods': Schema.array(items: Schema.string()),
+        'tags': Schema.array(
+          items: Schema.string(),
+          description: "Tag - tag untuk pengkategorian makanan.",
+        ),
       },
     );
   }

@@ -69,9 +69,7 @@ class _AuthPreferencesGuardState extends State<AuthPreferencesGuard> {
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                ],
+                children: [CircularProgressIndicator()],
               ),
             ),
           );

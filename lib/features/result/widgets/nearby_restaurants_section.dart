@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import 'package:dishcovery_app/core/models/place_model.dart';
 import 'package:dishcovery_app/core/services/places_api_service.dart';
@@ -27,6 +27,7 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
   bool _isLoading = false;
   String? _errorMessage;
   Position? _userLocation;
+  bool _isGenericSearch = false;
 
   @override
   void initState() {
@@ -69,6 +70,7 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
       if (mounted) {
         setState(() {
           _restaurants = response.places;
+          _isGenericSearch = response.isGenericSearch;
           _isLoading = false;
         });
       }
@@ -112,7 +114,7 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Nearby Restaurants',
+                    _isGenericSearch ? 'Indonesian Restaurants' : 'Nearby Restaurants',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onSurface,
@@ -120,7 +122,9 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Serving ${widget.foodName}',
+                    _isGenericSearch
+                        ? 'May serve ${widget.foodName}'
+                        : 'Serving ${widget.foodName}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -156,47 +160,57 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
   Widget _buildLoadingState() {
     return SizedBox(
       height: 240,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: 3,
-        itemBuilder: (context, index) {
-          return Container(
-            width: 280,
-            margin: const EdgeInsets.only(right: 16),
-            child: Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+      child: Skeletonizer(
+        enabled: true,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: 3,
+          itemBuilder: (context, index) {
+            return Container(
+              width: 280,
+              margin: const EdgeInsets.only(right: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                   BoxShadow(
+                     color: Colors.black.withValues(alpha: 0.1),
+                     blurRadius: 8,
+                     offset: const Offset(0, 2),
+                   ),
+                 ],
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     height: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.vertical(
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(
                         top: Radius.circular(16),
                       ),
                     ),
+                    child: const Bone.square(size: 120),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(height: 16, width: 150, color: Colors.white),
+                        Bone.text(words: 2),
                         const SizedBox(height: 8),
-                        Container(height: 12, width: 200, color: Colors.white),
+                        Bone.text(words: 3),
                         const SizedBox(height: 4),
-                        Container(height: 12, width: 180, color: Colors.white),
+                        Bone.text(words: 2),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -266,14 +280,18 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No restaurants found nearby',
+              _isGenericSearch
+                  ? 'No Indonesian restaurants found nearby'
+                  : 'No restaurants found nearby',
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Try searching with a different location or broader search',
+              _isGenericSearch
+                  ? 'Indonesian cuisine may be limited in your area'
+                  : 'Try searching with a different location or broader search',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),

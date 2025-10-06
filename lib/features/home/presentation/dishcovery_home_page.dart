@@ -135,22 +135,19 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                   letterSpacing: 0.5,
                 ),
               ),
-              ),
+            ),
             SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final item = _feedItems[index];
-                  return FeedCard(
-                    feedItem: item,
-                    onLike: () => _handleLike(item),
-                    onComment: () => _handleComment(item),
-                    onShare: () => _handleShare(item),
-                    onSave: () => _handleSave(item),
-                    onMoreOptions: () => _handleMoreOptions(item),
-                  );
-                },
-                childCount: _feedItems.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final item = _feedItems[index];
+                return FeedCard(
+                  feedItem: item,
+                  onLike: () => _handleLike(item),
+                  onComment: () => _handleComment(item),
+                  onShare: () => _handleShare(item),
+                  onSave: () => _handleSave(item),
+                  onMoreOptions: () => _handleMoreOptions(item),
+                );
+              }, childCount: _feedItems.length),
             ),
           ],
         ),
