@@ -1,21 +1,21 @@
+import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import 'core/services/user_preferences_service.dart';
-import 'core/theme/theme.dart';
-import 'providers/auth_provider.dart';
-import 'providers/scan_provider.dart';
-import 'providers/theme_provider.dart';
-import 'providers/user_preferences_provider.dart';
-import 'utils/routes/app_routes.dart';
+import 'package:dishcovery_app/core/services/user_preferences_service.dart';
+import 'package:dishcovery_app/core/theme/theme.dart';
+import 'package:dishcovery_app/providers/auth_provider.dart';
+import 'package:dishcovery_app/providers/scan_provider.dart';
+import 'package:dishcovery_app/providers/theme_provider.dart';
+import 'package:dishcovery_app/providers/user_preferences_provider.dart';
+import 'package:dishcovery_app/utils/routes/app_routes.dart';
 
 class App extends StatelessWidget {
   final SharedPreferences preferences;
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  App({super.key, required this.preferences});
+  const App({super.key, required this.preferences});
 
   String get _initialRoute {
     // Check if user has seen the onboarding
@@ -36,6 +36,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeProvider(preferences)),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ScanProvider()),
+        ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ChangeNotifierProxyProvider<AuthProvider, UserPreferencesProvider>(
           create: (context) => UserPreferencesProvider(
             service: UserPreferencesService(),

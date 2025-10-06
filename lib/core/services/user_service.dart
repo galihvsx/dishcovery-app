@@ -6,11 +6,9 @@ class UserService {
   final FirebaseFirestore _db;
   final FirebaseAuth _auth;
 
-  UserService({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  }) : _db = firestore ?? FirebaseFirestore.instance,
-       _auth = auth ?? FirebaseAuth.instance;
+  UserService({FirebaseFirestore? firestore, FirebaseAuth? auth})
+    : _db = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   CollectionReference<Map<String, dynamic>> get _usersCollection =>
       _db.collection('users');
@@ -25,12 +23,14 @@ class UserService {
   }) async {
     try {
       debugPrint('UserService: Creating user document for UID: $uid');
-      
+
       // Check if user document already exists
       final userDoc = await _usersCollection.doc(uid).get();
-      
+
       if (userDoc.exists) {
-        debugPrint('UserService: User document already exists, updating last sign-in');
+        debugPrint(
+          'UserService: User document already exists, updating last sign-in',
+        );
         // Update last sign-in time if document exists
         await _usersCollection.doc(uid).update({
           'lastSignInAt': FieldValue.serverTimestamp(),
@@ -57,7 +57,6 @@ class UserService {
 
       // Also create initial user_preferences document to prevent loading issues
       await _createInitialUserPreferences(uid);
-      
     } catch (e) {
       debugPrint('UserService: Error creating user document: $e');
       rethrow;
@@ -69,7 +68,7 @@ class UserService {
     try {
       final prefsCollection = _db.collection('user_preferences');
       final prefsDoc = await prefsCollection.doc(uid).get();
-      
+
       if (!prefsDoc.exists) {
         await prefsCollection.doc(uid).set({
           'onboardingCompleted': false,

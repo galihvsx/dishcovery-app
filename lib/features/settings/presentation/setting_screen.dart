@@ -2,11 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../providers/auth_provider.dart';
-import '../../../providers/theme_provider.dart';
-import '../widgets/settings_menu_item.dart';
-import '../widgets/settings_profile_header.dart';
-import '../widgets/settings_section_header.dart';
+import 'package:dishcovery_app/providers/auth_provider.dart';
+import 'package:dishcovery_app/providers/theme_provider.dart';
+import 'package:dishcovery_app/features/settings/widgets/settings_menu_item.dart';
+import 'package:dishcovery_app/features/settings/widgets/settings_profile_header.dart';
+import 'package:dishcovery_app/features/settings/widgets/settings_section_header.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -90,7 +90,6 @@ class _SettingScreenState extends State<SettingScreen> {
                         value ? ThemeMode.dark : ThemeMode.light,
                       );
                     },
-                    activeThumbColor: Theme.of(context).colorScheme.primary,
                   ),
                   onTap: () {
                     themeProvider.setThemeMode(
@@ -280,7 +279,7 @@ class _SettingScreenState extends State<SettingScreen> {
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: Theme.of(context).colorScheme.errorContainer,
             ),
             child: Text('auth.logout'.tr()),
           ),
