@@ -24,21 +24,27 @@ void main() async {
 
 /// Initialize environment variables from .env file or system environment
 Future<void> _initializeEnvironment() async {
+  final envFile = File('.env');
+  final hasEnvFile = await envFile.exists();
+  final systemEnv = Map<String, String>.from(Platform.environment);
+
   try {
-    // Check if .env file exists
-    final envFile = File('.env');
-    if (await envFile.exists()) {
-      // Load from .env file
-      await dotenv.load(fileName: ".env");
+    await dotenv.load(
+      fileName: '.env',
+      mergeWith: systemEnv,
+      isOptional: !hasEnvFile,
+    );
+
+    if (hasEnvFile) {
       print('✅ Loaded environment variables from .env file');
     } else {
-      // Load from system environment variables
-      dotenv.env.addAll(Platform.environment);
       print('✅ Loaded environment variables from system environment');
     }
   } catch (e) {
-    // Fallback to system environment variables if .env loading fails
-    dotenv.env.addAll(Platform.environment);
+    dotenv.loadFromString(
+      mergeWith: systemEnv,
+      isOptional: true,
+    );
     print('⚠️ Failed to load .env file, using system environment variables: $e');
   }
 }
