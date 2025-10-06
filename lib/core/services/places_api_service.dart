@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:dishcovery_app/core/models/place_model.dart';
 import 'package:dishcovery_app/core/services/http_service.dart';
+import 'package:dishcovery_app/core/utils/env_utils.dart';
 
 /// Service for interacting with Google Places API
 class PlacesApiService {
@@ -153,7 +154,7 @@ class PlacesApiService {
           data: requestBody,
           options: Options(
             headers: {
-              'X-Goog-Api-Key': dotenv.env['GOOGLE_PLACES_API_KEY'],
+              'X-Goog-Api-Key': EnvUtils.getRequiredEnv('GOOGLE_PLACES_API_KEY'),
               'X-Goog-FieldMask': _getFieldMask(),
             },
           ),
@@ -254,7 +255,7 @@ class PlacesApiService {
         data: requestBody,
         options: Options(
           headers: {
-            'X-Goog-Api-Key': dotenv.env['GOOGLE_PLACES_API_KEY'],
+            'X-Goog-Api-Key': EnvUtils.getRequiredEnv('GOOGLE_PLACES_API_KEY'),
             'X-Goog-FieldMask': _getFieldMask(),
           },
         ),
@@ -280,7 +281,7 @@ class PlacesApiService {
         url,
         options: Options(
           headers: {
-            'X-Goog-Api-Key': dotenv.env['GOOGLE_PLACES_API_KEY'],
+            'X-Goog-Api-Key': EnvUtils.getRequiredEnv('GOOGLE_PLACES_API_KEY'),
             'X-Goog-FieldMask': _getDetailedFieldMask(),
           },
         ),

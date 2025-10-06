@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dishcovery_app/core/utils/env_utils.dart';
 
 class HttpService {
   static HttpService? _instance;
@@ -60,8 +61,8 @@ class HttpService {
         onRequest: (options, handler) {
           // Add API key to headers if needed for Places API
           if (options.path.contains('places.googleapis.com')) {
-            final apiKey = dotenv.env['GOOGLE_PLACES_API_KEY'];
-            if (apiKey != null) {
+            final apiKey = EnvUtils.getEnv('GOOGLE_PLACES_API_KEY');
+            if (apiKey != null && apiKey.isNotEmpty) {
               options.headers['X-Goog-Api-Key'] = apiKey;
             }
           }
