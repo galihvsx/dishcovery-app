@@ -10,6 +10,9 @@ class ScanResult {
   final String history;
   final Recipe recipe;
   final List<String> tags;
+  final bool shared; // Field untuk tracking apakah sudah di-share sebagai feed
+  final DateTime? sharedAt; // Kapan di-share
+  final DateTime createdAt; // Kapan scan dilakukan
 
   ScanResult({
     this.id,
@@ -21,7 +24,10 @@ class ScanResult {
     required this.history,
     required this.recipe,
     required this.tags,
-  });
+    this.shared = false,
+    this.sharedAt,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 
   factory ScanResult.fromJson(Map<String, dynamic> json) {
     final rawName = (json['name'] ?? '').toString().trim();
@@ -48,6 +54,9 @@ class ScanResult {
       tags: (json['tags'] is List)
           ? List<String>.from(json['tags'].map((e) => e.toString()))
           : const [],
+      shared: json['shared'] == 1,
+      sharedAt: json['sharedAt'] != null ? DateTime.parse(json['sharedAt']) : null,
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
     );
   }
 
@@ -62,6 +71,9 @@ class ScanResult {
       'history': history,
       'recipe': recipe,
       'tags': tags.join(','),
+      'shared': shared ? 1 : 0,
+      'sharedAt': sharedAt?.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 
@@ -75,7 +87,9 @@ class ScanResult {
     String? history,
     Recipe? recipe,
     List<String>? tags,
-    List<String>? relatedFoods,
+    bool? shared,
+    DateTime? sharedAt,
+    DateTime? createdAt,
   }) {
     return ScanResult(
       id: id ?? this.id,
@@ -87,6 +101,9 @@ class ScanResult {
       history: history ?? this.history,
       recipe: recipe ?? this.recipe,
       tags: tags ?? this.tags,
+      shared: shared ?? this.shared,
+      sharedAt: sharedAt ?? this.sharedAt,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }
