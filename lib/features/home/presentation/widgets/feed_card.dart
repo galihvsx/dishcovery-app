@@ -331,7 +331,7 @@ class _FeedCardState extends State<FeedCard>
               ],
 
               // Ingredients (Food specific)
-              if (widget.feedItem.ingredients.isNotEmpty) ...[
+              if (widget.feedItem.recipe.ingredients.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -343,8 +343,8 @@ class _FeedCardState extends State<FeedCard>
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        widget.feedItem.ingredients.take(3).join(', ') +
-                            (widget.feedItem.ingredients.length > 3
+                        widget.feedItem.recipe.ingredients.take(3).join(', ') +
+                            (widget.feedItem.recipe.ingredients.length > 3
                                 ? '...'
                                 : ''),
                         style: theme.textTheme.bodySmall?.copyWith(
