@@ -1,6 +1,5 @@
 import 'package:dishcovery_app/core/models/recipe_model.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/not_food_widget.dart';
-import 'package:dishcovery_app/features/result/presentation/widgets/related_foods_widget.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/result_actions_widget.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/result_image_widget.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/result_info_widget.dart';
@@ -118,8 +117,12 @@ class _ResultScreenState extends State<ResultScreen> {
                         ResultInfoWidget(
                           name: "Nama Makanan Loading",
                           origin: "Asal Daerah Loading",
-                          description: "Ini adalah deskripsi makanan yang sedang dimuat. " * 5,
-                          history: "Ini adalah sejarah makanan yang sedang dimuat. " * 3,
+                          description:
+                              "Ini adalah deskripsi makanan yang sedang dimuat. " *
+                              5,
+                          history:
+                              "Ini adalah sejarah makanan yang sedang dimuat. " *
+                              3,
                           recipe: Recipe(
                             ingredients: [
                               "Bahan 1 loading",
@@ -137,8 +140,6 @@ class _ResultScreenState extends State<ResultScreen> {
                         ResultTagsWidget(tags: ["Tag1", "Tag2", "Tag3"]),
                         const SizedBox(height: 12),
                         const ResultActionsWidget(),
-                        const SizedBox(height: 20),
-                        RelatedFoodsWidget(related: ["Makanan 1", "Makanan 2", "Makanan 3"]),
                       ]
                       // Actual content when loaded
                       else if (result != null) ...[
@@ -157,9 +158,6 @@ class _ResultScreenState extends State<ResultScreen> {
                             ResultTagsWidget(tags: result.tags),
                           const SizedBox(height: 12),
                           const ResultActionsWidget(),
-                          const SizedBox(height: 20),
-                          if (result.relatedFoods.isNotEmpty)
-                            RelatedFoodsWidget(related: result.relatedFoods),
                           const SizedBox(height: 20),
                           // Show nearby restaurants that sell this food
                           NearbyRestaurantsSection(
