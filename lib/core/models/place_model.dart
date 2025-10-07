@@ -1,5 +1,3 @@
-
-
 /// Model representing a place from Google Places API
 /// All fields are optional since the API returns only requested fields based on field mask
 class PlaceModel {
@@ -119,8 +117,8 @@ class PlaceModel {
       iconBackgroundColor: json['iconBackgroundColor'],
       subDestinations: json['subDestinations'] != null
           ? (json['subDestinations'] as List)
-              .map((s) => SubDestination.fromJson(s))
-              .toList()
+                .map((s) => SubDestination.fromJson(s))
+                .toList()
           : null,
     );
   }
@@ -165,23 +163,14 @@ class DisplayName {
   final String? text;
   final String? languageCode;
 
-  DisplayName({
-    this.text,
-    this.languageCode,
-  });
+  DisplayName({this.text, this.languageCode});
 
   factory DisplayName.fromJson(Map<String, dynamic> json) {
-    return DisplayName(
-      text: json['text'],
-      languageCode: json['languageCode'],
-    );
+    return DisplayName(text: json['text'], languageCode: json['languageCode']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'text': text,
-      'languageCode': languageCode,
-    };
+    return {'text': text, 'languageCode': languageCode};
   }
 }
 
@@ -190,10 +179,7 @@ class Location {
   final double? latitude;
   final double? longitude;
 
-  Location({
-    this.latitude,
-    this.longitude,
-  });
+  Location({this.latitude, this.longitude});
 
   factory Location.fromJson(Map<String, dynamic> json) {
     return Location(
@@ -203,10 +189,7 @@ class Location {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'latitude': latitude,
-      'longitude': longitude,
-    };
+    return {'latitude': latitude, 'longitude': longitude};
   }
 }
 
@@ -215,10 +198,7 @@ class Viewport {
   final Location? low;
   final Location? high;
 
-  Viewport({
-    this.low,
-    this.high,
-  });
+  Viewport({this.low, this.high});
 
   factory Viewport.fromJson(Map<String, dynamic> json) {
     return Viewport(
@@ -228,10 +208,7 @@ class Viewport {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'low': low?.toJson(),
-      'high': high?.toJson(),
-    };
+    return {'low': low?.toJson(), 'high': high?.toJson()};
   }
 }
 
@@ -310,8 +287,8 @@ class OpeningHours {
           : null,
       specialDays: json['specialDays'] != null
           ? (json['specialDays'] as List)
-              .map((s) => SpecialDay.fromJson(s))
-              .toList()
+                .map((s) => SpecialDay.fromJson(s))
+                .toList()
           : null,
     );
   }
@@ -341,10 +318,7 @@ class Period {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'open': open?.toJson(),
-      'close': close?.toJson(),
-    };
+    return {'open': open?.toJson(), 'close': close?.toJson()};
   }
 }
 
@@ -354,11 +328,7 @@ class DayTime {
   final int? hour;
   final int? minute;
 
-  DayTime({
-    this.day,
-    this.hour,
-    this.minute,
-  });
+  DayTime({this.day, this.hour, this.minute});
 
   factory DayTime.fromJson(Map<String, dynamic> json) {
     return DayTime(
@@ -369,11 +339,7 @@ class DayTime {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'day': day,
-      'hour': hour,
-      'minute': minute,
-    };
+    return {'day': day, 'hour': hour, 'minute': minute};
   }
 }
 
@@ -416,12 +382,7 @@ class Photo {
   final int? heightPx;
   final List<AuthorAttribution>? authorAttributions;
 
-  Photo({
-    this.name,
-    this.widthPx,
-    this.heightPx,
-    this.authorAttributions,
-  });
+  Photo({this.name, this.widthPx, this.heightPx, this.authorAttributions});
 
   factory Photo.fromJson(Map<String, dynamic> json) {
     return Photo(
@@ -430,8 +391,8 @@ class Photo {
       heightPx: json['heightPx'],
       authorAttributions: json['authorAttributions'] != null
           ? (json['authorAttributions'] as List)
-              .map((a) => AuthorAttribution.fromJson(a))
-              .toList()
+                .map((a) => AuthorAttribution.fromJson(a))
+                .toList()
           : null,
     );
   }
@@ -441,8 +402,7 @@ class Photo {
       'name': name,
       'widthPx': widthPx,
       'heightPx': heightPx,
-      'authorAttributions':
-          authorAttributions?.map((a) => a.toJson()).toList(),
+      'authorAttributions': authorAttributions?.map((a) => a.toJson()).toList(),
     };
   }
 }
@@ -453,11 +413,7 @@ class AuthorAttribution {
   final String? uri;
   final String? photoUri;
 
-  AuthorAttribution({
-    this.displayName,
-    this.uri,
-    this.photoUri,
-  });
+  AuthorAttribution({this.displayName, this.uri, this.photoUri});
 
   factory AuthorAttribution.fromJson(Map<String, dynamic> json) {
     return AuthorAttribution(
@@ -468,11 +424,7 @@ class AuthorAttribution {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'displayName': displayName,
-      'uri': uri,
-      'photoUri': photoUri,
-    };
+    return {'displayName': displayName, 'uri': uri, 'photoUri': photoUri};
   }
 }
 
@@ -514,10 +466,7 @@ class PlusCode {
   final String? globalCode;
   final String? compoundCode;
 
-  PlusCode({
-    this.globalCode,
-    this.compoundCode,
-  });
+  PlusCode({this.globalCode, this.compoundCode});
 
   factory PlusCode.fromJson(Map<String, dynamic> json) {
     return PlusCode(
@@ -527,10 +476,7 @@ class PlusCode {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'globalCode': globalCode,
-      'compoundCode': compoundCode,
-    };
+    return {'globalCode': globalCode, 'compoundCode': compoundCode};
   }
 }
 
@@ -539,23 +485,14 @@ class SubDestination {
   final String? name;
   final String? id;
 
-  SubDestination({
-    this.name,
-    this.id,
-  });
+  SubDestination({this.name, this.id});
 
   factory SubDestination.fromJson(Map<String, dynamic> json) {
-    return SubDestination(
-      name: json['name'],
-      id: json['id'],
-    );
+    return SubDestination(name: json['name'], id: json['id']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'id': id,
-    };
+    return {'name': name, 'id': id};
   }
 }
 
@@ -577,8 +514,8 @@ class PlacesSearchResponse {
     return PlacesSearchResponse(
       places: json['places'] != null
           ? (json['places'] as List)
-              .map((place) => PlaceModel.fromJson(place))
-              .toList()
+                .map((place) => PlaceModel.fromJson(place))
+                .toList()
           : [],
       nextPageToken: json['nextPageToken'],
     );

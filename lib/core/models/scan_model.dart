@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dishcovery_app/core/models/recipe_model.dart';
 
 class ScanResult {
@@ -31,7 +33,6 @@ class ScanResult {
 
   factory ScanResult.fromJson(Map<String, dynamic> json) {
     final rawName = (json['name'] ?? '').toString().trim();
-
     final isFood =
         rawName.isNotEmpty &&
         !rawName.toLowerCase().contains("bukan makanan") &&
@@ -55,8 +56,12 @@ class ScanResult {
           ? List<String>.from(json['tags'].map((e) => e.toString()))
           : const [],
       shared: json['shared'] == 1,
-      sharedAt: json['sharedAt'] != null ? DateTime.parse(json['sharedAt']) : null,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+      sharedAt: json['sharedAt'] != null
+          ? DateTime.parse(json['sharedAt'])
+          : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
     );
   }
 
@@ -71,6 +76,42 @@ class ScanResult {
       'history': history,
       'recipe': recipe,
       'tags': tags.join(','),
+      'shared': shared ? 1 : 0,
+      'sharedAt': sharedAt?.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
+  factory ScanResult.fromDbMap(Map<String, dynamic> dbMap) {
+    return ScanResult(
+      id: dbMap['id'],
+      isFood: dbMap['isFood'] == 1,
+      imagePath: dbMap['imagePath'],
+      name: dbMap['name'],
+      origin: dbMap['origin'],
+      description: dbMap['description'],
+      history: dbMap['history'],
+      recipe: Recipe.fromJson(jsonDecode(dbMap['recipe'] ?? '{}')),
+      tags: (jsonDecode(dbMap['tags'] ?? '[]') as List).cast<String>(),
+      shared: dbMap['shared'] == 1,
+      sharedAt: dbMap['sharedAt'] != null
+          ? DateTime.parse(dbMap['sharedAt'])
+          : null,
+      createdAt: DateTime.parse(dbMap['createdAt']),
+    );
+  }
+
+  Map<String, dynamic> toDbMap() {
+    return {
+      'id': id,
+      'isFood': isFood ? 1 : 0,
+      'imagePath': imagePath,
+      'name': name,
+      'origin': origin,
+      'description': description,
+      'history': history,
+      'recipe': jsonEncode(recipe.toJson()),
+      'tags': jsonEncode(tags),
       'shared': shared ? 1 : 0,
       'sharedAt': sharedAt?.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),

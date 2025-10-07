@@ -1,6 +1,6 @@
 import 'package:dishcovery_app/core/models/scan_model.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   static const _databaseName = 'dishcovery.db';
@@ -8,13 +8,17 @@ class DatabaseHelper {
   static const table = 'history';
 
   static const columnId = 'id';
+  static const columnIsFood = 'isFood';
+  static const columnImagePath = 'imagePath';
   static const columnName = 'name';
   static const columnOrigin = 'origin';
   static const columnDescription = 'description';
   static const columnHistory = 'history';
+  static const columnRecipe = 'recipe';
   static const columnTags = 'tags';
-  static const columnImagePath = 'imagePath';
-  static const columnDate = 'date';
+  static const columnShared = 'shared';
+  static const columnSharedAt = 'sharedAt';
+  static const columnCreatedAt = 'createdAt';
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -41,62 +45,33 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE $table (
         $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
-        $columnName TEXT,
+        $columnIsFood INTEGER NOT NULL,
+        $columnImagePath TEXT NOT NULL,
+        $columnName TEXT NOT NULL,
         $columnOrigin TEXT,
         $columnDescription TEXT,
         $columnHistory TEXT,
+        $columnRecipe TEXT,
         $columnTags TEXT,
-        $columnImagePath TEXT,
-        $columnDate TEXT
+        $columnShared INTEGER NOT NULL,
+        $columnSharedAt TEXT,
+        $columnCreatedAt TEXT NOT NULL
       )
     ''');
   }
 
-  Future<bool> isDuplicate(String imagePath) async {
-    final db = await database;
-    final result = await db.query(
-      table,
-      where: '$columnImagePath = ?',
-      whereArgs: [imagePath],
-    );
-    return result.isNotEmpty;
-  }
-
   Future<int> insertScanResult(ScanResult result) async {
-    final db = await database;
-
-    if (result.name.toLowerCase() == 'bukan makanan') {
+    if (!result.isFood) {
       return -1;
     }
-
-    return await db.insert(table, {
-      columnName: result.name,
-      columnOrigin: result.origin,
-      columnDescription: result.description,
-      columnHistory: result.history,
-      columnTags: result.tags.join(', '),
-      columnImagePath: result.imagePath,
-      columnDate: DateTime.now().toIso8601String(),
-    });
-  }
-
-  Future<int> insertHistory(Map<String, dynamic> data) async {
     final db = await database;
-    return await db.insert(table, {
-      columnName: data[columnName],
-      columnOrigin: data[columnOrigin] ?? '',
-      columnDescription: data[columnDescription] ?? '',
-      columnHistory: data[columnHistory] ?? '',
-      columnTags: data[columnTags] ?? '',
-      columnImagePath: data[columnImagePath] ?? '',
-      columnDate: data[columnDate] ?? DateTime.now().toIso8601String(),
-    });
+    return await db.insert(table, result.toDbMap());
   }
 
   Future<List<ScanResult>> getAllHistory() async {
     final db = await instance.database;
-    final result = await db.query('history');
-    return result.map((json) => ScanResult.fromJson(json)).toList();
+    final result = await db.query(table, orderBy: '$columnCreatedAt DESC');
+    return result.map((dbMap) => ScanResult.fromDbMap(dbMap)).toList();
   }
 
   Future<int> deleteHistory(int id) async {
@@ -105,11 +80,6 @@ class DatabaseHelper {
   }
 
   Future<void> clearAll() async {
-    final db = await database;
-    await db.delete(table);
-  }
-
-  Future<void> clearAllHistory() async {
     final db = await database;
     await db.delete(table);
   }
