@@ -22,7 +22,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(2, 6794009314652665517),
     name: 'ScanResultEntity',
-    lastPropertyId: const obx_int.IdUid(13, 2269532220407293858),
+    lastPropertyId: const obx_int.IdUid(21, 2596615914058849929),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -80,18 +80,6 @@ final _entities = <obx_int.ModelEntity>[
         flags: 0,
       ),
       obx_int.ModelProperty(
-        id: const obx_int.IdUid(10, 638361500011429350),
-        name: 'shared',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(11, 5728151631108112035),
-        name: 'sharedAt',
-        type: 10,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
         id: const obx_int.IdUid(12, 7412549223063869281),
         name: 'createdAt',
         type: 10,
@@ -101,6 +89,54 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(13, 2269532220407293858),
         name: 'tags',
         type: 30,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(14, 8291369782774795494),
+        name: 'firestoreId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(15, 5139211255206954904),
+        name: 'userId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(16, 4075609889243530918),
+        name: 'userEmail',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(17, 918738402596820412),
+        name: 'userName',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(18, 4740348991317142014),
+        name: 'imageUrl',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(19, 8717992558431186380),
+        name: 'isPublic',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(20, 4888231366900732088),
+        name: 'isFavorite',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(21, 2596615914058849929),
+        name: 'updatedAt',
+        type: 10,
         flags: 0,
       ),
     ],
@@ -159,6 +195,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
       5064094762055438430,
       4133298928439334605,
       1895205066393290535,
+      638361500011429350,
+      5728151631108112035,
     ],
     retiredRelationUids: const [],
     modelVersion: 5,
@@ -186,7 +224,20 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final tagsOffset = fbb.writeList(
           object.tags.map(fbb.writeString).toList(growable: false),
         );
-        fbb.startTable(14);
+        final firestoreIdOffset = object.firestoreId == null
+            ? null
+            : fbb.writeString(object.firestoreId!);
+        final userIdOffset = object.userId == null
+            ? null
+            : fbb.writeString(object.userId!);
+        final userEmailOffset = object.userEmail == null
+            ? null
+            : fbb.writeString(object.userEmail!);
+        final userNameOffset = object.userName == null
+            ? null
+            : fbb.writeString(object.userName!);
+        final imageUrlOffset = fbb.writeString(object.imageUrl);
+        fbb.startTable(22);
         fbb.addInt64(0, object.id);
         fbb.addBool(1, object.isFood);
         fbb.addOffset(2, imagePathOffset);
@@ -196,20 +247,26 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(6, historyOffset);
         fbb.addOffset(7, recipeJsonOffset);
         fbb.addOffset(8, tagsStringOffset);
-        fbb.addBool(9, object.shared);
-        fbb.addInt64(10, object.sharedAt?.millisecondsSinceEpoch);
         fbb.addInt64(11, object.createdAt.millisecondsSinceEpoch);
         fbb.addOffset(12, tagsOffset);
+        fbb.addOffset(13, firestoreIdOffset);
+        fbb.addOffset(14, userIdOffset);
+        fbb.addOffset(15, userEmailOffset);
+        fbb.addOffset(16, userNameOffset);
+        fbb.addOffset(17, imageUrlOffset);
+        fbb.addBool(18, object.isPublic);
+        fbb.addBool(19, object.isFavorite);
+        fbb.addInt64(20, object.updatedAt?.millisecondsSinceEpoch);
         fbb.finish(fbb.endTable());
         return object.id;
       },
       objectFromFB: (obx.Store store, ByteData fbData) {
         final buffer = fb.BufferContext(fbData);
         final rootOffset = buffer.derefObject(0);
-        final sharedAtValue = const fb.Int64Reader().vTableGetNullable(
+        final updatedAtValue = const fb.Int64Reader().vTableGetNullable(
           buffer,
           rootOffset,
-          24,
+          44,
         );
         final idParam = const fb.Int64Reader().vTableGet(
           buffer,
@@ -217,6 +274,18 @@ obx_int.ModelDefinition getObjectBoxModel() {
           4,
           0,
         );
+        final firestoreIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 30);
+        final userIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 32);
+        final userEmailParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 34);
+        final userNameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 36);
         final isFoodParam = const fb.BoolReader().vTableGet(
           buffer,
           rootOffset,
@@ -226,6 +295,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final imagePathParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 8, '');
+        final imageUrlParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 38, '');
         final nameParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 10, '');
@@ -244,32 +316,44 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final tagsStringParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 20, '');
-        final sharedParam = const fb.BoolReader().vTableGet(
+        final isPublicParam = const fb.BoolReader().vTableGet(
           buffer,
           rootOffset,
-          22,
+          40,
           false,
         );
-        final sharedAtParam = sharedAtValue == null
-            ? null
-            : DateTime.fromMillisecondsSinceEpoch(sharedAtValue);
+        final isFavoriteParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          42,
+          false,
+        );
         final createdAtParam = DateTime.fromMillisecondsSinceEpoch(
           const fb.Int64Reader().vTableGet(buffer, rootOffset, 26, 0),
         );
+        final updatedAtParam = updatedAtValue == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(updatedAtValue);
         final object =
             ScanResultEntity(
                 id: idParam,
+                firestoreId: firestoreIdParam,
+                userId: userIdParam,
+                userEmail: userEmailParam,
+                userName: userNameParam,
                 isFood: isFoodParam,
                 imagePath: imagePathParam,
+                imageUrl: imageUrlParam,
                 name: nameParam,
                 origin: originParam,
                 description: descriptionParam,
                 history: historyParam,
                 recipeJson: recipeJsonParam,
                 tagsString: tagsStringParam,
-                shared: sharedParam,
-                sharedAt: sharedAtParam,
+                isPublic: isPublicParam,
+                isFavorite: isFavoriteParam,
                 createdAt: createdAtParam,
+                updatedAt: updatedAtParam,
               )
               ..tags = const fb.ListReader<String>(
                 fb.StringReader(asciiOptimization: true),
@@ -331,23 +415,53 @@ class ScanResultEntity_ {
     _entities[0].properties[8],
   );
 
-  /// See [ScanResultEntity.shared].
-  static final shared = obx.QueryBooleanProperty<ScanResultEntity>(
-    _entities[0].properties[9],
-  );
-
-  /// See [ScanResultEntity.sharedAt].
-  static final sharedAt = obx.QueryDateProperty<ScanResultEntity>(
-    _entities[0].properties[10],
-  );
-
   /// See [ScanResultEntity.createdAt].
   static final createdAt = obx.QueryDateProperty<ScanResultEntity>(
-    _entities[0].properties[11],
+    _entities[0].properties[9],
   );
 
   /// See [ScanResultEntity.tags].
   static final tags = obx.QueryStringVectorProperty<ScanResultEntity>(
+    _entities[0].properties[10],
+  );
+
+  /// See [ScanResultEntity.firestoreId].
+  static final firestoreId = obx.QueryStringProperty<ScanResultEntity>(
+    _entities[0].properties[11],
+  );
+
+  /// See [ScanResultEntity.userId].
+  static final userId = obx.QueryStringProperty<ScanResultEntity>(
     _entities[0].properties[12],
+  );
+
+  /// See [ScanResultEntity.userEmail].
+  static final userEmail = obx.QueryStringProperty<ScanResultEntity>(
+    _entities[0].properties[13],
+  );
+
+  /// See [ScanResultEntity.userName].
+  static final userName = obx.QueryStringProperty<ScanResultEntity>(
+    _entities[0].properties[14],
+  );
+
+  /// See [ScanResultEntity.imageUrl].
+  static final imageUrl = obx.QueryStringProperty<ScanResultEntity>(
+    _entities[0].properties[15],
+  );
+
+  /// See [ScanResultEntity.isPublic].
+  static final isPublic = obx.QueryBooleanProperty<ScanResultEntity>(
+    _entities[0].properties[16],
+  );
+
+  /// See [ScanResultEntity.isFavorite].
+  static final isFavorite = obx.QueryBooleanProperty<ScanResultEntity>(
+    _entities[0].properties[17],
+  );
+
+  /// See [ScanResultEntity.updatedAt].
+  static final updatedAt = obx.QueryDateProperty<ScanResultEntity>(
+    _entities[0].properties[18],
   );
 }

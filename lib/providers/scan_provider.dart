@@ -1,5 +1,6 @@
 import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/core/services/firebase_ai_service.dart';
+import 'package:dishcovery_app/core/services/firestore_service.dart';
 import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import 'dart:typed_data';
 
 class ScanProvider extends ChangeNotifier {
   final FirebaseAiService _aiService = FirebaseAiService();
+  final FirestoreService _firestoreService = FirestoreService();
 
   bool _loading = false;
   ScanResult? _result;
@@ -95,31 +97,31 @@ Jika makanan, berikan informasi singkat dan padat:
 
       _result = parsed;
 
-      // Save to database using HistoryProvider
-      if (parsed.name.toLowerCase() != "bukan makanan" && _lastContext != null && _lastContext!.mounted) {
+      // Save to Firestore and cache locally
+      if (parsed.name.toLowerCase() != "bukan makanan" && parsed.isFood) {
         _loadingMessage = "Menyimpan hasil...";
         notifyListeners();
 
         try {
-          final historyProvider = Provider.of<HistoryProvider>(
-            _lastContext!,
-            listen: false,
-          );
+          // Save to Firestore (cloud-first)
+          final firestoreId = await _firestoreService.saveScanResult(parsed);
 
-          // Check if already exists
-          final existing = historyProvider.historyList;
-          final alreadyExists = existing.any(
-            (item) =>
-                item.name == parsed.name && item.imagePath == parsed.imagePath,
-          );
+          if (firestoreId != null) {
+            // Update result with Firestore ID
+            final updatedResult = parsed.copyWith(firestoreId: firestoreId);
+            _result = updatedResult;
 
-          if (!alreadyExists) {
-            await historyProvider.addHistory(parsed);
-          } else {
-            await historyProvider.loadHistory();
+            // Cache locally using HistoryProvider (ObjectBox)
+            if (_lastContext != null && _lastContext!.mounted) {
+              final historyProvider = Provider.of<HistoryProvider>(
+                _lastContext!,
+                listen: false,
+              );
+              await historyProvider.addHistory(updatedResult);
+            }
           }
         } catch (e) {
-          debugPrint("Could not save to history: $e");
+          debugPrint("Error saving scan result: $e");
         }
       }
     } catch (e, stackTrace) {
@@ -193,32 +195,32 @@ Jika makanan, berikan informasi singkat dan padat:
         }
       }
 
-      // Save to database after stream completes using HistoryProvider
+      // Save to Firestore and cache locally after stream completes
       final result = _result;
-      if (result != null && result.name.toLowerCase() != "bukan makanan" && _lastContext != null && _lastContext!.mounted) {
+      if (result != null && result.name.toLowerCase() != "bukan makanan" && result.isFood) {
         _loadingMessage = "Menyimpan hasil...";
         notifyListeners();
 
         try {
-          final historyProvider = Provider.of<HistoryProvider>(
-            _lastContext!,
-            listen: false,
-          );
+          // Save to Firestore (cloud-first)
+          final firestoreId = await _firestoreService.saveScanResult(result);
 
-          // Check if already exists
-          final existing = historyProvider.historyList;
-          final alreadyExists = existing.any(
-            (item) =>
-                item.name == result.name && item.imagePath == result.imagePath,
-          );
+          if (firestoreId != null) {
+            // Update result with Firestore ID
+            final updatedResult = result.copyWith(firestoreId: firestoreId);
+            _result = updatedResult;
 
-          if (!alreadyExists) {
-            await historyProvider.addHistory(result);
-          } else {
-            await historyProvider.loadHistory();
+            // Cache locally using HistoryProvider (ObjectBox)
+            if (_lastContext != null && _lastContext!.mounted) {
+              final historyProvider = Provider.of<HistoryProvider>(
+                _lastContext!,
+                listen: false,
+              );
+              await historyProvider.addHistory(updatedResult);
+            }
           }
         } catch (e) {
-          debugPrint("Could not save to history: $e");
+          debugPrint("Error saving scan result: $e");
         }
       }
     } catch (e, stackTrace) {

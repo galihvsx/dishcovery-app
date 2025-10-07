@@ -28,16 +28,13 @@ class _ResultScreenState extends State<ResultScreen> {
   void initState() {
     super.initState();
     final scanProvider = context.read<ScanProvider>();
-
     scanProvider.clear();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialData != null) {
-        // If from history, directly show data
         scanProvider.setResult(widget.initialData!);
-        _isSaved = true; // Already in database
+        _isSaved = true;
       } else {
-        // If from new scan, call API
         scanProvider.processImage(widget.imagePath!, context: context);
       }
     });
@@ -88,7 +85,6 @@ class _ResultScreenState extends State<ResultScreen> {
     final result = scanProvider.result;
     final displayImagePath = widget.initialData?.imagePath ?? widget.imagePath!;
 
-    // Update saved status when result is available
     if (result != null && result.id != null && !_isSaved) {
       _isSaved = true;
     }
@@ -96,85 +92,43 @@ class _ResultScreenState extends State<ResultScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // Sliver App Bar with image
           SliverAppBar(
-            expandedHeight: 300,
-            floating: false,
-            pinned: true,
+            floating: true,
+            snap: true,
             backgroundColor: Theme.of(context).colorScheme.surface,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Hasil Scan',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 8,
-                      color: Colors.black54,
-                    ),
-                  ],
-                ),
-              ),
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (File(displayImagePath).existsSync())
-                    Image.file(
-                      File(displayImagePath),
-                      fit: BoxFit.cover,
-                    )
-                  else
-                    Container(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      child: const Center(
-                        child: Icon(
-                          Icons.broken_image_outlined,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  // Gradient overlay for better text visibility
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black54,
-                        ],
-                        stops: [0.6, 1.0],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            leading: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Colors.black54,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                ),
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
+            title: const Text('Hasil Scan'),
+            centerTitle: true,
           ),
-
-          // Content
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Image section
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: AspectRatio(
+                      aspectRatio: 4 / 3,
+                      child: File(displayImagePath).existsSync()
+                          ? Image.file(
+                              File(displayImagePath),
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.broken_image_outlined,
+                                  size: 64,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
                   // Error handling
                   if (scanProvider.error != null)
                     Container(
@@ -207,13 +161,11 @@ class _ResultScreenState extends State<ResultScreen> {
                   else if (result != null && result.isFood == false)
                     const NotFoodWidget()
                   else
-                    // Main content with skeleton loading
                     Skeletonizer(
                       enabled: isLoading && result == null,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Food name
                           Text(
                             result?.name ?? "Nama Makanan Loading",
                             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -221,8 +173,6 @@ class _ResultScreenState extends State<ResultScreen> {
                                 ),
                           ),
                           const SizedBox(height: 8),
-
-                          // Origin
                           Row(
                             children: [
                               Icon(
@@ -242,150 +192,76 @@ class _ResultScreenState extends State<ResultScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Action buttons (icon only)
+                          // Action buttons
                           Row(
                             children: [
-                              // Save to collection
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: _isSaved
-                                      ? Theme.of(context).colorScheme.primaryContainer
-                                      : Theme.of(context).colorScheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(12),
-                                    onTap: _isSaved ? _saveToCollection : null,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Icon(
-                                        Icons.bookmark_outline,
-                                        size: 20,
-                                        color: _isSaved
-                                            ? Theme.of(context).colorScheme.onPrimaryContainer
-                                            : Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              _buildActionButton(
+                                context,
+                                icon: Icons.bookmark_outline,
+                                isEnabled: _isSaved,
+                                isActive: false,
+                                onTap: _saveToCollection,
                               ),
                               const SizedBox(width: 8),
-
-                              // Translate
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: _isSaved
-                                      ? (_translated
-                                          ? Theme.of(context).colorScheme.primaryContainer
-                                          : Theme.of(context).colorScheme.surfaceContainerHighest)
-                                      : Theme.of(context).colorScheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(12),
-                                    onTap: _isSaved ? _toggleTranslate : null,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Icon(
-                                        Icons.translate,
-                                        size: 20,
-                                        color: _isSaved
-                                            ? (_translated
-                                                ? Theme.of(context).colorScheme.onPrimaryContainer
-                                                : Theme.of(context).colorScheme.onSurface)
-                                            : Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              _buildActionButton(
+                                context,
+                                icon: Icons.translate,
+                                isEnabled: _isSaved,
+                                isActive: _translated,
+                                onTap: _toggleTranslate,
                               ),
                               const SizedBox(width: 8),
-
-                              // Share
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: _isSaved
-                                      ? Theme.of(context).colorScheme.surfaceContainerHighest
-                                      : Theme.of(context).colorScheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(12),
-                                    onTap: _isSaved ? _shareResult : null,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Icon(
-                                        Icons.share_outlined,
-                                        size: 20,
-                                        color: _isSaved
-                                            ? Theme.of(context).colorScheme.onSurface
-                                            : Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              _buildActionButton(
+                                context,
+                                icon: Icons.share_outlined,
+                                isEnabled: _isSaved,
+                                isActive: false,
+                                onTap: _shareResult,
                               ),
                             ],
                           ),
                           const SizedBox(height: 24),
 
-                          // Description Section
                           _buildSection(
                             context,
-                            icon: 'solar:document-text-bold-duotone',
+                            icon: Icons.description_outlined,
                             title: 'Deskripsi',
                             content: result?.description ??
                                 "Ini adalah deskripsi makanan yang sedang dimuat. " * 5,
-                            isLoading: isLoading && result == null,
                           ),
 
-                          // History Section
                           if (result?.history != null && result!.history.isNotEmpty) ...[
                             const SizedBox(height: 20),
                             _buildSection(
                               context,
-                              icon: 'solar:history-3-bold-duotone',
+                              icon: Icons.history,
                               title: 'Sejarah',
                               content: result.history,
-                              isLoading: false,
                             ),
                           ],
 
-                          // Recipe Section
                           if (result?.recipe != null) ...[
-                            // Ingredients
                             if (result!.recipe.ingredients.isNotEmpty) ...[
                               const SizedBox(height: 20),
                               _buildListSection(
                                 context,
-                                icon: 'solar:bottle-bold-duotone',
+                                icon: Icons.kitchen_outlined,
                                 title: 'Bahan-bahan',
                                 items: result.recipe.ingredients,
-                                isLoading: false,
                               ),
                             ],
-
-                            // Steps
                             if (result.recipe.steps.isNotEmpty) ...[
                               const SizedBox(height: 20),
                               _buildListSection(
                                 context,
-                                icon: 'solar:chef-hat-bold-duotone',
+                                icon: Icons.restaurant_menu_outlined,
                                 title: 'Langkah-Langkah',
                                 items: result.recipe.steps,
                                 isNumbered: true,
-                                isLoading: false,
                               ),
                             ],
                           ],
 
-                          // Tags
                           if (result?.tags != null && result!.tags.isNotEmpty) ...[
                             const SizedBox(height: 20),
                             Wrap(
@@ -413,7 +289,6 @@ class _ResultScreenState extends State<ResultScreen> {
                             ),
                           ],
 
-                          // Nearby Restaurants
                           if (result != null && result.isFood) ...[
                             const SizedBox(height: 24),
                             NearbyRestaurantsSection(
@@ -435,23 +310,59 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
+  Widget _buildActionButton(
+    BuildContext context, {
+    required IconData icon,
+    required bool isEnabled,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isEnabled
+            ? (isActive
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).colorScheme.surfaceContainerHighest)
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: isEnabled ? onTap : null,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isEnabled
+                  ? (isActive
+                      ? Theme.of(context).colorScheme.onPrimaryContainer
+                      : Theme.of(context).colorScheme.onSurface)
+                  : Colors.grey,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSection(
     BuildContext context, {
-    required String icon,
+    required IconData icon,
     required String title,
     required String content,
-    required bool isLoading,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header (not affected by skeleton)
         Skeletonizer(
           enabled: false,
           child: Row(
             children: [
               Icon(
-                _getIconData(icon),
+                icon,
                 size: 20,
                 color: Theme.of(context).colorScheme.primary,
               ),
@@ -466,7 +377,6 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        // Content (affected by skeleton)
         Text(
           content,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -480,22 +390,20 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Widget _buildListSection(
     BuildContext context, {
-    required String icon,
+    required IconData icon,
     required String title,
     required List<String> items,
     bool isNumbered = false,
-    required bool isLoading,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header (not affected by skeleton)
         Skeletonizer(
           enabled: false,
           child: Row(
             children: [
               Icon(
-                _getIconData(icon),
+                icon,
                 size: 20,
                 color: Theme.of(context).colorScheme.primary,
               ),
@@ -510,7 +418,6 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        // List items (affected by skeleton)
         ...items.asMap().entries.map((entry) {
           final index = entry.key;
           final item = entry.value;
@@ -553,20 +460,5 @@ class _ResultScreenState extends State<ResultScreen> {
         }).toList(),
       ],
     );
-  }
-
-  IconData _getIconData(String iconName) {
-    switch (iconName) {
-      case 'solar:document-text-bold-duotone':
-        return Icons.description_outlined;
-      case 'solar:history-3-bold-duotone':
-        return Icons.history;
-      case 'solar:bottle-bold-duotone':
-        return Icons.kitchen_outlined;
-      case 'solar:chef-hat-bold-duotone':
-        return Icons.restaurant_menu_outlined;
-      default:
-        return Icons.info_outline;
-    }
   }
 }

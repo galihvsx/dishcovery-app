@@ -68,10 +68,21 @@ class ObjectBoxDatabase {
     return entity?.toScanResult();
   }
 
-  /// Query scan results by shared status
-  Future<List<ScanResult>> getScanResultsBySharedStatus(bool shared) async {
+  /// Get favorite scan results
+  Future<List<ScanResult>> getFavorites() async {
     final query = _scanResultBox
-        .query(ScanResultEntity_.shared.equals(shared))
+        .query(ScanResultEntity_.isFavorite.equals(true))
+        .order(ScanResultEntity_.createdAt, flags: Order.descending)
+        .build();
+    final entities = query.find();
+    query.close();
+    return entities.map((e) => e.toScanResult()).toList();
+  }
+
+  /// Get cached public scan results
+  Future<List<ScanResult>> getCachedPublicScans() async {
+    final query = _scanResultBox
+        .query(ScanResultEntity_.isPublic.equals(true))
         .order(ScanResultEntity_.createdAt, flags: Order.descending)
         .build();
     final entities = query.find();
