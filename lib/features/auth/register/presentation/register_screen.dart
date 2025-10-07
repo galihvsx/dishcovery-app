@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_button/sign_in_button.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:dishcovery_app/core/widgets/app_logo.dart';
 import 'package:dishcovery_app/providers/auth_provider.dart';
@@ -38,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Please accept the terms and conditions'),
+          content: Text('register.validation.termsRequired'.tr()),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
@@ -58,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // Show success message and navigate to main screen
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Account created successfully!'),
+            content: Text('register.success'.tr()),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
@@ -150,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 24),
 
                 Text(
-                  'Create an Account',
+                  'register.title'.tr(),
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.onSurface,
@@ -159,7 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Create your account to start discovering\namazing Indonesian food',
+                  'register.subtitle'.tr(),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -175,8 +176,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textCapitalization: TextCapitalization.words,
                   style: TextStyle(color: colorScheme.onSurface),
                   decoration: InputDecoration(
-                    labelText: 'Full Name',
-                    hintText: 'Evan Carter',
+                    labelText: 'register.fullName'.tr(),
+                    hintText: 'register.fullNameHint'.tr(),
                     prefixIcon: Icon(
                       Icons.person_outlined,
                       color: colorScheme.onSurfaceVariant,
@@ -209,10 +210,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your full name';
+                      return 'register.validation.nameRequired'.tr();
                     }
                     if (value.trim().length < 2) {
-                      return 'Name must be at least 2 characters';
+                      return 'register.validation.nameMinLength'.tr();
                     }
                     return null;
                   },
@@ -227,8 +228,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textInputAction: TextInputAction.next,
                   style: TextStyle(color: colorScheme.onSurface),
                   decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'evancarter@email.com',
+                    labelText: 'register.email'.tr(),
+                    hintText: 'register.emailHint'.tr(),
                     prefixIcon: Icon(
                       Icons.email_outlined,
                       color: colorScheme.onSurfaceVariant,
@@ -261,12 +262,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'register.validation.emailRequired'.tr();
                     }
                     if (!RegExp(
                       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                     ).hasMatch(value)) {
-                      return 'Please enter a valid email';
+                      return 'register.validation.emailInvalid'.tr();
                     }
                     return null;
                   },
@@ -281,8 +282,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textInputAction: TextInputAction.next,
                   style: TextStyle(color: colorScheme.onSurface),
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    hintText: '••••••••',
+                    labelText: 'register.password'.tr(),
+                    hintText: 'register.passwordHint'.tr(),
                     prefixIcon: Icon(
                       Icons.lock_outlined,
                       color: colorScheme.onSurfaceVariant,
@@ -328,13 +329,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'register.validation.passwordRequired'.tr();
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'register.validation.passwordMinLength'.tr();
                     }
                     if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)').hasMatch(value)) {
-                      return 'Password must contain at least one letter and one number';
+                      return 'register.validation.passwordFormat'.tr();
                     }
                     return null;
                   },
@@ -349,8 +350,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textInputAction: TextInputAction.done,
                   style: TextStyle(color: colorScheme.onSurface),
                   decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    hintText: '••••••••',
+                    labelText: 'register.confirmPassword'.tr(),
+                    hintText: 'register.confirmPasswordHint'.tr(),
                     prefixIcon: Icon(
                       Icons.lock_outlined,
                       color: colorScheme.onSurfaceVariant,
@@ -396,10 +397,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return 'register.validation.confirmPasswordRequired'.tr();
                     }
                     if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return 'register.validation.passwordMismatch'.tr();
                     }
                     return null;
                   },
@@ -436,17 +437,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 color: colorScheme.onSurfaceVariant,
                               ),
                               children: [
-                                const TextSpan(text: 'I agree to the '),
+                                TextSpan(text: 'register.termsPrefix'.tr()),
                                 TextSpan(
-                                  text: 'Terms of Service',
+                                  text: 'register.termsOfService'.tr(),
                                   style: TextStyle(
                                     color: colorScheme.primary,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                const TextSpan(text: ' and '),
+                                TextSpan(text: 'register.termsAnd'.tr()),
                                 TextSpan(
-                                  text: 'Privacy Policy',
+                                  text: 'register.privacyPolicy'.tr(),
                                   style: TextStyle(
                                     color: colorScheme.primary,
                                     fontWeight: FontWeight.w600,
@@ -488,9 +489,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 color: colorScheme.onPrimary,
                               ),
                             )
-                          : const Text(
-                              'Sign up',
-                              style: TextStyle(
+                          : Text(
+                              'register.signUpButton'.tr(),
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -508,7 +509,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Or Sign up with',
+                        'register.orSignUpWith'.tr(),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -564,7 +565,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      'register.alreadyHaveAccount'.tr(),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -579,7 +580,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Login',
+                        'register.login'.tr(),
                         style: TextStyle(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.bold,

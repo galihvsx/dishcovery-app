@@ -16,8 +16,6 @@ void main() async {
   // Initialize SharedPreferences
   final preferences = await SharedPreferences.getInstance();
 
-  runApp(App(preferences: preferences));
-
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('id')],
