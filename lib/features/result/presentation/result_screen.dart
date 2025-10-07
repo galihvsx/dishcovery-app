@@ -85,7 +85,8 @@ class _ResultScreenState extends State<ResultScreen> {
     final result = scanProvider.result;
     final displayImagePath = widget.initialData?.imagePath ?? widget.imagePath!;
 
-    if (result != null && result.id != null && !_isSaved) {
+    // Check if result is saved (either local id or firestoreId)
+    if (result != null && (result.id != null || result.firestoreId != null) && !_isSaved) {
       _isSaved = true;
     }
 
@@ -100,102 +101,102 @@ class _ResultScreenState extends State<ResultScreen> {
             centerTitle: true,
           ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Image section
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: AspectRatio(
-                      aspectRatio: 4 / 3,
-                      child: File(displayImagePath).existsSync()
-                          ? Image.file(
-                              File(displayImagePath),
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                              child: const Center(
-                                child: Icon(
-                                  Icons.broken_image_outlined,
-                                  size: 64,
-                                  color: Colors.grey,
-                                ),
-                              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Full width image section
+                AspectRatio(
+                  aspectRatio: 4 / 3,
+                  child: File(displayImagePath).existsSync()
+                      ? Image.file(
+                          File(displayImagePath),
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          child: const Center(
+                            child: Icon(
+                              Icons.broken_image_outlined,
+                              size: 64,
+                              color: Colors.grey,
                             ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                          ),
+                        ),
+                ),
+                const SizedBox(height: 16),
 
-                  // Error handling
-                  if (scanProvider.error != null)
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.errorContainer,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 24,
-                            color: Theme.of(context).colorScheme.onErrorContainer,
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Error handling
+                      if (scanProvider.error != null)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              "Error: ${scanProvider.error}",
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onErrorContainer,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else if (!isLoading && result == null)
-                    const Center(child: Text("Tidak ada hasil"))
-                  else if (result != null && result.isFood == false)
-                    const NotFoodWidget()
-                  else
-                    Skeletonizer(
-                      enabled: isLoading && result == null,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            result?.name ?? "Nama Makanan Loading",
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
+                          child: Row(
                             children: [
                               Icon(
-                                Icons.location_on_outlined,
-                                size: 16,
-                                color: Theme.of(context).colorScheme.primary,
+                                Icons.error_outline,
+                                size: 24,
+                                color: Theme.of(context).colorScheme.onErrorContainer,
                               ),
-                              const SizedBox(width: 4),
-                              Text(
-                                result?.origin ?? "Asal Daerah Loading",
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.w500,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  "Error: ${scanProvider.error}",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onErrorContainer,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
-
-                          // Action buttons
-                          Row(
+                        )
+                      else if (!isLoading && result == null)
+                        const Center(child: Text("Tidak ada hasil"))
+                      else if (result != null && result.isFood == false)
+                        const NotFoodWidget()
+                      else
+                        Skeletonizer(
+                          enabled: isLoading && result == null,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildActionButton(
+                              Text(
+                                result?.name ?? "Nama Makanan Loading",
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    size: 16,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    result?.origin ?? "Asal Daerah Loading",
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Action buttons
+                              Row(
+                                children: [
+                                  _buildActionButton(
                                 context,
                                 icon: Icons.bookmark_outline,
                                 isEnabled: _isSaved,
@@ -297,12 +298,14 @@ class _ResultScreenState extends State<ResultScreen> {
                             ),
                           ],
 
-                          const SizedBox(height: 32),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
+                              const SizedBox(height: 32),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
