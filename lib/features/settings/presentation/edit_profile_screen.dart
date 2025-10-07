@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:dishcovery_app/providers/auth_provider.dart';
 
@@ -36,7 +37,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile'), centerTitle: true),
+      appBar: AppBar(
+        title: Text('profile.edit_profile'.tr()),
+        centerTitle: true,
+      ),
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           return SingleChildScrollView(
@@ -150,7 +154,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'Nama Lengkap',
+                                'profile.full_name'.tr(),
                                 style: Theme.of(context).textTheme.titleSmall,
                               ),
                             ],
@@ -158,13 +162,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _nameController,
-                            decoration: const InputDecoration(
-                              hintText: 'Masukkan nama lengkap',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              hintText: 'profile.enter_full_name'.tr(),
+                              border: const OutlineInputBorder(),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Nama tidak boleh kosong';
+                                return 'profile.name_required'.tr();
                               }
                               return null;
                             },
@@ -193,7 +197,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'Email',
+                                'auth.email'.tr(),
                                 style: Theme.of(context).textTheme.titleSmall,
                               ),
                             ],
@@ -202,7 +206,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           TextFormField(
                             controller: _emailController,
                             decoration: InputDecoration(
-                              hintText: 'Email',
+                              hintText: 'auth.email'.tr(),
                               border: const OutlineInputBorder(),
                               enabled: false,
                               suffixIcon: Icon(
@@ -213,7 +217,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Email tidak dapat diubah',
+                            'profile.email_cannot_be_changed'.tr(),
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: Theme.of(context).colorScheme.outline,
@@ -245,9 +249,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                                 if (success) {
                                   messenger.showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                        'Profile berhasil diperbarui',
+                                        'profile.profile_updated_successfully'
+                                            .tr(),
                                       ),
                                       backgroundColor: Colors.green,
                                     ),

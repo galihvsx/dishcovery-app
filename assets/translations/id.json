@@ -105,11 +105,16 @@
     "advanced": "Lanjutan",
     "cuisine_preferences": "Preferensi Masakan"
   },
-  "camera": {
+  "capture": {
     "take_photo": "Ambil Foto",
     "gallery": "Galeri",
     "retake": "Ambil Ulang",
-    "use_photo": "Gunakan Foto"
+    "use_photo": "Gunakan Foto",
+    "food_recognition": "Pengenalan Makanan",
+    "analyze": "Analisis",
+    "open_settings": "Buka Pengaturan",
+    "grant_camera_permission": "Berikan Izin Kamera",
+    "try_again": "Coba Lagi"
   },
   "result": {
     "recipe_found": "Resep Ditemukan!",
@@ -117,12 +122,57 @@
     "instructions": "Petunjuk",
     "cooking_time": "Waktu Memasak",
     "difficulty": "Tingkat Kesulitan",
-    "save_recipe": "Simpan Resep"
+    "save_recipe": "Simpan Resep",
+    "scan_result": "Hasil Scan",
+    "no_results": "Tidak ada hasil",
+    "save_to_collection": "Simpan ke Koleksi",
+    "share": "Bagikan",
+    "try_again": "Coba Lagi",
+    "unable_to_open_maps": "Tidak dapat membuka maps",
+    "location_not_available": "Informasi lokasi tidak tersedia"
   },
   "errors": {
     "generic": "Terjadi kesalahan. Silakan coba lagi.",
     "network": "Kesalahan jaringan. Periksa koneksi Anda.",
     "camera_permission": "Izin kamera diperlukan untuk mengambil foto.",
     "gallery_permission": "Izin galeri diperlukan untuk memilih foto."
+  },
+  "profile": {
+    "edit_profile": "Edit Profil",
+    "full_name": "Nama Lengkap",
+    "enter_full_name": "Masukkan nama lengkap",
+    "name_required": "Nama tidak boleh kosong",
+    "email_cannot_be_changed": "Email tidak dapat diubah",
+    "profile_updated_successfully": "Profil berhasil diperbarui",
+    "failed_to_update_profile": "Gagal memperbarui profil",
+    "saving": "Menyimpan...",
+    "save_changes": "Simpan Perubahan",
+    "change_profile_picture_coming_soon": "Fitur ganti foto profil segera hadir"
+  },
+  "user_preferences": {
+    "edit_preferences": "Edit Preferensi",
+    "skip": "Lewati",
+    "liked_flavors": "Rasa Favorit Anda",
+    "select_liked_flavors": "Pilih rasa yang Anda sukai",
+    "avoided_flavors": "Rasa yang Dihindari",
+    "select_avoided_flavors": "Pilih rasa yang ingin Anda hindari",
+    "food_allergies": "Alergi Makanan",
+    "tell_us_allergies": "Beri tahu kami tentang alergi Anda",
+    "food_categories": "Kategori Makanan",
+    "select_food_categories": "Pilih jenis makanan yang Anda sukai",
+    "add_custom": "Tambah kustom",
+    "preferences_saved_successfully": "Preferensi berhasil disimpan",
+    "failed_to_save": "Gagal menyimpan"
+  },
+  "home": {
+    "copy_link": "Salin Tautan",
+    "share_to": "Bagikan ke...",
+    "report": "Laporkan",
+    "turn_off_notifications": "Matikan notifikasi"
+  },
+  "history": {
+    "delete_history": "Hapus Riwayat",
+    "item_deleted": "Item dihapus",
+    "add_new_dish_history": "Tambah riwayat makanan baru"
   }
 }
