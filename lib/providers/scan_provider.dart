@@ -1,6 +1,5 @@
 import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/core/services/firebase_ai_service.dart';
-import 'package:dishcovery_app/core/database/database_helper.dart';
 import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +9,6 @@ import 'dart:typed_data';
 
 class ScanProvider extends ChangeNotifier {
   final FirebaseAiService _aiService = FirebaseAiService();
-  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
   bool _loading = false;
   ScanResult? _result;
@@ -97,32 +95,31 @@ Jika makanan, berikan informasi singkat dan padat:
 
       _result = parsed;
 
-      // Save to database
-      if (parsed.name.toLowerCase() != "bukan makanan") {
+      // Save to database using HistoryProvider
+      if (parsed.name.toLowerCase() != "bukan makanan" && _lastContext != null && _lastContext!.mounted) {
         _loadingMessage = "Menyimpan hasil...";
         notifyListeners();
 
-        final existing = await _dbHelper.getAllHistory();
-        final alreadyExists = existing.any(
-          (item) =>
-              item.name == parsed.name && item.imagePath == parsed.imagePath,
-        );
-
-        if (!alreadyExists) {
-          await _dbHelper.insertScanResult(parsed);
-        }
-      }
-
-      // Update history if context is available
-      if (_lastContext != null && _lastContext!.mounted) {
         try {
           final historyProvider = Provider.of<HistoryProvider>(
             _lastContext!,
             listen: false,
           );
-          await historyProvider.loadHistory();
+
+          // Check if already exists
+          final existing = historyProvider.historyList;
+          final alreadyExists = existing.any(
+            (item) =>
+                item.name == parsed.name && item.imagePath == parsed.imagePath,
+          );
+
+          if (!alreadyExists) {
+            await historyProvider.addHistory(parsed);
+          } else {
+            await historyProvider.loadHistory();
+          }
         } catch (e) {
-          debugPrint("Could not update history provider: $e");
+          debugPrint("Could not save to history: $e");
         }
       }
     } catch (e, stackTrace) {
@@ -196,33 +193,32 @@ Jika makanan, berikan informasi singkat dan padat:
         }
       }
 
-      // Save to database after stream completes
+      // Save to database after stream completes using HistoryProvider
       final result = _result;
-      if (result != null && result.name.toLowerCase() != "bukan makanan") {
+      if (result != null && result.name.toLowerCase() != "bukan makanan" && _lastContext != null && _lastContext!.mounted) {
         _loadingMessage = "Menyimpan hasil...";
         notifyListeners();
 
-        final existing = await _dbHelper.getAllHistory();
-        final alreadyExists = existing.any(
-          (item) =>
-              item.name == result.name && item.imagePath == result.imagePath,
-        );
-
-        if (!alreadyExists) {
-          await _dbHelper.insertScanResult(result);
-        }
-      }
-
-      // Update history if context is available
-      if (_lastContext != null && _lastContext!.mounted) {
         try {
           final historyProvider = Provider.of<HistoryProvider>(
             _lastContext!,
             listen: false,
           );
-          await historyProvider.loadHistory();
+
+          // Check if already exists
+          final existing = historyProvider.historyList;
+          final alreadyExists = existing.any(
+            (item) =>
+                item.name == result.name && item.imagePath == result.imagePath,
+          );
+
+          if (!alreadyExists) {
+            await historyProvider.addHistory(result);
+          } else {
+            await historyProvider.loadHistory();
+          }
         } catch (e) {
-          debugPrint("Could not update history provider: $e");
+          debugPrint("Could not save to history: $e");
         }
       }
     } catch (e, stackTrace) {
