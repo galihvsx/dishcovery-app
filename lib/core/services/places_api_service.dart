@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:dishcovery_app/core/models/place_model.dart';
 import 'package:dishcovery_app/core/services/http_service.dart';
-import 'package:dishcovery_app/core/utils/env_utils.dart';
+import 'package:dishcovery_app/core/config/api_constants.dart';
 
 /// Service for interacting with Google Places API
 class PlacesApiService {
@@ -12,8 +12,7 @@ class PlacesApiService {
   final HttpService _httpService = HttpService.instance;
 
   // Google Places API endpoint
-  static const String _baseUrl =
-      'https://places.googleapis.com/v1/places:searchText';
+  static const String _baseUrl = ApiConstants.placesApiBaseUrl;
 
   PlacesApiService._();
 
@@ -163,9 +162,7 @@ class PlacesApiService {
           data: requestBody,
           options: Options(
             headers: {
-              'X-Goog-Api-Key': EnvUtils.getRequiredEnv(
-                'GOOGLE_PLACES_API_KEY',
-              ),
+              'X-Goog-Api-Key': ApiConstants.googlePlacesApiKey,
               'X-Goog-FieldMask': _getFieldMask(),
             },
           ),
@@ -271,7 +268,7 @@ class PlacesApiService {
         data: requestBody,
         options: Options(
           headers: {
-            'X-Goog-Api-Key': EnvUtils.getRequiredEnv('GOOGLE_PLACES_API_KEY'),
+            'X-Goog-Api-Key': ApiConstants.googlePlacesApiKey,
             'X-Goog-FieldMask': _getFieldMask(),
           },
         ),
@@ -297,7 +294,7 @@ class PlacesApiService {
         url,
         options: Options(
           headers: {
-            'X-Goog-Api-Key': EnvUtils.getRequiredEnv('GOOGLE_PLACES_API_KEY'),
+            'X-Goog-Api-Key': ApiConstants.googlePlacesApiKey,
             'X-Goog-FieldMask': _getDetailedFieldMask(),
           },
         ),
