@@ -1,4 +1,5 @@
 import 'package:dishcovery_app/core/models/recipe_model.dart';
+import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/not_food_widget.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/result_actions_widget.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/result_image_widget.dart';
@@ -11,14 +12,11 @@ import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class ResultScreen extends StatefulWidget {
-  final String imagePath;
-  final bool fromHistory;
+  final String? imagePath;
+  final ScanResult? initialData;
 
-  const ResultScreen({
-    super.key,
-    required this.imagePath,
-    this.fromHistory = false,
-  });
+  const ResultScreen({super.key, this.imagePath, this.initialData})
+    : assert(imagePath != null || initialData != null);
 
   static const String path = '/result';
 
@@ -32,11 +30,18 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
+    final scanProvider = context.read<ScanProvider>();
+
+    scanProvider.clear();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ScanProvider>().processImage(
-        widget.imagePath,
-        context: context,
-      );
+      if (widget.initialData != null) {
+        // Jika dari history, langsung tampilkan data
+        scanProvider.setResult(widget.initialData!);
+      } else {
+        // Jika dari scan baru, baru panggil API
+        scanProvider.processImage(widget.imagePath!, context: context);
+      }
     });
   }
 
@@ -59,6 +64,8 @@ class _ResultScreenState extends State<ResultScreen> {
     final isLoading = scanProvider.loading;
     final result = scanProvider.result;
 
+    final displayImagePath = widget.initialData?.imagePath ?? widget.imagePath!;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Scan Result"),
@@ -77,7 +84,7 @@ class _ResultScreenState extends State<ResultScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image is always shown, not affected by skeleton
-              ResultImageWidget(imagePath: widget.imagePath),
+              ResultImageWidget(imagePath: displayImagePath),
               const SizedBox(height: 16),
 
               // Error handling
@@ -167,19 +174,6 @@ class _ResultScreenState extends State<ResultScreen> {
                         ],
                       ],
                     ],
-                  ),
-                ),
-
-              if (widget.fromHistory)
-                const Padding(
-                  padding: EdgeInsets.only(top: 12.0),
-                  child: Text(
-                    "Dibuka dari History",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontStyle: FontStyle.italic,
-                    ),
                   ),
                 ),
             ],

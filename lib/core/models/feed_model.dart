@@ -17,7 +17,7 @@ class FeedItem {
   final bool isLiked;
   final DateTime createdAt;
   final String location;
-  
+
   // Data dari scan result
   final String? scanResultId; // Referensi ke scan result yang menjadi sumber
   final String foodName;
@@ -26,7 +26,7 @@ class FeedItem {
   final String history;
   final Recipe recipe; // Menggunakan Recipe object yang lengkap
   final double? rating;
-  
+
   // Metadata untuk tracking
   final bool isFromScan; // Apakah feed ini berasal dari scan result
   final DateTime? sharedAt; // Kapan di-share ke feed
@@ -137,27 +137,28 @@ class FeedItem {
   @override
   int get hashCode {
     return Object.hash(
-      id,
-      userId,
-      username,
-      userAvatarUrl,
-      imageUrl,
-      caption,
-      Object.hashAll(tags),
-      likes,
-      comments,
-      isSaved,
-      isLiked,
-      createdAt,
-      location,
-      scanResultId,
-      foodName,
-      origin,
-      description,
-      history,
-      recipe,
-      rating,
-    ) ^ Object.hash(isFromScan, sharedAt);
+          id,
+          userId,
+          username,
+          userAvatarUrl,
+          imageUrl,
+          caption,
+          Object.hashAll(tags),
+          likes,
+          comments,
+          isSaved,
+          isLiked,
+          createdAt,
+          location,
+          scanResultId,
+          foodName,
+          origin,
+          description,
+          history,
+          recipe,
+          rating,
+        ) ^
+        Object.hash(isFromScan, sharedAt);
   }
 
   @override
@@ -221,10 +222,7 @@ class FeedItem {
       'origin': origin,
       'description': description,
       'history': history,
-      'recipe': {
-        'ingredients': recipe.ingredients,
-        'steps': recipe.steps,
-      },
+      'recipe': {'ingredients': recipe.ingredients, 'steps': recipe.steps},
       'rating': rating,
       'isFromScan': isFromScan,
       'sharedAt': sharedAt?.toIso8601String(),
@@ -245,7 +243,9 @@ class FeedItem {
       comments: data['comments'] ?? 0,
       isSaved: false, // This will be determined by user's collection
       isLiked: false, // This will be determined by user's likes
-      createdAt: DateTime.parse(data['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        data['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
       location: data['location'] ?? '',
       scanResultId: data['scanResultId'],
       foodName: data['foodName'] ?? '',
@@ -255,8 +255,8 @@ class FeedItem {
       recipe: Recipe.fromJson(data['recipe'] ?? {}),
       rating: data['rating']?.toDouble(),
       isFromScan: data['isFromScan'] ?? false,
-      sharedAt: data['sharedAt'] != null 
-          ? DateTime.parse(data['sharedAt']) 
+      sharedAt: data['sharedAt'] != null
+          ? DateTime.parse(data['sharedAt'])
           : null,
     );
   }
@@ -285,8 +285,10 @@ class FakeFeedData {
         scanResultId: 'scan_001',
         foodName: 'Pasta Pomodoro',
         origin: 'Italy',
-        description: 'Traditional Italian pasta dish with fresh tomatoes and basil',
-        history: 'Pasta Pomodoro originated in Southern Italy and has been a staple dish for centuries.',
+        description:
+            'Traditional Italian pasta dish with fresh tomatoes and basil',
+        history:
+            'Pasta Pomodoro originated in Southern Italy and has been a staple dish for centuries.',
         recipe: Recipe(
           ingredients: [
             'Pasta',
@@ -300,7 +302,7 @@ class FakeFeedData {
             'Cook pasta al dente',
             'Sauté garlic in olive oil',
             'Add tomatoes and basil',
-            'Toss with pasta and serve'
+            'Toss with pasta and serve',
           ],
         ),
         rating: 4.8,
@@ -326,14 +328,20 @@ class FakeFeedData {
         foodName: 'Salmon Sashimi',
         origin: 'Japan',
         description: 'Fresh raw salmon sliced thinly and served without rice',
-        history: 'Sashimi has been part of Japanese cuisine for over 1000 years.',
+        history:
+            'Sashimi has been part of Japanese cuisine for over 1000 years.',
         recipe: Recipe(
-          ingredients: ['Fresh Salmon', 'Wasabi', 'Soy Sauce', 'Pickled Ginger'],
+          ingredients: [
+            'Fresh Salmon',
+            'Wasabi',
+            'Soy Sauce',
+            'Pickled Ginger',
+          ],
           steps: [
             'Select the freshest salmon',
             'Cut against the grain in thin slices',
             'Arrange on plate',
-            'Serve with wasabi and soy sauce'
+            'Serve with wasabi and soy sauce',
           ],
         ),
         rating: 4.9,
@@ -358,8 +366,10 @@ class FakeFeedData {
         scanResultId: 'scan_003',
         foodName: 'Chocolate Lava Cake',
         origin: 'France',
-        description: 'Rich chocolate cake with molten chocolate center served with ice cream',
-        history: 'Chocolate lava cake was popularized in the 1980s by French chef Michel Bras.',
+        description:
+            'Rich chocolate cake with molten chocolate center served with ice cream',
+        history:
+            'Chocolate lava cake was popularized in the 1980s by French chef Michel Bras.',
         recipe: Recipe(
           ingredients: [
             'Dark Chocolate',
@@ -374,7 +384,7 @@ class FakeFeedData {
             'Whisk with eggs and sugar',
             'Add flour and mix',
             'Bake for 12 minutes',
-            'Serve with ice cream'
+            'Serve with ice cream',
           ],
         ),
         rating: 4.7,
@@ -399,8 +409,10 @@ class FakeFeedData {
         scanResultId: 'scan_004',
         foodName: 'Rainbow Buddha Bowl',
         origin: 'Modern Fusion',
-        description: 'Colorful and nutritious bowl with quinoa, fresh vegetables, and tahini dressing',
-        history: 'Buddha bowls became popular in the 2010s as part of the healthy eating movement.',
+        description:
+            'Colorful and nutritious bowl with quinoa, fresh vegetables, and tahini dressing',
+        history:
+            'Buddha bowls became popular in the 2010s as part of the healthy eating movement.',
         recipe: Recipe(
           ingredients: [
             'Quinoa',
@@ -416,7 +428,7 @@ class FakeFeedData {
             'Prepare all vegetables',
             'Make tahini dressing with lemon',
             'Arrange in bowl',
-            'Drizzle with dressing'
+            'Drizzle with dressing',
           ],
         ),
         rating: 4.6,
@@ -447,8 +459,10 @@ class FakeFeedData {
         scanResultId: 'scan_005',
         foodName: 'Margherita Pizza',
         origin: 'Italy',
-        description: 'Classic Neapolitan pizza with tomatoes, mozzarella, and basil',
-        history: 'Pizza Margherita was created in 1889 in honor of Queen Margherita of Savoy.',
+        description:
+            'Classic Neapolitan pizza with tomatoes, mozzarella, and basil',
+        history:
+            'Pizza Margherita was created in 1889 in honor of Queen Margherita of Savoy.',
         recipe: Recipe(
           ingredients: [
             'Pizza Dough',
@@ -462,7 +476,7 @@ class FakeFeedData {
             'Add tomato sauce',
             'Add fresh mozzarella',
             'Bake in wood-fired oven at 900°F',
-            'Garnish with fresh basil'
+            'Garnish with fresh basil',
           ],
         ),
         rating: 4.9,

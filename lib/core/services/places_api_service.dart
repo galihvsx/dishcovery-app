@@ -13,7 +13,8 @@ class PlacesApiService {
   final HttpService _httpService = HttpService.instance;
 
   // Google Places API endpoint
-  static const String _baseUrl = 'https://places.googleapis.com/v1/places:searchText';
+  static const String _baseUrl =
+      'https://places.googleapis.com/v1/places:searchText';
 
   PlacesApiService._();
 
@@ -64,8 +65,10 @@ class PlacesApiService {
         // Indonesia roughly spans:
         // Latitude: -11 to 6
         // Longitude: 95 to 141
-        if (location.latitude >= -11 && location.latitude <= 6 &&
-            location.longitude >= 95 && location.longitude <= 141) {
+        if (location.latitude >= -11 &&
+            location.latitude <= 6 &&
+            location.longitude >= 95 &&
+            location.longitude <= 141) {
           isIndonesia = true;
           regionCode = 'ID';
           languageCode = 'id';
@@ -82,7 +85,9 @@ class PlacesApiService {
         searchQueries.add('warung $foodName'); // Local term
       } else {
         // Outside Indonesia, search more broadly
-        searchQueries.add('Indonesian restaurant'); // Generic Indonesian restaurants
+        searchQueries.add(
+          'Indonesian restaurant',
+        ); // Generic Indonesian restaurants
         searchQueries.add('Asian restaurant'); // Broader category
         searchQueries.add('$foodName restaurant'); // Still try specific food
       }
@@ -132,15 +137,20 @@ class PlacesApiService {
         }
 
         // Rank by distance if location is provided, otherwise by relevance
-        requestBody['rankPreference'] = location != null ? 'DISTANCE' : 'RELEVANCE';
+        requestBody['rankPreference'] = location != null
+            ? 'DISTANCE'
+            : 'RELEVANCE';
 
         // Include restaurant type filter
         requestBody['includedType'] = 'restaurant';
-        requestBody['strictTypeFiltering'] = false; // Allow other food places too
+        requestBody['strictTypeFiltering'] =
+            false; // Allow other food places too
 
         // Log request for debugging
         if (kDebugMode) {
-          print('🔍 Places API Request (Attempt ${i + 1}/${searchQueries.length}):');
+          print(
+            '🔍 Places API Request (Attempt ${i + 1}/${searchQueries.length}):',
+          );
           print('   Query: $searchQuery');
           print('   Location: ${location?.latitude}, ${location?.longitude}');
           print('   Radius: $radius meters');
@@ -164,13 +174,16 @@ class PlacesApiService {
         final searchResponse = PlacesSearchResponse.fromJson(response.data);
 
         if (kDebugMode) {
-          print('✅ Places API Response: Found ${searchResponse.places.length} places');
+          print(
+            '✅ Places API Response: Found ${searchResponse.places.length} places',
+          );
         }
 
         // If we found results, use them
         if (searchResponse.places.isNotEmpty) {
           // Determine if this is a generic search
-          bool isGeneric = !isIndonesia && (i > 0 || !searchQuery.contains(foodName));
+          bool isGeneric =
+              !isIndonesia && (i > 0 || !searchQuery.contains(foodName));
 
           finalResponse = PlacesSearchResponse(
             places: searchResponse.places,
@@ -191,7 +204,8 @@ class PlacesApiService {
         }
       }
 
-      return finalResponse ?? PlacesSearchResponse(places: [], isGenericSearch: !isIndonesia);
+      return finalResponse ??
+          PlacesSearchResponse(places: [], isGenericSearch: !isIndonesia);
     } on DioException catch (e) {
       if (kDebugMode) {
         print('❌ Places API Error: ${e.message}');
@@ -202,7 +216,8 @@ class PlacesApiService {
       if (e.response?.statusCode == 400) {
         final errorData = e.response?.data;
         if (errorData != null && errorData['error'] != null) {
-          final errorMessage = errorData['error']['message'] ?? 'Invalid request';
+          final errorMessage =
+              errorData['error']['message'] ?? 'Invalid request';
           throw PlacesApiException(errorMessage, e.response?.statusCode);
         }
       }
@@ -394,7 +409,9 @@ class PlacesApiService {
       );
 
       if (kDebugMode) {
-        print('📍 Current location: ${position.latitude}, ${position.longitude}');
+        print(
+          '📍 Current location: ${position.latitude}, ${position.longitude}',
+        );
       }
 
       return position;
@@ -414,11 +431,12 @@ class PlacesApiService {
     double endLongitude,
   ) {
     return Geolocator.distanceBetween(
-      startLatitude,
-      startLongitude,
-      endLatitude,
-      endLongitude,
-    ) / 1000; // Convert to kilometers
+          startLatitude,
+          startLongitude,
+          endLatitude,
+          endLongitude,
+        ) /
+        1000; // Convert to kilometers
   }
 }
 

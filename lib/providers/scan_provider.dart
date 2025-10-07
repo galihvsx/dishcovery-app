@@ -238,6 +238,14 @@ Jika makanan, berikan informasi singkat dan padat:
   void clear() {
     _result = null;
     _error = null;
+    _loading = false;
+    notifyListeners();
+  }
+
+  void setResult(ScanResult result) {
+    _result = result;
+    _loading = false;
+    _error = null;
     notifyListeners();
   }
 }
