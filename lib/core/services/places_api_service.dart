@@ -162,7 +162,7 @@ class PlacesApiService {
           data: requestBody,
           options: Options(
             headers: {
-              'X-Goog-Api-Key': ApiConstants.googlePlacesApiKey,
+              'X-Goog-Api-Key': ApiConstants.googlePlacesApiKey(),
               'X-Goog-FieldMask': _getFieldMask(),
             },
           ),
@@ -268,7 +268,7 @@ class PlacesApiService {
         data: requestBody,
         options: Options(
           headers: {
-            'X-Goog-Api-Key': ApiConstants.googlePlacesApiKey,
+            'X-Goog-Api-Key': ApiConstants.googlePlacesApiKey(),
             'X-Goog-FieldMask': _getFieldMask(),
           },
         ),
@@ -294,7 +294,7 @@ class PlacesApiService {
         url,
         options: Options(
           headers: {
-            'X-Goog-Api-Key': ApiConstants.googlePlacesApiKey,
+            'X-Goog-Api-Key': ApiConstants.googlePlacesApiKey(),
             'X-Goog-FieldMask': _getDetailedFieldMask(),
           },
         ),

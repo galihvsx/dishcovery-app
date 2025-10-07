@@ -60,7 +60,7 @@ class HttpService {
         onRequest: (options, handler) {
           // Add API key to headers if needed for Places API
           if (options.path.contains('places.googleapis.com')) {
-            final apiKey = ApiConstants.googlePlacesApiKey;
+            final apiKey = ApiConstants.googlePlacesApiKey();
             if (apiKey.isNotEmpty) {
               options.headers['X-Goog-Api-Key'] = apiKey;
             }
