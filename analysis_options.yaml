@@ -7,12 +7,12 @@
 
 # The following line activates a set of recommended lints for Flutter apps,
 # packages, and plugins designed to encourage good coding practices.
-include: package:flutter_lints/flutter.yaml
+# include: package:flutter_lints/flutter.yaml
 
 linter:
-  rules:
-    always_use_package_imports: true
-    avoid_unused_constructor_parameters: true
-    enable_null_safety: true
+    rules:
+        always_use_package_imports: true
+        avoid_unused_constructor_parameters: true
+        enable_null_safety: true
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dishcovery_app/core/models/scan_model.dart';
+import 'package:dishcovery_app/core/services/firebase_storage_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// Service for managing Firestore operations for scan results and feeds
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseStorageService _storageService = FirebaseStorageService();
 
   static const String _scansCollection = 'scans';
 
@@ -18,10 +20,21 @@ class FirestoreService {
       final user = currentUser;
       if (user == null) return null;
 
+      // Upload image to Firebase Storage if it's a local path
+      String? imageUrl = scanResult.imageUrl;
+      if (scanResult.imagePath.isNotEmpty &&
+          !scanResult.imagePath.startsWith('http')) {
+        final uploadedUrl = await _storageService.uploadImage(scanResult.imagePath);
+        if (uploadedUrl != null) {
+          imageUrl = uploadedUrl;
+        }
+      }
+
       final updatedResult = scanResult.copyWith(
         userId: user.uid,
         userEmail: user.email,
         userName: user.displayName ?? user.email?.split('@').first ?? 'User',
+        imageUrl: imageUrl,
         isPublic: true,
         updatedAt: DateTime.now(),
       );
@@ -114,6 +127,19 @@ class FirestoreService {
   /// Delete scan result
   Future<bool> deleteScanResult(String docId) async {
     try {
+      // Get the scan to retrieve the image URL
+      final doc = await _firestore.collection(_scansCollection).doc(docId).get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        final imageUrl = data['imageUrl'] as String?;
+
+        // Delete image from Firebase Storage if it exists
+        if (imageUrl != null) {
+          await _storageService.deleteImage(imageUrl);
+        }
+      }
+
+      // Delete the document from Firestore
       await _firestore.collection(_scansCollection).doc(docId).delete();
       return true;
     } catch (e) {
