@@ -27,10 +27,11 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
-    final scanProvider = context.read<ScanProvider>();
-    scanProvider.clear();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final scanProvider = context.read<ScanProvider>();
+      scanProvider.clear();
+
       if (widget.initialData != null) {
         scanProvider.setResult(widget.initialData!);
         _isSaved = true;

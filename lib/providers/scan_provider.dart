@@ -237,7 +237,11 @@ Jika makanan, berikan informasi singkat dan padat:
     _result = null;
     _error = null;
     _loading = false;
-    notifyListeners();
+
+    // Defer notification to avoid setState during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void setResult(ScanResult result) {
