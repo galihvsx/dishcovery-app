@@ -1,5 +1,6 @@
 import 'package:dishcovery_app/core/database/objectbox_database.dart';
 import 'package:dishcovery_app/providers/history_provider.dart';
+import 'package:dishcovery_app/providers/feeds_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,6 +43,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ScanProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider(objectBoxDatabase)),
+        ChangeNotifierProvider(create: (_) => FeedsProvider()),
         ChangeNotifierProxyProvider<AuthProvider, UserPreferencesProvider>(
           create: (context) => UserPreferencesProvider(
             service: UserPreferencesService(),
