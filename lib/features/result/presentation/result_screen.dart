@@ -1,10 +1,6 @@
-import 'package:dishcovery_app/core/models/recipe_model.dart';
+import 'dart:io';
 import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/not_food_widget.dart';
-import 'package:dishcovery_app/features/result/presentation/widgets/result_actions_widget.dart';
-import 'package:dishcovery_app/features/result/presentation/widgets/result_image_widget.dart';
-import 'package:dishcovery_app/features/result/presentation/widgets/result_info_widget.dart';
-import 'package:dishcovery_app/features/result/presentation/widgets/result_tags_widget.dart';
 import 'package:dishcovery_app/features/result/widgets/nearby_restaurants_section.dart';
 import 'package:dishcovery_app/providers/scan_provider.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +12,7 @@ class ResultScreen extends StatefulWidget {
   final ScanResult? initialData;
 
   const ResultScreen({super.key, this.imagePath, this.initialData})
-    : assert(imagePath != null || initialData != null);
+      : assert(imagePath != null || initialData != null);
 
   static const String path = '/result';
 
@@ -26,36 +22,61 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   bool _translated = false;
+  bool _isSaved = false;
 
   @override
   void initState() {
     super.initState();
-    final scanProvider = context.read<ScanProvider>();
-
-    scanProvider.clear();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final scanProvider = context.read<ScanProvider>();
+      scanProvider.clear();
+
       if (widget.initialData != null) {
-        // Jika dari history, langsung tampilkan data
         scanProvider.setResult(widget.initialData!);
+        _isSaved = true;
       } else {
-        // Jika dari scan baru, baru panggil API
         scanProvider.processImage(widget.imagePath!, context: context);
       }
     });
   }
 
   void _toggleTranslate() {
-    setState(() => _translated = !_translated);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _translated
-              ? "Hasil diterjemahkan ke English 🇬🇧 (coming soon)"
-              : "Kembali ke Bahasa Indonesia 🇮🇩",
+    if (_isSaved) {
+      setState(() => _translated = !_translated);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _translated
+                ? "Hasil diterjemahkan ke English 🇬🇧"
+                : "Kembali ke Bahasa Indonesia 🇮🇩",
+          ),
+          duration: const Duration(seconds: 2),
         ),
-      ),
-    );
+      );
+    }
+  }
+
+  void _saveToCollection() {
+    if (_isSaved) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Disimpan ke koleksi"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _shareResult() {
+    if (_isSaved) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Membagikan hasil..."),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -63,123 +84,385 @@ class _ResultScreenState extends State<ResultScreen> {
     final scanProvider = context.watch<ScanProvider>();
     final isLoading = scanProvider.loading;
     final result = scanProvider.result;
-
     final displayImagePath = widget.initialData?.imagePath ?? widget.imagePath!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Scan Result"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.translate),
-            onPressed: _toggleTranslate,
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image is always shown, not affected by skeleton
-              ResultImageWidget(imagePath: displayImagePath),
-              const SizedBox(height: 16),
+    // Check if result is saved (either local id or firestoreId)
+    if (result != null && (result.id != null || result.firestoreId != null) && !_isSaved) {
+      _isSaved = true;
+    }
 
-              // Error handling
-              if (scanProvider.error != null)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.error_outline, color: Colors.red.shade700),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          "Error: ${scanProvider.error}",
-                          style: TextStyle(color: Colors.red.shade700),
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            snap: true,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            title: const Text('Hasil Scan'),
+            centerTitle: true,
+          ),
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Full width image section
+                AspectRatio(
+                  aspectRatio: 4 / 3,
+                  child: File(displayImagePath).existsSync()
+                      ? Image.file(
+                          File(displayImagePath),
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          child: const Center(
+                            child: Icon(
+                              Icons.broken_image_outlined,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              else if (!isLoading && result == null)
-                const Center(child: Text("Tidak ada hasil"))
-              else
-                // Main content with skeleton loading
-                Skeletonizer(
-                  enabled: isLoading && result == null,
+                ),
+                const SizedBox(height: 16),
+
+                Padding(
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // For skeleton, show placeholder data
-                      if (result == null && isLoading) ...[
-                        // Placeholder content for skeleton
-                        ResultInfoWidget(
-                          name: "Nama Makanan Loading",
-                          origin: "Asal Daerah Loading",
-                          description:
-                              "Ini adalah deskripsi makanan yang sedang dimuat. " *
-                              5,
-                          history:
-                              "Ini adalah sejarah makanan yang sedang dimuat. " *
-                              3,
-                          recipe: Recipe(
-                            ingredients: [
-                              "Bahan 1 loading",
-                              "Bahan 2 loading",
-                              "Bahan 3 loading",
+                      // Error handling
+                      if (scanProvider.error != null)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 24,
+                                color: Theme.of(context).colorScheme.onErrorContainer,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  "Error: ${scanProvider.error}",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onErrorContainer,
+                                  ),
+                                ),
+                              ),
                             ],
-                            steps: [
-                              "Langkah 1 loading",
-                              "Langkah 2 loading",
-                              "Langkah 3 loading",
+                          ),
+                        )
+                      else if (!isLoading && result == null)
+                        const Center(child: Text("Tidak ada hasil"))
+                      else if (result != null && result.isFood == false)
+                        const NotFoodWidget()
+                      else
+                        Skeletonizer(
+                          enabled: isLoading && result == null,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                result?.name ?? "Nama Makanan Loading",
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    size: 16,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    result?.origin ?? "Asal Daerah Loading",
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Action buttons
+                              Row(
+                                children: [
+                                  _buildActionButton(
+                                context,
+                                icon: Icons.bookmark_outline,
+                                isEnabled: _isSaved,
+                                isActive: false,
+                                onTap: _saveToCollection,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildActionButton(
+                                context,
+                                icon: Icons.translate,
+                                isEnabled: _isSaved,
+                                isActive: _translated,
+                                onTap: _toggleTranslate,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildActionButton(
+                                context,
+                                icon: Icons.share_outlined,
+                                isEnabled: _isSaved,
+                                isActive: false,
+                                onTap: _shareResult,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          _buildSection(
+                            context,
+                            icon: Icons.description_outlined,
+                            title: 'Deskripsi',
+                            content: result?.description ??
+                                "Ini adalah deskripsi makanan yang sedang dimuat. " * 5,
+                          ),
+
+                          if (result?.history != null && result!.history.isNotEmpty) ...[
+                            const SizedBox(height: 20),
+                            _buildSection(
+                              context,
+                              icon: Icons.history,
+                              title: 'Sejarah',
+                              content: result.history,
+                            ),
+                          ],
+
+                          if (result?.recipe != null) ...[
+                            if (result!.recipe.ingredients.isNotEmpty) ...[
+                              const SizedBox(height: 20),
+                              _buildListSection(
+                                context,
+                                icon: Icons.kitchen_outlined,
+                                title: 'Bahan-bahan',
+                                items: result.recipe.ingredients,
+                              ),
+                            ],
+                            if (result.recipe.steps.isNotEmpty) ...[
+                              const SizedBox(height: 20),
+                              _buildListSection(
+                                context,
+                                icon: Icons.restaurant_menu_outlined,
+                                title: 'Langkah-Langkah',
+                                items: result.recipe.steps,
+                                isNumbered: true,
+                              ),
+                            ],
+                          ],
+
+                          if (result?.tags != null && result!.tags.isNotEmpty) ...[
+                            const SizedBox(height: 20),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: result.tags.map((tag) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primaryContainer,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '#$tag',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+
+                          if (result != null && result.isFood) ...[
+                            const SizedBox(height: 24),
+                            NearbyRestaurantsSection(
+                              foodName: result.name,
+                              autoLoad: true,
+                            ),
+                          ],
+
+                              const SizedBox(height: 32),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        ResultTagsWidget(tags: ["Tag1", "Tag2", "Tag3"]),
-                        const SizedBox(height: 12),
-                        const ResultActionsWidget(),
-                      ]
-                      // Actual content when loaded
-                      else if (result != null) ...[
-                        if (result.isFood == false) ...[
-                          const NotFoodWidget(),
-                        ] else ...[
-                          ResultInfoWidget(
-                            name: result.name,
-                            origin: result.origin,
-                            description: result.description,
-                            history: result.history,
-                            recipe: result.recipe,
-                          ),
-                          const SizedBox(height: 12),
-                          if (result.tags.isNotEmpty)
-                            ResultTagsWidget(tags: result.tags),
-                          const SizedBox(height: 12),
-                          const ResultActionsWidget(),
-                          const SizedBox(height: 20),
-                          // Show nearby restaurants that sell this food
-                          NearbyRestaurantsSection(
-                            foodName: result.name,
-                            autoLoad: true,
-                          ),
-                        ],
-                      ],
                     ],
                   ),
                 ),
-            ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(
+    BuildContext context, {
+    required IconData icon,
+    required bool isEnabled,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isEnabled
+            ? (isActive
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).colorScheme.surfaceContainerHighest)
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: isEnabled ? onTap : null,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isEnabled
+                  ? (isActive
+                      ? Theme.of(context).colorScheme.onPrimaryContainer
+                      : Theme.of(context).colorScheme.onSurface)
+                  : Colors.grey,
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSection(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String content,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Skeletonizer(
+          enabled: false,
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          content,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                height: 1.5,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildListSection(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required List<String> items,
+    bool isNumbered = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Skeletonizer(
+          enabled: false,
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...items.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      isNumbered ? '${index + 1}' : '•',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    item,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          height: 1.4,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ],
     );
   }
 }
