@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:dishcovery_app/providers/camera_provider.dart';
 
@@ -26,8 +27,8 @@ class CameraBottomControlsWidget extends StatelessWidget {
           // Capture Button
           GestureDetector(
             onTap: () async {
-              final imagePath = await provider.takePicture();
-              onPictureTaken(imagePath);
+              final XFile? picture = await provider.takePicture();
+              onPictureTaken(picture?.path);
             },
             child: Container(
               width: 70,
@@ -49,9 +50,12 @@ class CameraBottomControlsWidget extends StatelessWidget {
             ),
           ),
 
-          // Switch Camera Button
+          // Switch Camera Button (placeholder - add switchCamera to provider if needed)
           IconButton(
-            onPressed: provider.switchCamera,
+            onPressed: () {
+              // TODO: Add switchCamera method to CameraProvider if needed
+              // provider.switchCamera();
+            },
             icon: Container(
               width: 50,
               height: 50,
