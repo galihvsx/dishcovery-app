@@ -131,8 +131,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 16),
                   Text(
                     _emailSent
-                        ? 'forgot_password.reset_link_sent'
-                            .tr(args: [_emailController.text.trim()])
+                        ? 'forgot_password.reset_link_sent'.tr(
+                            args: [_emailController.text.trim()],
+                          )
                         : 'forgot_password.subtitle'.tr(),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,

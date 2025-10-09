@@ -30,8 +30,8 @@ class _SettingLanguageCardState extends State<SettingLanguageCard> {
                 Text(
                   'settings_widgets.language_card.title'.tr(),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -60,8 +60,9 @@ class _SettingLanguageCardState extends State<SettingLanguageCard> {
                         selectedLanguage = newValue;
                       });
                       NavigationContext.showSnackBar(
-                        'settings_widgets.language_card.snackbar_changed'
-                            .tr(args: [newValue]),
+                        'settings_widgets.language_card.snackbar_changed'.tr(
+                          args: [newValue],
+                        ),
                       );
                     }
                   },
@@ -110,9 +111,7 @@ class _SettingLanguageCardState extends State<SettingLanguageCard> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            'settings_widgets.language_card.english'.tr(),
-                          ),
+                          Text('settings_widgets.language_card.english'.tr()),
                         ],
                       ),
                     ),

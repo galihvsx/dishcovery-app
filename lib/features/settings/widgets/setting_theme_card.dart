@@ -31,9 +31,7 @@ class SettingThemeCard extends StatelessWidget {
                           children: [
                             Text(
                               'settings_widgets.theme_card.title'.tr(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             Consumer<ThemeProvider>(
@@ -44,17 +42,16 @@ class SettingThemeCard extends StatelessWidget {
                                     context,
                                   );
                                   return Text(
-                                    'settings_widgets.theme_card.current_theme_system'
-                                        .tr(args: [
-                                      isDark
-                                          ? 'settings_widgets.theme_card.dark'
-                                              .tr()
-                                          : 'settings_widgets.theme_card.light'
-                                              .tr()
-                                    ]),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
+                                    'settings_widgets.theme_card.current_theme_system'.tr(
+                                      args: [
+                                        isDark
+                                            ? 'settings_widgets.theme_card.dark'
+                                                  .tr()
+                                            : 'settings_widgets.theme_card.light'
+                                                  .tr(),
+                                      ],
+                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(
                                           color: Theme.of(
                                             context,
@@ -74,14 +71,16 @@ class SettingThemeCard extends StatelessWidget {
                             final isDark = themeProvider.isDarkMode(context);
                             return Text(
                               'settings_widgets.theme_card.current_theme_system'
-                                  .tr(args: [
-                                isDark
-                                    ? 'settings_widgets.theme_card.dark'.tr()
-                                    : 'settings_widgets.theme_card.light'.tr()
-                              ]),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                                  .tr(
+                                    args: [
+                                      isDark
+                                          ? 'settings_widgets.theme_card.dark'
+                                                .tr()
+                                          : 'settings_widgets.theme_card.light'
+                                                .tr(),
+                                    ],
+                                  ),
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: Theme.of(
                                       context,

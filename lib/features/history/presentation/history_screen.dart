@@ -35,7 +35,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       appBar: CustomAppBar(
         title: 'history_screen.title'.tr(),
-        actions: const [ThemeSwitcher()]
+        actions: const [ThemeSwitcher()],
       ),
       body: SafeArea(
         child: RefreshIndicator(
@@ -49,11 +49,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.history,
-                        size: 80,
-                        color: Colors.grey,
-                      ),
+                      const Icon(Icons.history, size: 80, color: Colors.grey),
                       const SizedBox(height: 16),
                       Text(
                         'history_screen.empty_title'.tr(),
@@ -104,13 +100,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           fit: StackFit.expand,
                           children: [
                             // Background image
-                            if (item.imagePath.isNotEmpty && File(item.imagePath).existsSync())
+                            if (item.imagePath.isNotEmpty &&
+                                File(item.imagePath).existsSync())
                               Image.file(
                                 File(item.imagePath),
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
-                                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
                                     child: const Center(
                                       child: Icon(
                                         Icons.broken_image_outlined,
@@ -123,7 +122,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               )
                             else
                               Container(
-                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
                                 child: const Center(
                                   child: Icon(
                                     Icons.restaurant,
@@ -160,18 +161,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   bottomRight: Radius.circular(16),
                                 ),
                                 child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                  filter: ImageFilter.blur(
+                                    sigmaX: 8,
+                                    sigmaY: 8,
+                                  ),
                                   child: Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: const BoxDecoration(
                                       color: Colors.black26,
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          item.name.isNotEmpty ? item.name : 'history_screen.unknown_dish'.tr(),
+                                          item.name.isNotEmpty
+                                              ? item.name
+                                              : 'history_screen.unknown_dish'
+                                                    .tr(),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
@@ -190,7 +198,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              item.origin.isNotEmpty ? item.origin : 'history_screen.unknown_origin'.tr(),
+                                              item.origin.isNotEmpty
+                                                  ? item.origin
+                                                  : 'history_screen.unknown_origin'
+                                                        .tr(),
                                               style: const TextStyle(
                                                 color: Colors.white70,
                                                 fontSize: 12,
@@ -204,7 +215,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              dateFormatter.format(item.createdAt),
+                                              dateFormatter.format(
+                                                item.createdAt,
+                                              ),
                                               style: const TextStyle(
                                                 color: Colors.white70,
                                                 fontSize: 12,
@@ -232,30 +245,44 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: Text('history_screen.delete_dialog_title'.tr()),
+                                        title: Text(
+                                          'history_screen.delete_dialog_title'
+                                              .tr(),
+                                        ),
                                         content: Text(
-                                          'history_screen.delete_dialog_content'.tr(),
+                                          'history_screen.delete_dialog_content'
+                                              .tr(),
                                         ),
                                         actions: [
                                           TextButton(
-                                            onPressed: () => Navigator.pop(context),
+                                            onPressed: () =>
+                                                Navigator.pop(context),
                                             child: Text('common.cancel'.tr()),
                                           ),
                                           TextButton(
                                             onPressed: () async {
-                                              await provider.deleteHistory(item.id!);
+                                              await provider.deleteHistory(
+                                                item.id!,
+                                              );
                                               if (!mounted) return;
                                               Navigator.pop(context);
                                               if (!mounted) return;
-                                              ScaffoldMessenger.of(context).showSnackBar(
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
                                                 SnackBar(
-                                                  content: Text('history_screen.snackbar_deleted'.tr()),
+                                                  content: Text(
+                                                    'history_screen.snackbar_deleted'
+                                                        .tr(),
+                                                  ),
                                                 ),
                                               );
                                             },
                                             child: Text(
                                               'common.delete'.tr(),
-                                              style: const TextStyle(color: Colors.red),
+                                              style: const TextStyle(
+                                                color: Colors.red,
+                                              ),
                                             ),
                                           ),
                                         ],

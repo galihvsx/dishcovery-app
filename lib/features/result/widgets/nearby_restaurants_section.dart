@@ -116,7 +116,8 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                 children: [
                   Text(
                     _isGenericSearch
-                        ? 'result_screen.nearby_restaurants_title_indonesian'.tr()
+                        ? 'result_screen.nearby_restaurants_title_indonesian'
+                              .tr()
                         : 'result_screen.nearby_restaurants_title_nearby'.tr(),
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
@@ -127,9 +128,9 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                   Text(
                     _isGenericSearch
                         ? 'result_screen.nearby_restaurants_subtitle_generic'
-                            .tr(args: [widget.foodName])
+                              .tr(args: [widget.foodName])
                         : 'result_screen.nearby_restaurants_subtitle_specific'
-                            .tr(args: [widget.foodName]),
+                              .tr(args: [widget.foodName]),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(

@@ -38,17 +38,17 @@ class NotFoodWidget extends StatelessWidget {
                 "result_screen.not_food_title".tr(),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.error,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.error,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 "result_screen.not_food_subtitle".tr(),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
             ],
           ),

@@ -99,10 +99,9 @@ class SettingProfileCard extends StatelessWidget {
                           children: [
                             Text(
                               user?.displayName ??
-                                  'settings_widgets.profile_card.default_user'.tr(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
+                                  'settings_widgets.profile_card.default_user'
+                                      .tr(),
+                              style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(
@@ -115,10 +114,9 @@ class SettingProfileCard extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               user?.email ??
-                                  'settings_widgets.profile_card.default_email'.tr(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                                  'settings_widgets.profile_card.default_email'
+                                      .tr(),
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
                                     color: Theme.of(context)
                                         .colorScheme
@@ -169,10 +167,9 @@ class SettingProfileCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'settings_widgets.profile_card.food_preferences'.tr(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
+                              'settings_widgets.profile_card.food_preferences'
+                                  .tr(),
+                              style: Theme.of(context).textTheme.titleSmall
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             TextButton.icon(
@@ -180,7 +177,9 @@ class SettingProfileCard extends StatelessWidget {
                                 Navigator.pushNamed(context, '/preferences');
                               },
                               icon: const Icon(Icons.edit, size: 16),
-                              label: Text('settings_widgets.profile_card.edit'.tr()),
+                              label: Text(
+                                'settings_widgets.profile_card.edit'.tr(),
+                              ),
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
@@ -198,12 +197,16 @@ class SettingProfileCard extends StatelessWidget {
                           prefs.likedFlavors.isEmpty
                               ? 'settings_widgets.profile_card.not_set'.tr()
                               : prefs.likedFlavors.take(3).join(', ') +
-                                  (prefs.likedFlavors.length > 3
-                                      ? 'settings_widgets.profile_card.and_more'.tr(args: [
-                                          (prefs.likedFlavors.length - 3)
-                                              .toString()
-                                        ])
-                                      : ''),
+                                    (prefs.likedFlavors.length > 3
+                                        ? 'settings_widgets.profile_card.and_more'
+                                              .tr(
+                                                args: [
+                                                  (prefs.likedFlavors.length -
+                                                          3)
+                                                      .toString(),
+                                                ],
+                                              )
+                                        : ''),
                         ),
                         const SizedBox(height: 8),
                         _buildPreferenceItem(
@@ -213,12 +216,15 @@ class SettingProfileCard extends StatelessWidget {
                           prefs.categories.isEmpty
                               ? 'settings_widgets.profile_card.not_set'.tr()
                               : prefs.categories.take(3).join(', ') +
-                                  (prefs.categories.length > 3
-                                      ? 'settings_widgets.profile_card.and_more'.tr(args: [
-                                          (prefs.categories.length - 3)
-                                              .toString()
-                                        ])
-                                      : ''),
+                                    (prefs.categories.length > 3
+                                        ? 'settings_widgets.profile_card.and_more'
+                                              .tr(
+                                                args: [
+                                                  (prefs.categories.length - 3)
+                                                      .toString(),
+                                                ],
+                                              )
+                                        : ''),
                         ),
                         const SizedBox(height: 8),
                         _buildPreferenceItem(
@@ -228,11 +234,15 @@ class SettingProfileCard extends StatelessWidget {
                           prefs.allergies.isEmpty
                               ? 'settings_widgets.profile_card.none'.tr()
                               : prefs.allergies.take(3).join(', ') +
-                                  (prefs.allergies.length > 3
-                                      ? 'settings_widgets.profile_card.and_more'.tr(args: [
-                                          (prefs.allergies.length - 3).toString()
-                                        ])
-                                      : ''),
+                                    (prefs.allergies.length > 3
+                                        ? 'settings_widgets.profile_card.and_more'
+                                              .tr(
+                                                args: [
+                                                  (prefs.allergies.length - 3)
+                                                      .toString(),
+                                                ],
+                                              )
+                                        : ''),
                         ),
                         const SizedBox(height: 8),
                         _buildPreferenceItem(
@@ -273,11 +283,11 @@ class SettingProfileCard extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
-                      fontWeight: FontWeight.w500,
-                    ),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 2),
               Text(

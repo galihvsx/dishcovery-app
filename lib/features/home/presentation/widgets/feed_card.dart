@@ -325,8 +325,9 @@ class _FeedCardState extends State<FeedCard>
                 GestureDetector(
                   onTap: widget.onComment,
                   child: Text(
-                    'feed_card.view_all_comments'
-                        .tr(args: [widget.feedItem.comments.toString()]),
+                    'feed_card.view_all_comments'.tr(
+                      args: [widget.feedItem.comments.toString()],
+                    ),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),

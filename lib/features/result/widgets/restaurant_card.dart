@@ -46,7 +46,8 @@ class RestaurantCard extends StatelessWidget {
                   children: [
                     // Restaurant name
                     Text(
-                      place.displayName?.text ?? 'result_screen.unknown_restaurant_name'.tr(),
+                      place.displayName?.text ??
+                          'result_screen.unknown_restaurant_name'.tr(),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colorScheme.onSurface,
@@ -283,7 +284,8 @@ class RestaurantCard extends StatelessWidget {
       final lat = place.location!.latitude;
       final lng = place.location!.longitude;
       final name = Uri.encodeComponent(
-          place.displayName?.text ?? 'result_screen.default_restaurant_name'.tr());
+        place.displayName?.text ?? 'result_screen.default_restaurant_name'.tr(),
+      );
 
       // Try Google Maps URL scheme
       final googleMapsUrl = Uri.parse(

@@ -20,12 +20,11 @@ class ResultInfoWidget extends StatelessWidget {
   });
 
   Widget _buildSection(
-    BuildContext context,
-    {
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String content,
-  } ) {
+  }) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -52,9 +51,9 @@ class ResultInfoWidget extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
               ),
             ],
           ),
@@ -65,9 +64,9 @@ class ResultInfoWidget extends StatelessWidget {
             styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
                 .copyWith(
                   p: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        height: 1.5,
-                        color: colorScheme.onSurface.withValues(alpha: 0.9),
-                      ),
+                    height: 1.5,
+                    color: colorScheme.onSurface.withValues(alpha: 0.9),
+                  ),
                 ),
           ),
         ],
@@ -84,10 +83,10 @@ class ResultInfoWidget extends StatelessWidget {
         : '';
     final stepsMarkdown = recipe.steps.isNotEmpty
         ? recipe.steps
-            .asMap()
-            .entries
-            .map((e) => '${e.key + 1}. ${e.value}')
-            .join('\n')
+              .asMap()
+              .entries
+              .map((e) => '${e.key + 1}. ${e.value}')
+              .join('\n')
         : '';
 
     return SingleChildScrollView(
