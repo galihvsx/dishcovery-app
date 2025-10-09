@@ -36,20 +36,20 @@ class _PreferencesOnboardingScreenState
 
   // Predefined options
   final List<String> _flavorOptions = const [
-    'Pedas',
-    'Manis',
-    'Asin',
-    'Asam',
-    'Gurih',
-    'Pahit',
+    'Spicy',
+    'Sweet',
+    'Salty',
+    'Sour',
+    'Savory',
+    'Bitter',
   ];
   final List<String> _allergyOptions = const [
-    'Kacang',
+    'Peanuts',
     'Seafood',
     'Gluten',
-    'Susu',
-    'Telur',
-    'Kedelai',
+    'Milk',
+    'Eggs',
+    'Soy',
   ];
   final List<String> _categoryOptions = const [
     'Fastfood',
@@ -117,7 +117,9 @@ class _PreferencesOnboardingScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('preferences_onboarding.skip_fail'.tr(args: [e.toString()])),
+            content: Text(
+              'preferences_onboarding.skip_fail'.tr(args: [e.toString()]),
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -172,7 +174,9 @@ class _PreferencesOnboardingScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('preferences_onboarding.save_fail'.tr(args: [e.toString()])),
+            content: Text(
+              'preferences_onboarding.save_fail'.tr(args: [e.toString()]),
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -238,8 +242,7 @@ class _PreferencesOnboardingScreenState
       theme: theme,
       title: 'preferences_onboarding.welcome_title'.tr(),
       subtitle: 'preferences_onboarding.welcome_subtitle'.tr(),
-      description:
-          'preferences_onboarding.welcome_desc'.tr(),
+      description: 'preferences_onboarding.welcome_desc'.tr(),
       icon: Icons.favorite_rounded,
       iconColor: const Color(0xFFE63946),
       options: _flavorOptions,
