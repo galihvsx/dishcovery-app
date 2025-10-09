@@ -1,0 +1,132 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "2:6794009314652665517",
+      "lastPropertyId": "21:2596615914058849929",
+      "name": "ScanResultEntity",
+      "properties": [
+        {
+          "id": "1:8659959268343620806",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8155718921391186491",
+          "name": "isFood",
+          "type": 1
+        },
+        {
+          "id": "3:964261166762712985",
+          "name": "imagePath",
+          "type": 9
+        },
+        {
+          "id": "4:2588443584401535591",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "5:4731864746355160028",
+          "name": "origin",
+          "type": 9
+        },
+        {
+          "id": "6:573618917759224921",
+          "name": "description",
+          "type": 9
+        },
+        {
+          "id": "7:7027052122854645949",
+          "name": "history",
+          "type": 9
+        },
+        {
+          "id": "8:8614214315038652433",
+          "name": "recipeJson",
+          "type": 9
+        },
+        {
+          "id": "9:523284944376794127",
+          "name": "tagsString",
+          "type": 9
+        },
+        {
+          "id": "12:7412549223063869281",
+          "name": "createdAt",
+          "type": 10
+        },
+        {
+          "id": "13:2269532220407293858",
+          "name": "tags",
+          "type": 30
+        },
+        {
+          "id": "14:8291369782774795494",
+          "name": "firestoreId",
+          "type": 9
+        },
+        {
+          "id": "15:5139211255206954904",
+          "name": "userId",
+          "type": 9
+        },
+        {
+          "id": "16:4075609889243530918",
+          "name": "userEmail",
+          "type": 9
+        },
+        {
+          "id": "17:918738402596820412",
+          "name": "userName",
+          "type": 9
+        },
+        {
+          "id": "18:4740348991317142014",
+          "name": "imageUrl",
+          "type": 9
+        },
+        {
+          "id": "19:8717992558431186380",
+          "name": "isPublic",
+          "type": 1
+        },
+        {
+          "id": "20:4888231366900732088",
+          "name": "isFavorite",
+          "type": 1
+        },
+        {
+          "id": "21:2596615914058849929",
+          "name": "updatedAt",
+          "type": 10
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "2:6794009314652665517",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [
+    538005247682412464
+  ],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [
+    4602000268188458531,
+    4567248296391948129,
+    5064094762055438430,
+    4133298928439334605,
+    1895205066393290535,
+    638361500011429350,
+    5728151631108112035
+  ],
+  "retiredRelationUids": [],
+  "version": 1
+}

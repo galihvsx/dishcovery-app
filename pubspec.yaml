@@ -48,6 +48,7 @@ dependencies:
   persistent_bottom_nav_bar_v2: ^6.1.0
   firebase_core: ^4.1.1
   firebase_auth: ^6.1.0
+  firebase_storage: ^13.0.2
   firebase_ai: ^3.3.0
   timeago: ^3.7.1
   camera: ^0.11.2
@@ -61,13 +62,17 @@ dependencies:
   flutter_markdown: ^0.7.7+1
   skeletonizer: ^2.1.0+1
   iconify_design: ^1.0.1
-  sqflite: ^2.4.2
+  objectbox: ^4.0.3
+  objectbox_flutter_libs: ^4.0.3
   path: ^1.9.1
   url_launcher: ^6.3.2
+  share_plus: ^12.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.4.13
+  objectbox_generator: ^4.0.3
 
 flutter:
   assets:
