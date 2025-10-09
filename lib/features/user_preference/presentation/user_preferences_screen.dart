@@ -19,20 +19,20 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
 
   // Predefined options
   final List<String> _flavorOptions = const [
-    'Pedas',
-    'Manis',
-    'Asin',
-    'Asam',
-    'Gurih',
-    'Pahit',
+    'Spicy',
+    'Sweet',
+    'Salty',
+    'Sour',
+    'Savory',
+    'Bitter',
   ];
   final List<String> _allergyOptions = const [
-    'Kacang',
+    'Peanuts',
     'Seafood',
     'Gluten',
-    'Susu',
-    'Telur',
-    'Kedelai',
+    'Milk',
+    'Eggs',
+    'Soy',
   ];
   final List<String> _categoryOptions = const [
     'Fastfood',
@@ -139,7 +139,8 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-              'user_preferences_screen.snackbar_fail'.tr(args: [provider.error!])),
+            'user_preferences_screen.snackbar_fail'.tr(args: [provider.error!]),
+          ),
           backgroundColor: Theme.of(context).colorScheme.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
