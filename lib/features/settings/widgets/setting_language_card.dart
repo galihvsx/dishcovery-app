@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:dishcovery_app/core/navigation/navigation_models.dart';
 
@@ -27,7 +28,7 @@ class _SettingLanguageCardState extends State<SettingLanguageCard> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Language',
+                  'settings_widgets.language_card.title'.tr(),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -59,7 +60,9 @@ class _SettingLanguageCardState extends State<SettingLanguageCard> {
                         selectedLanguage = newValue;
                       });
                       NavigationContext.showSnackBar(
-                        'Language changed to $newValue (Not implemented yet)',
+                        'settings_widgets.language_card.snackbar_changed'.tr(
+                          args: [newValue],
+                        ),
                       );
                     }
                   },
@@ -83,7 +86,9 @@ class _SettingLanguageCardState extends State<SettingLanguageCard> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Text('Bahasa Indonesia'),
+                          Text(
+                            'settings_widgets.language_card.indonesian'.tr(),
+                          ),
                         ],
                       ),
                     ),
@@ -106,7 +111,7 @@ class _SettingLanguageCardState extends State<SettingLanguageCard> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Text('English'),
+                          Text('settings_widgets.language_card.english'.tr()),
                         ],
                       ),
                     ),

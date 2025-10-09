@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
@@ -35,20 +36,20 @@ class _PreferencesOnboardingScreenState
 
   // Predefined options
   final List<String> _flavorOptions = const [
-    'Pedas',
-    'Manis',
-    'Asin',
-    'Asam',
-    'Gurih',
-    'Pahit',
+    'Spicy',
+    'Sweet',
+    'Salty',
+    'Sour',
+    'Savory',
+    'Bitter',
   ];
   final List<String> _allergyOptions = const [
-    'Kacang',
+    'Peanuts',
     'Seafood',
     'Gluten',
-    'Susu',
-    'Telur',
-    'Kedelai',
+    'Milk',
+    'Eggs',
+    'Soy',
   ];
   final List<String> _categoryOptions = const [
     'Fastfood',
@@ -116,7 +117,9 @@ class _PreferencesOnboardingScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal melewati onboarding: $e'),
+            content: Text(
+              'preferences_onboarding.skip_fail'.tr(args: [e.toString()]),
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -171,7 +174,9 @@ class _PreferencesOnboardingScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal menyimpan preferensi: $e'),
+            content: Text(
+              'preferences_onboarding.save_fail'.tr(args: [e.toString()]),
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -198,7 +203,7 @@ class _PreferencesOnboardingScreenState
           TextButton(
             onPressed: _skipOnboarding,
             child: Text(
-              'Lewati',
+              'preferences_onboarding.skip'.tr(),
               style: TextStyle(
                 color: colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
@@ -235,10 +240,9 @@ class _PreferencesOnboardingScreenState
   Widget _buildLikedFlavorsPage(ThemeData theme) {
     return _buildPreferencePage(
       theme: theme,
-      title: 'Selamat Datang! 👋',
-      subtitle: 'Mari mulai dengan rasa favorit Anda',
-      description:
-          'Pilih rasa yang Anda sukai agar kami bisa memberikan rekomendasi terbaik',
+      title: 'preferences_onboarding.welcome_title'.tr(),
+      subtitle: 'preferences_onboarding.welcome_subtitle'.tr(),
+      description: 'preferences_onboarding.welcome_desc'.tr(),
       icon: Icons.favorite_rounded,
       iconColor: const Color(0xFFE63946),
       options: _flavorOptions,
@@ -270,9 +274,9 @@ class _PreferencesOnboardingScreenState
   Widget _buildAvoidedFlavorsPage(ThemeData theme) {
     return _buildPreferencePage(
       theme: theme,
-      title: 'Rasa yang Dihindari',
-      subtitle: 'Beri tahu kami rasa yang tidak Anda sukai',
-      description: 'Kami akan menghindari rekomendasi dengan rasa ini',
+      title: 'preferences_onboarding.avoid_title'.tr(),
+      subtitle: 'preferences_onboarding.avoid_subtitle'.tr(),
+      description: 'preferences_onboarding.avoid_desc'.tr(),
       icon: Icons.block_rounded,
       iconColor: const Color(0xFFF77F00),
       options: _flavorOptions,
@@ -304,9 +308,9 @@ class _PreferencesOnboardingScreenState
   Widget _buildAllergiesPage(ThemeData theme) {
     return _buildPreferencePage(
       theme: theme,
-      title: 'Alergi Makanan',
-      subtitle: 'Keamanan Anda adalah prioritas kami',
-      description: 'Pilih alergi yang Anda miliki untuk rekomendasi aman',
+      title: 'preferences_onboarding.allergy_title'.tr(),
+      subtitle: 'preferences_onboarding.allergy_subtitle'.tr(),
+      description: 'preferences_onboarding.allergy_desc'.tr(),
       icon: Icons.health_and_safety_rounded,
       iconColor: const Color(0xFF06A77D),
       options: _allergyOptions,
@@ -337,9 +341,9 @@ class _PreferencesOnboardingScreenState
   Widget _buildCategoriesPage(ThemeData theme) {
     return _buildPreferencePage(
       theme: theme,
-      title: 'Kategori Favorit',
-      subtitle: 'Hampir selesai! 🎉',
-      description: 'Pilih jenis makanan yang paling Anda nikmati',
+      title: 'preferences_onboarding.category_title'.tr(),
+      subtitle: 'preferences_onboarding.category_subtitle'.tr(),
+      description: 'preferences_onboarding.category_desc'.tr(),
       icon: Icons.restaurant_menu_rounded,
       iconColor: const Color(0xFF7209B7),
       options: _categoryOptions,
@@ -459,7 +463,7 @@ class _PreferencesOnboardingScreenState
           TextField(
             controller: customController,
             decoration: InputDecoration(
-              hintText: 'Tambahkan lainnya...',
+              hintText: 'preferences_onboarding.add_more'.tr(),
               hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
               suffixIcon: IconButton(
                 icon: Icon(Icons.add_rounded, color: colorScheme.primary),
@@ -587,7 +591,7 @@ class _PreferencesOnboardingScreenState
             borderRadius: BorderRadius.circular(28),
           ),
           child: Text(
-            'Tidak ada',
+            'preferences_onboarding.none'.tr(),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
               fontWeight: isEmpty ? FontWeight.w700 : FontWeight.w500,

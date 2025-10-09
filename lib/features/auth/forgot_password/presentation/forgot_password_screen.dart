@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,7 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Password reset email sent! Check your inbox.'),
+            content: Text('forgot_password.snackbar_success'.tr()),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
@@ -78,7 +79,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Reset Password',
+          'forgot_password.title'.tr(),
           style: TextStyle(color: colorScheme.onSurface),
         ),
         centerTitle: true,
@@ -118,7 +119,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               Column(
                 children: [
                   Text(
-                    _emailSent ? 'Check Your Email' : 'Forgot Password?',
+                    _emailSent
+                        ? 'forgot_password.check_email_title'.tr()
+                        : 'forgot_password.forgot_password_q'.tr(),
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onSurface,
@@ -128,8 +131,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 16),
                   Text(
                     _emailSent
-                        ? 'We\'ve sent a password reset link to ${_emailController.text.trim()}'
-                        : 'Don\'t worry! Enter your email address and we\'ll send you a link to reset your password.',
+                        ? 'forgot_password.reset_link_sent'.tr(
+                            args: [_emailController.text.trim()],
+                          )
+                        : 'forgot_password.subtitle'.tr(),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -152,8 +157,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         textInputAction: TextInputAction.done,
                         style: TextStyle(color: colorScheme.onSurface),
                         decoration: InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'evancarter@email.com',
+                          labelText: 'forgot_password.email_label'.tr(),
+                          hintText: 'forgot_password.email_hint'.tr(),
                           prefixIcon: Icon(
                             Icons.email_outlined,
                             color: colorScheme.onSurfaceVariant,
@@ -186,12 +191,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
+                            return 'forgot_password.email_required'.tr();
                           }
                           if (!RegExp(
                             r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                           ).hasMatch(value)) {
-                            return 'Please enter a valid email';
+                            return 'forgot_password.email_invalid'.tr();
                           }
                           return null;
                         },
@@ -229,9 +234,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         color: colorScheme.onPrimary,
                                       ),
                                     )
-                                  : const Text(
-                                      'Send Reset Link',
-                                      style: TextStyle(
+                                  : Text(
+                                      'forgot_password.send_reset_link'.tr(),
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -265,16 +270,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Instructions',
+                            'forgot_password.instructions_title'.tr(),
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '1. Check your email inbox\n'
-                            '2. Click the reset link in the email\n'
-                            '3. Create a new password\n'
-                            '4. Sign in with your new password',
+                            'forgot_password.instructions_body'.tr(),
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ],
@@ -292,9 +294,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Resend Email',
-                        style: TextStyle(
+                      child: Text(
+                        'forgot_password.resend_email'.tr(),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -308,9 +310,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text(
-                        'Back to Sign In',
-                        style: TextStyle(
+                      child: Text(
+                        'forgot_password.back_to_sign_in'.tr(),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -325,7 +327,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               // Help Text
               if (!_emailSent)
                 Text(
-                  'Remember your password?',
+                  'forgot_password.remember_password_q'.tr(),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -337,9 +339,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text(
-                    'Back to Sign In',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  child: Text(
+                    'forgot_password.back_to_sign_in'.tr(),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
             ],

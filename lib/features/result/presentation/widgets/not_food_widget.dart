@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -34,7 +35,7 @@ class NotFoodWidget extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                "Gambar tidak terdeteksi sebagai makanan 🍽️",
+                "result_screen.not_food_title".tr(),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
@@ -43,7 +44,7 @@ class NotFoodWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                "Silakan coba lagi dengan gambar yang lebih jelas atau berbeda.",
+                "result_screen.not_food_subtitle".tr(),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.7),

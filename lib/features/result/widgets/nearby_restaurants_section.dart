@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -86,13 +87,13 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
 
   String _getErrorMessage(dynamic error) {
     if (error.toString().contains('API key')) {
-      return 'API key not configured. Please add your Google Places API key.';
+      return 'result_screen.error_api_key'.tr();
     } else if (error.toString().contains('Location')) {
-      return 'Unable to get your location. Please enable location services.';
+      return 'result_screen.error_location'.tr();
     } else if (error.toString().contains('Network')) {
-      return 'No internet connection. Please check your network.';
+      return 'result_screen.error_network'.tr();
     } else {
-      return 'Unable to find nearby restaurants. Please try again.';
+      return 'result_screen.error_generic'.tr();
     }
   }
 
@@ -115,8 +116,9 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                 children: [
                   Text(
                     _isGenericSearch
-                        ? 'Indonesian Restaurants'
-                        : 'Nearby Restaurants',
+                        ? 'result_screen.nearby_restaurants_title_indonesian'
+                              .tr()
+                        : 'result_screen.nearby_restaurants_title_nearby'.tr(),
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onSurface,
@@ -125,8 +127,10 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                   const SizedBox(height: 4),
                   Text(
                     _isGenericSearch
-                        ? 'May serve ${widget.foodName}'
-                        : 'Serving ${widget.foodName}',
+                        ? 'result_screen.nearby_restaurants_subtitle_generic'
+                              .tr(args: [widget.foodName])
+                        : 'result_screen.nearby_restaurants_subtitle_specific'
+                              .tr(args: [widget.foodName]),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -195,15 +199,15 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                     ),
                     child: const Bone.square(size: 120),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
+                  const Padding(
+                    padding: EdgeInsets.all(12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Bone.text(words: 2),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Bone.text(words: 3),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Bone.text(words: 2),
                       ],
                     ),
@@ -247,7 +251,7 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
             ElevatedButton.icon(
               onPressed: _loadNearbyRestaurants,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Try Again'),
+              label: Text('result_screen.try_again'.tr()),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
@@ -283,8 +287,8 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
             const SizedBox(height: 16),
             Text(
               _isGenericSearch
-                  ? 'No Indonesian restaurants found nearby'
-                  : 'No restaurants found nearby',
+                  ? 'result_screen.empty_generic_title'.tr()
+                  : 'result_screen.empty_specific_title'.tr(),
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -292,8 +296,8 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
             const SizedBox(height: 8),
             Text(
               _isGenericSearch
-                  ? 'Indonesian cuisine may be limited in your area'
-                  : 'Try searching with a different location or broader search',
+                  ? 'result_screen.empty_generic_subtitle'.tr()
+                  : 'result_screen.empty_specific_subtitle'.tr(),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
@@ -376,7 +380,8 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    restaurant.displayName?.text ?? 'Restaurant',
+                    restaurant.displayName?.text ??
+                        'result_screen.default_restaurant_name'.tr(),
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

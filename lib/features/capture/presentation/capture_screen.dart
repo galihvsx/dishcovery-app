@@ -1,4 +1,7 @@
+// ignore_for_file: unused_element_parameter
+
 import 'package:camera/camera.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:dishcovery_app/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -61,7 +64,7 @@ class _CaptureScreenState extends State<CaptureScreen>
 
     if (cameraProvider.cameraController == null ||
         !cameraProvider.cameraController!.value.isInitialized) {
-      _showSnackBar('Kamera belum siap, mohon tunggu sebentar');
+      _showSnackBar('capture.camera_not_ready'.tr());
       return;
     }
 
@@ -164,7 +167,7 @@ class _CaptureScreenState extends State<CaptureScreen>
             ),
             const SizedBox(height: 24),
             Text(
-              provider.errorMessage ?? 'Terjadi kesalahan',
+              provider.errorMessage ?? 'capture.error_occurred'.tr(),
               style: const TextStyle(color: Colors.white, fontSize: 16),
               textAlign: TextAlign.center,
             ),
@@ -175,19 +178,19 @@ class _CaptureScreenState extends State<CaptureScreen>
                   await openAppSettings();
                 },
                 icon: const Icon(Icons.settings),
-                label: const Text('Buka Pengaturan'),
+                label: Text('capture.open_settings'.tr()),
               )
             else if (!provider.hasPermission)
               FilledButton.icon(
                 onPressed: () => provider.initializeCamera(),
                 icon: const Icon(Icons.camera_alt),
-                label: const Text('Berikan Izin Kamera'),
+                label: Text('capture.grant_camera_permission'.tr()),
               )
             else
               FilledButton.icon(
                 onPressed: () => provider.initializeCamera(),
                 icon: const Icon(Icons.refresh),
-                label: const Text('Coba Lagi'),
+                label: Text('capture.try_again'.tr()),
               ),
           ],
         ),
@@ -210,17 +213,14 @@ class _CaptureScreenState extends State<CaptureScreen>
                 _buildCameraPreview(cameraProvider),
 
               // Gamification Overlay (frame guide)
-              if (cameraProvider.isInitialized)
-                _buildGamificationOverlay(),
+              if (cameraProvider.isInitialized) _buildGamificationOverlay(),
 
               // Loading State
               if (cameraProvider.isLoading && !cameraProvider.isInitialized)
                 const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(color: Colors.white)
-                    ],
+                    children: [CircularProgressIndicator(color: Colors.white)],
                   ),
                 ),
 
@@ -297,28 +297,49 @@ class _CaptureScreenState extends State<CaptureScreen>
                   right: 20,
                   child: Column(
                     children: [
-                      // Tips container
+                      // Instruction text
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 10,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'capture.instruction'.tr(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Lighting tip
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
                         ),
                         decoration: BoxDecoration(
                           color: theme.primaryColor.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.tips_and_updates,
                               color: Colors.white,
                               size: 20,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
-                              'Pastikan pencahayaan cukup',
-                              style: TextStyle(
+                              'capture.lighting_tip'.tr(),
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -370,9 +391,7 @@ class _CaptureScreenState extends State<CaptureScreen>
 
                       // Capture Button (Main)
                       GestureDetector(
-                        onTap: cameraProvider.isLoading
-                            ? null
-                            : _takePicture,
+                        onTap: cameraProvider.isLoading ? null : _takePicture,
                         child: Container(
                           width: 80,
                           height: 80,
@@ -381,11 +400,13 @@ class _CaptureScreenState extends State<CaptureScreen>
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: theme.primaryColor,
-                              width: 5
+                              width: 5,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: theme.primaryColor.withValues(alpha: 0.4),
+                                color: theme.primaryColor.withValues(
+                                  alpha: 0.4,
+                                ),
                                 blurRadius: 20,
                                 spreadRadius: 2,
                               ),
@@ -404,11 +425,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                                   decoration: BoxDecoration(
                                     color: theme.primaryColor,
                                     shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                    size: 28,
                                   ),
                                 ),
                         ),
@@ -463,154 +479,109 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 }
 
-// Custom button widget for controls
+// Custom control button widget
 class _ControlButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
+  final Color? backgroundColor;
+  final Color? iconColor;
 
-  const _ControlButton({required this.icon, required this.onTap});
+  const _ControlButton({
+    required this.icon,
+    required this.onTap,
+    this.backgroundColor,
+    this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(30),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.3),
-              width: 1,
-            ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: backgroundColor ?? Colors.black.withValues(alpha: 0.5),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.3),
+            width: 1,
           ),
-          child: Icon(icon, color: Colors.white, size: 28),
         ),
+        child: Icon(icon, color: iconColor ?? Colors.white, size: 24),
       ),
     );
   }
 }
 
-// Custom painter for food frame guide
+// Custom painter for food frame overlay
 class _FoodFramePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.5)
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
-
-    final dottedPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.8)
-      ..strokeWidth = 2
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
-    // Calculate frame dimensions (circular frame in center)
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
+    final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width * 0.35;
 
-    // Draw circular dashed frame
-    const dashWidth = 10.0;
-    const dashSpace = 8.0;
-    double startAngle = 0;
+    // Draw circular frame
+    canvas.drawCircle(center, radius, paint);
 
-    while (startAngle < 360) {
-      final endAngle = startAngle + dashWidth;
-      canvas.drawArc(
-        Rect.fromCircle(center: Offset(centerX, centerY), radius: radius),
-        _degreesToRadians(startAngle),
-        _degreesToRadians(dashWidth),
-        false,
-        dottedPaint,
-      );
-      startAngle = endAngle + dashSpace;
-    }
-
-    // Draw corner brackets
-    final bracketLength = 30.0;
-    final bracketOffset = 15.0;
+    // Draw corner guides
+    final cornerLength = 30.0;
+    final cornerOffset = radius * 0.7;
 
     // Top-left corner
     canvas.drawLine(
-      Offset(centerX - radius - bracketOffset, centerY - radius),
-      Offset(
-        centerX - radius - bracketOffset + bracketLength,
-        centerY - radius,
-      ),
+      Offset(center.dx - cornerOffset - cornerLength, center.dy - cornerOffset),
+      Offset(center.dx - cornerOffset, center.dy - cornerOffset),
       paint,
     );
     canvas.drawLine(
-      Offset(centerX - radius - bracketOffset, centerY - radius),
-      Offset(
-        centerX - radius - bracketOffset,
-        centerY - radius + bracketLength,
-      ),
+      Offset(center.dx - cornerOffset, center.dy - cornerOffset - cornerLength),
+      Offset(center.dx - cornerOffset, center.dy - cornerOffset),
       paint,
     );
 
     // Top-right corner
     canvas.drawLine(
-      Offset(centerX + radius + bracketOffset, centerY - radius),
-      Offset(
-        centerX + radius + bracketOffset - bracketLength,
-        centerY - radius,
-      ),
+      Offset(center.dx + cornerOffset + cornerLength, center.dy - cornerOffset),
+      Offset(center.dx + cornerOffset, center.dy - cornerOffset),
       paint,
     );
     canvas.drawLine(
-      Offset(centerX + radius + bracketOffset, centerY - radius),
-      Offset(
-        centerX + radius + bracketOffset,
-        centerY - radius + bracketLength,
-      ),
+      Offset(center.dx + cornerOffset, center.dy - cornerOffset - cornerLength),
+      Offset(center.dx + cornerOffset, center.dy - cornerOffset),
       paint,
     );
 
     // Bottom-left corner
     canvas.drawLine(
-      Offset(centerX - radius - bracketOffset, centerY + radius),
-      Offset(
-        centerX - radius - bracketOffset + bracketLength,
-        centerY + radius,
-      ),
+      Offset(center.dx - cornerOffset - cornerLength, center.dy + cornerOffset),
+      Offset(center.dx - cornerOffset, center.dy + cornerOffset),
       paint,
     );
     canvas.drawLine(
-      Offset(centerX - radius - bracketOffset, centerY + radius),
-      Offset(
-        centerX - radius - bracketOffset,
-        centerY + radius - bracketLength,
-      ),
+      Offset(center.dx - cornerOffset, center.dy + cornerOffset + cornerLength),
+      Offset(center.dx - cornerOffset, center.dy + cornerOffset),
       paint,
     );
 
     // Bottom-right corner
     canvas.drawLine(
-      Offset(centerX + radius + bracketOffset, centerY + radius),
-      Offset(
-        centerX + radius + bracketOffset - bracketLength,
-        centerY + radius,
-      ),
+      Offset(center.dx + cornerOffset + cornerLength, center.dy + cornerOffset),
+      Offset(center.dx + cornerOffset, center.dy + cornerOffset),
       paint,
     );
     canvas.drawLine(
-      Offset(centerX + radius + bracketOffset, centerY + radius),
-      Offset(
-        centerX + radius + bracketOffset,
-        centerY + radius - bracketLength,
-      ),
+      Offset(center.dx + cornerOffset, center.dy + cornerOffset + cornerLength),
+      Offset(center.dx + cornerOffset, center.dy + cornerOffset),
       paint,
     );
   }
 
-  double _degreesToRadians(double degrees) {
-    return degrees * (3.141592653589793 / 180.0);
-  }
-
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

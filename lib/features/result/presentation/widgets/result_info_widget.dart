@@ -1,4 +1,5 @@
 import 'package:dishcovery_app/core/models/recipe_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
@@ -119,7 +120,7 @@ class ResultInfoWidget extends StatelessWidget {
           _buildSection(
             context,
             icon: Icons.restaurant_menu_rounded,
-            title: "Deskripsi",
+            title: "result_screen.description".tr(),
             content: description,
           ),
 
@@ -127,7 +128,7 @@ class ResultInfoWidget extends StatelessWidget {
           _buildSection(
             context,
             icon: Icons.history_edu_rounded,
-            title: "Sejarah",
+            title: "result_screen.history".tr(),
             content: history,
           ),
 
@@ -136,7 +137,7 @@ class ResultInfoWidget extends StatelessWidget {
             _buildSection(
               context,
               icon: Icons.shopping_basket_rounded,
-              title: "Bahan-bahan",
+              title: "result_screen.ingredients".tr(),
               content: ingredientsMarkdown,
             ),
 
@@ -145,7 +146,7 @@ class ResultInfoWidget extends StatelessWidget {
             _buildSection(
               context,
               icon: Icons.format_list_numbered_rounded,
-              title: "Langkah-langkah",
+              title: "result_screen.steps".tr(),
               content: stepsMarkdown,
             ),
         ],

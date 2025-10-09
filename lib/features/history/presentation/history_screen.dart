@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
+import 'package:dishcovery_app/core/widgets/custom_app_bar.dart';
+import 'package:dishcovery_app/core/widgets/theme_switcher.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/providers/history_provider.dart';
-import 'package:intl/intl.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -31,6 +33,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppBar(
+        title: 'history_screen.title'.tr(),
+        actions: const [ThemeSwitcher()],
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => _refreshHistory(context),
@@ -39,27 +45,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
               final history = provider.historyList;
 
               if (history.isEmpty) {
-                return const Center(
+                return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.history,
-                        size: 80,
-                        color: Colors.grey,
-                      ),
-                      SizedBox(height: 16),
+                      const Icon(Icons.history, size: 80, color: Colors.grey),
+                      const SizedBox(height: 16),
                       Text(
-                        'Belum ada riwayat',
-                        style: TextStyle(
+                        'history_screen.empty_title'.tr(),
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
-                        'Mulai scan makanan untuk melihat riwayat',
-                        style: TextStyle(
+                        'history_screen.empty_subtitle'.tr(),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
                         ),
@@ -98,13 +100,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           fit: StackFit.expand,
                           children: [
                             // Background image
-                            if (item.imagePath.isNotEmpty && File(item.imagePath).existsSync())
+                            if (item.imagePath.isNotEmpty &&
+                                File(item.imagePath).existsSync())
                               Image.file(
                                 File(item.imagePath),
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
-                                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
                                     child: const Center(
                                       child: Icon(
                                         Icons.broken_image_outlined,
@@ -117,7 +122,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               )
                             else
                               Container(
-                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
                                 child: const Center(
                                   child: Icon(
                                     Icons.restaurant,
@@ -154,18 +161,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   bottomRight: Radius.circular(16),
                                 ),
                                 child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                  filter: ImageFilter.blur(
+                                    sigmaX: 8,
+                                    sigmaY: 8,
+                                  ),
                                   child: Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: const BoxDecoration(
                                       color: Colors.black26,
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          item.name.isNotEmpty ? item.name : 'Makanan Tidak Dikenal',
+                                          item.name.isNotEmpty
+                                              ? item.name
+                                              : 'history_screen.unknown_dish'
+                                                    .tr(),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
@@ -184,7 +198,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              item.origin.isNotEmpty ? item.origin : 'Tidak diketahui',
+                                              item.origin.isNotEmpty
+                                                  ? item.origin
+                                                  : 'history_screen.unknown_origin'
+                                                        .tr(),
                                               style: const TextStyle(
                                                 color: Colors.white70,
                                                 fontSize: 12,
@@ -198,7 +215,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              dateFormatter.format(item.createdAt),
+                                              dateFormatter.format(
+                                                item.createdAt,
+                                              ),
                                               style: const TextStyle(
                                                 color: Colors.white70,
                                                 fontSize: 12,
@@ -226,30 +245,44 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: const Text('Hapus Riwayat'),
-                                        content: const Text(
-                                          'Apakah Anda yakin ingin menghapus item ini?',
+                                        title: Text(
+                                          'history_screen.delete_dialog_title'
+                                              .tr(),
+                                        ),
+                                        content: Text(
+                                          'history_screen.delete_dialog_content'
+                                              .tr(),
                                         ),
                                         actions: [
                                           TextButton(
-                                            onPressed: () => Navigator.pop(context),
-                                            child: const Text('Batal'),
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: Text('common.cancel'.tr()),
                                           ),
                                           TextButton(
                                             onPressed: () async {
-                                              await provider.deleteHistory(item.id!);
+                                              await provider.deleteHistory(
+                                                item.id!,
+                                              );
                                               if (!mounted) return;
                                               Navigator.pop(context);
                                               if (!mounted) return;
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('Item dihapus'),
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'history_screen.snackbar_deleted'
+                                                        .tr(),
+                                                  ),
                                                 ),
                                               );
                                             },
-                                            child: const Text(
-                                              'Hapus',
-                                              style: TextStyle(color: Colors.red),
+                                            child: Text(
+                                              'common.delete'.tr(),
+                                              style: const TextStyle(
+                                                color: Colors.red,
+                                              ),
                                             ),
                                           ),
                                         ],

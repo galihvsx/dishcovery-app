@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -97,7 +98,9 @@ class SettingProfileCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              user?.displayName ?? 'Dishcovery User',
+                              user?.displayName ??
+                                  'settings_widgets.profile_card.default_user'
+                                      .tr(),
                               style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -110,7 +113,9 @@ class SettingProfileCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              user?.email ?? 'user@example.com',
+                              user?.email ??
+                                  'settings_widgets.profile_card.default_email'
+                                      .tr(),
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
                                     color: Theme.of(context)
@@ -162,7 +167,8 @@ class SettingProfileCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Preferensi Makanan',
+                              'settings_widgets.profile_card.food_preferences'
+                                  .tr(),
                               style: Theme.of(context).textTheme.titleSmall
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
@@ -171,7 +177,9 @@ class SettingProfileCard extends StatelessWidget {
                                 Navigator.pushNamed(context, '/preferences');
                               },
                               icon: const Icon(Icons.edit, size: 16),
-                              label: const Text('Edit'),
+                              label: Text(
+                                'settings_widgets.profile_card.edit'.tr(),
+                              ),
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
@@ -185,46 +193,65 @@ class SettingProfileCard extends StatelessWidget {
                         _buildPreferenceItem(
                           context,
                           Icons.favorite,
-                          'Rasa Disukai',
+                          'settings_widgets.profile_card.liked_flavors'.tr(),
                           prefs.likedFlavors.isEmpty
-                              ? 'Belum diatur'
+                              ? 'settings_widgets.profile_card.not_set'.tr()
                               : prefs.likedFlavors.take(3).join(', ') +
                                     (prefs.likedFlavors.length > 3
-                                        ? ', +${prefs.likedFlavors.length - 3} lagi'
+                                        ? 'settings_widgets.profile_card.and_more'
+                                              .tr(
+                                                args: [
+                                                  (prefs.likedFlavors.length -
+                                                          3)
+                                                      .toString(),
+                                                ],
+                                              )
                                         : ''),
                         ),
                         const SizedBox(height: 8),
                         _buildPreferenceItem(
                           context,
                           Icons.category,
-                          'Kategori',
+                          'settings_widgets.profile_card.categories'.tr(),
                           prefs.categories.isEmpty
-                              ? 'Belum diatur'
+                              ? 'settings_widgets.profile_card.not_set'.tr()
                               : prefs.categories.take(3).join(', ') +
                                     (prefs.categories.length > 3
-                                        ? ', +${prefs.categories.length - 3} lagi'
+                                        ? 'settings_widgets.profile_card.and_more'
+                                              .tr(
+                                                args: [
+                                                  (prefs.categories.length - 3)
+                                                      .toString(),
+                                                ],
+                                              )
                                         : ''),
                         ),
                         const SizedBox(height: 8),
                         _buildPreferenceItem(
                           context,
                           Icons.warning_amber,
-                          'Alergi',
+                          'settings_widgets.profile_card.allergies'.tr(),
                           prefs.allergies.isEmpty
-                              ? 'Tidak ada'
+                              ? 'settings_widgets.profile_card.none'.tr()
                               : prefs.allergies.take(3).join(', ') +
                                     (prefs.allergies.length > 3
-                                        ? ', +${prefs.allergies.length - 3} lagi'
+                                        ? 'settings_widgets.profile_card.and_more'
+                                              .tr(
+                                                args: [
+                                                  (prefs.allergies.length - 3)
+                                                      .toString(),
+                                                ],
+                                              )
                                         : ''),
                         ),
                         const SizedBox(height: 8),
                         _buildPreferenceItem(
                           context,
                           Icons.location_on,
-                          'Lokasi',
+                          'settings_widgets.profile_card.location'.tr(),
                           prefs.latitude != null && prefs.longitude != null
                               ? '${prefs.latitude!.toStringAsFixed(2)}, ${prefs.longitude!.toStringAsFixed(2)}'
-                              : 'Belum diatur',
+                              : 'settings_widgets.profile_card.not_set'.tr(),
                         ),
                       ],
                     ),

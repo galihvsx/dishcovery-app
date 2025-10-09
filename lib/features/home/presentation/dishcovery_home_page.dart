@@ -3,6 +3,7 @@ import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
 import 'package:dishcovery_app/providers/feeds_provider.dart';
 import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/core/models/recipe_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -96,7 +97,9 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(77),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withAlpha(77),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -108,7 +111,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                     child: TextField(
                       controller: textController,
                       decoration: InputDecoration(
-                        hintText: 'Tulis komentar...',
+                        hintText: 'home_screen.write_comment'.tr(),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -146,6 +149,54 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
       ),
     );
   }
+
+  // void _showOptionsSheet() {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) {
+  //       return Container(
+  //         padding: const EdgeInsets.symmetric(vertical: 8),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             ListTile(
+  //               leading: const Icon(Icons.link),
+  //               title: Text('home_screen.copy_link'.tr()),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 // TODO: Implement copy link
+  //               },
+  //             ),
+  //             ListTile(
+  //               leading: const Icon(Icons.share_outlined),
+  //               title: Text('home_screen.share_to'.tr()),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 // TODO: Implement share
+  //               },
+  //             ),
+  //             ListTile(
+  //               leading: const Icon(Icons.report_outlined),
+  //               title: Text('home_screen.report'.tr()),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 // TODO: Implement report
+  //               },
+  //             ),
+  //             ListTile(
+  //               leading: const Icon(Icons.notifications_off_outlined),
+  //               title: Text('home_screen.turn_off_notifications'.tr()),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 // TODO: Implement notification settings
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -211,12 +262,12 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Belum ada feeds',
+                            'home_screen.no_feeds_yet'.tr(),
                             style: theme.textTheme.titleLarge,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Mulai scan makanan untuk berbagi',
+                            'home_screen.start_scanning'.tr(),
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -257,7 +308,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           child: Center(
                             child: Text(
-                              'Anda sudah melihat semua feeds',
+                              'home_screen.all_feeds_viewed'.tr(),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: colorScheme.onSurfaceVariant,
                               ),
@@ -266,7 +317,8 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                         );
                       }
                     },
-                    childCount: provider.feeds.length +
+                    childCount:
+                        provider.feeds.length +
                         (provider.hasMore || provider.isLoading ? 1 : 1),
                   ),
                 );
