@@ -1,13 +1,14 @@
 import 'dart:io';
 import 'dart:ui';
-import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
+
+import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/core/widgets/custom_app_bar.dart';
 import 'package:dishcovery_app/core/widgets/theme_switcher.dart';
+import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
+import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dishcovery_app/core/models/scan_model.dart';
-import 'package:dishcovery_app/providers/history_provider.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -18,6 +19,8 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  bool _isInitialized = false;
+
   Future<void> _refreshHistory(BuildContext context) async {
     await Provider.of<HistoryProvider>(context, listen: false).loadHistory();
   }
@@ -25,8 +28,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
+    // Only load history if not already initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<HistoryProvider>(context, listen: false).loadHistory();
+      if (!_isInitialized) {
+        final provider = Provider.of<HistoryProvider>(context, listen: false);
+        // Only load if the list is empty or we haven't loaded yet
+        if (provider.historyList.isEmpty && !provider.isLoading) {
+          provider.loadHistory();
+        }
+        _isInitialized = true;
+      }
     });
   }
 
@@ -77,6 +88,35 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 itemBuilder: (context, index) {
                   final ScanResult item = history[index];
                   final dateFormatter = DateFormat('dd MMM yyyy, HH:mm');
+                  Widget buildErrorPlaceholder() {
+                    return Container(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      child: const Center(
+                        child: Icon(
+                          Icons.broken_image_outlined,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    );
+                  }
+
+                  Widget buildEmptyPlaceholder() {
+                    return Container(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      child: const Center(
+                        child: Icon(
+                          Icons.restaurant,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    );
+                  }
 
                   return GestureDetector(
                     onTap: () {
@@ -106,33 +146,26 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 File(item.imagePath),
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.surfaceContainerHighest,
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.broken_image_outlined,
-                                        size: 48,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  );
+                                  return buildErrorPlaceholder();
+                                },
+                              )
+                            else if (item.imageUrl.isNotEmpty)
+                              Image.network(
+                                item.imageUrl,
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      }
+                                      return buildEmptyPlaceholder();
+                                    },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return buildErrorPlaceholder();
                                 },
                               )
                             else
-                              Container(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.surfaceContainerHighest,
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.restaurant,
-                                    size: 64,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
+                              buildEmptyPlaceholder(),
 
                             // Gradient overlay
                             Container(
@@ -188,40 +221,48 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        const SizedBox(height: 8),
-                                        Row(
+                                        const SizedBox(height: 4),
+                                        Column(
                                           children: [
-                                            const Icon(
-                                              Icons.location_on,
-                                              size: 14,
-                                              color: Colors.white70,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              item.origin.isNotEmpty
-                                                  ? item.origin
-                                                  : 'history_screen.unknown_origin'
-                                                        .tr(),
-                                              style: const TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: 12,
-                                              ),
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.location_on,
+                                                  size: 14,
+                                                  color: Colors.white70,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  item.origin.isNotEmpty
+                                                      ? item.origin
+                                                      : 'history_screen.unknown_origin'
+                                                            .tr(),
+                                                  style: const TextStyle(
+                                                    color: Colors.white70,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                             const SizedBox(width: 16),
-                                            const Icon(
-                                              Icons.access_time,
-                                              size: 14,
-                                              color: Colors.white70,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              dateFormatter.format(
-                                                item.createdAt,
-                                              ),
-                                              style: const TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: 12,
-                                              ),
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.access_time,
+                                                  size: 14,
+                                                  color: Colors.white70,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  dateFormatter.format(
+                                                    item.createdAt,
+                                                  ),
+                                                  style: const TextStyle(
+                                                    color: Colors.white70,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
@@ -262,7 +303,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                           TextButton(
                                             onPressed: () async {
                                               await provider.deleteHistory(
-                                                item.id!,
+                                                item,
                                               );
                                               if (!mounted) return;
                                               Navigator.pop(context);
