@@ -70,7 +70,7 @@ class App extends StatelessWidget {
         builder: (context, authProvider, _) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'app_name'.tr(),
+            title: 'Dishcovery',
             themeMode: Provider.of<ThemeProvider>(context).themeMode,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
