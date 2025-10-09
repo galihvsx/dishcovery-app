@@ -5,6 +5,7 @@ import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -23,9 +24,82 @@ class ScanProvider extends ChangeNotifier {
   String? get error => _error;
   String get loadingMessage => _loadingMessage;
 
+  /// Generate loading messages based on language code
+  String _getLoadingMessage(String key, String languageCode) {
+    if (languageCode == 'id') {
+      switch (key) {
+        case 'processing':
+          return "Memproses gambar...";
+        case 'optimizing':
+          return "Mengoptimalkan gambar...";
+        case 'identifying':
+          return "Mengidentifikasi makanan...";
+        case 'saving':
+          return "Menyimpan hasil...";
+        case 'loading_details':
+          return "Memuat detail makanan...";
+        case 'loading_recipe':
+          return "Memuat resep...";
+        default:
+          return "Memproses...";
+      }
+    } else {
+      switch (key) {
+        case 'processing':
+          return "Processing image...";
+        case 'optimizing':
+          return "Optimizing image...";
+        case 'identifying':
+          return "Identifying food...";
+        case 'saving':
+          return "Saving results...";
+        case 'loading_details':
+          return "Loading food details...";
+        case 'loading_recipe':
+          return "Loading recipe...";
+        default:
+          return "Processing...";
+      }
+    }
+  }
+
+  // Build prompt based on language code
+  String _buildPrompt(String languageCode) {
+    if (languageCode == 'id') {
+      return """
+Identifikasi makanan Indonesia dalam gambar ini.
+Jika bukan makanan, set name="bukan makanan" dan isFood=false.
+Jika makanan, berikan informasi singkat dan padat:
+- Fokus pada informasi penting saja
+- Deskripsi maksimal 2 paragraf
+- History maksimal 1 paragraf
+- Recipe dengan bahan dan langkah utama saja
+- Tags maksimal 5
+- Related foods maksimal 3
+Jawab dalam Bahasa Indonesia.
+""";
+    } else {
+      return """
+Identify the Indonesian food in this image.
+If it's not food, set name="not food" and isFood=false.
+If it's food, provide concise information:
+- Focus only on important details
+- Description max 2 paragraphs
+- History max 1 paragraph
+- Recipe with main ingredients and steps only
+- Tags max 5
+- Related foods max 3
+Respond in English.
+""";
+    }
+  }
+
   /// Optimize image before sending to API
-  Future<Uint8List> _optimizeImage(String imagePath) async {
-    _loadingMessage = "Mengoptimalkan gambar...";
+  Future<Uint8List> _optimizeImage(
+    String imagePath, [
+    String languageCode = 'id',
+  ]) async {
+    _loadingMessage = _getLoadingMessage('optimizing', languageCode);
     notifyListeners();
 
     final file = File(imagePath);
@@ -57,31 +131,33 @@ class ScanProvider extends ChangeNotifier {
   Future<void> processImage(String imagePath, {BuildContext? context}) async {
     _loading = true;
     _error = null;
-    _loadingMessage = "Memproses gambar...";
+
+    // Get current language code from context
+    String languageCode = 'id'; // default id
+    if (context != null) {
+      languageCode = context.locale.languageCode;
+    }
+    print("Language code nya: $languageCode");
+
+    _loadingMessage = _getLoadingMessage('processing', languageCode);
     _lastContext = context;
     notifyListeners();
 
     try {
       // Optimize image first
-      final optimizedBytes = await _optimizeImage(imagePath);
+      final optimizedBytes = await _optimizeImage(imagePath, languageCode);
 
-      _loadingMessage = "Mengidentifikasi makanan...";
+      _loadingMessage = _getLoadingMessage('identifying', languageCode);
       notifyListeners();
+
+      // Generate prompt based on language code from context
+      final prompt = _buildPrompt(languageCode);
 
       // Use non-streaming version for stability
       final res = await _aiService.imageToDishcovery(
         imageBytes: optimizedBytes,
-        prompt: """
-Identifikasi makanan Indonesia dalam gambar ini.
-Jika bukan makanan, set name="bukan makanan" dan isFood=false.
-Jika makanan, berikan informasi singkat dan padat:
-- Fokus pada informasi penting saja
-- Deskripsi maksimal 2 paragraf
-- History maksimal 1 paragraf
-- Recipe dengan bahan dan langkah utama saja
-- Tags maksimal 5
-- Related foods maksimal 3
-""",
+        prompt: prompt,
+        languageCode: languageCode,
       );
 
       // Safe parsing with error handling
@@ -98,8 +174,10 @@ Jika makanan, berikan informasi singkat dan padat:
       _result = parsed;
 
       // Save to Firestore and cache locally
-      if (parsed.name.toLowerCase() != "bukan makanan" && parsed.isFood) {
-        _loadingMessage = "Menyimpan hasil...";
+      if (parsed.name.toLowerCase() != "bukan makanan" &&
+          parsed.name.toLowerCase() != "not food" &&
+          parsed.isFood) {
+        _loadingMessage = _getLoadingMessage('saving', languageCode);
         notifyListeners();
 
         try {
@@ -127,7 +205,9 @@ Jika makanan, berikan informasi singkat dan padat:
     } catch (e, stackTrace) {
       debugPrint("Error processing image: ${e.toString()}");
       debugPrint("Stack trace: $stackTrace");
-      _error = "Gagal memproses gambar: ${e.toString()}";
+      _error = languageCode == 'id'
+          ? "Gagal memproses gambar: ${e.toString()}"
+          : "Failed to process image: ${e.toString()}";
     }
 
     _loading = false;
@@ -141,30 +221,32 @@ Jika makanan, berikan informasi singkat dan padat:
   }) async {
     _loading = true;
     _error = null;
-    _loadingMessage = "Memproses gambar...";
+
+    // Get current language code from context
+    String languageCode = 'id'; // default to Indonesian
+    if (context != null) {
+      languageCode = context.locale.languageCode;
+    }
+
+    _loadingMessage = _getLoadingMessage('processing', languageCode);
     _lastContext = context;
     notifyListeners();
 
     try {
       // Optimize image first
-      final optimizedBytes = await _optimizeImage(imagePath);
+      final optimizedBytes = await _optimizeImage(imagePath, languageCode);
 
-      _loadingMessage = "Mengidentifikasi makanan...";
+      _loadingMessage = _getLoadingMessage('identifying', languageCode);
       notifyListeners();
+
+      // Generate prompt based on language
+      final prompt = _buildPrompt(languageCode);
 
       // Use streaming for progressive response
       final stream = _aiService.imageToDishcoveryStream(
         imageBytes: optimizedBytes,
-        prompt: """
-Identifikasi makanan Indonesia dalam gambar ini.
-Jika bukan makanan, set name="bukan makanan" dan isFood=false.
-Jika makanan, berikan informasi singkat dan padat:
-- Fokus pada informasi penting saja
-- Deskripsi maksimal 2 paragraf
-- History maksimal 1 paragraf
-- Recipe dengan bahan dan langkah utama saja
-- Tags maksimal 5
-""",
+        prompt: prompt,
+        languageCode: languageCode,
       );
 
       bool firstUpdate = true;
@@ -182,10 +264,16 @@ Jika makanan, berikan informasi singkat dan padat:
 
           // Update loading message based on what we have
           if (parsed.name.isNotEmpty && parsed.description.isEmpty) {
-            _loadingMessage = "Memuat detail makanan...";
+            _loadingMessage = _getLoadingMessage(
+              'loading_details',
+              languageCode,
+            );
           } else if (parsed.description.isNotEmpty &&
               parsed.recipe.ingredients.isEmpty) {
-            _loadingMessage = "Memuat resep...";
+            _loadingMessage = _getLoadingMessage(
+              'loading_recipe',
+              languageCode,
+            );
           }
 
           notifyListeners(); // Update UI with partial data
@@ -199,8 +287,9 @@ Jika makanan, berikan informasi singkat dan padat:
       final result = _result;
       if (result != null &&
           result.name.toLowerCase() != "bukan makanan" &&
+          result.name.toLowerCase() != "not food" &&
           result.isFood) {
-        _loadingMessage = "Menyimpan hasil...";
+        _loadingMessage = _getLoadingMessage('saving', languageCode);
         notifyListeners();
 
         try {
@@ -228,7 +317,9 @@ Jika makanan, berikan informasi singkat dan padat:
     } catch (e, stackTrace) {
       debugPrint("Error processing image with stream: ${e.toString()}");
       debugPrint("Stack trace: $stackTrace");
-      _error = "Gagal memproses gambar: ${e.toString()}";
+      _error = languageCode == 'id'
+          ? "Gagal memproses gambar: ${e.toString()}"
+          : "Failed to process image: ${e.toString()}";
     }
 
     _loading = false;
