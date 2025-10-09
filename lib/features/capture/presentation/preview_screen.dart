@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class PreviewScreen extends StatelessWidget {
@@ -12,7 +13,7 @@ class PreviewScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Food Recognition"), centerTitle: true),
+      appBar: AppBar(title: Text("preview.title".tr()), centerTitle: true),
       body: Column(
         children: [
           Expanded(
@@ -41,7 +42,7 @@ class PreviewScreen extends StatelessWidget {
                       Navigator.pop(context);
                     },
                     icon: const Icon(Icons.camera_alt),
-                    label: const Text("Retake"),
+                    label: Text('preview.retake'.tr()),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
@@ -58,7 +59,7 @@ class PreviewScreen extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.analytics),
-                    label: const Text("Analyze"),
+                    label: Text('preview.analyze'.tr()),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),

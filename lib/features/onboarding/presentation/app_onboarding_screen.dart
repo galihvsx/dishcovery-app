@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -67,7 +68,7 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Temukan Makanan Indonesia',
+                        'app_onboarding.title'.tr(),
                         style: theme.textTheme.headlineLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -77,7 +78,7 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Jelajahi ribuan resep makanan Indonesia dengan teknologi AI yang canggih',
+                        'app_onboarding.subtitle'.tr(),
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: Colors.white.withAlpha(230),
                           fontSize: 16,
@@ -106,7 +107,7 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                         ),
                       ),
                       child: Text(
-                        'Mulai Sekarang',
+                        'app_onboarding.get_started'.tr(),
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           fontSize: 18,

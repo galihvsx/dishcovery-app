@@ -7,6 +7,7 @@ import 'package:dishcovery_app/features/result/presentation/widgets/result_info_
 import 'package:dishcovery_app/features/result/presentation/widgets/result_tags_widget.dart';
 import 'package:dishcovery_app/features/result/widgets/nearby_restaurants_section.dart';
 import 'package:dishcovery_app/providers/scan_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -16,7 +17,7 @@ class ResultScreen extends StatefulWidget {
   final ScanResult? initialData;
 
   const ResultScreen({super.key, this.imagePath, this.initialData})
-    : assert(imagePath != null || initialData != null);
+      : assert(imagePath != null || initialData != null);
 
   static const String path = '/result';
 
@@ -51,8 +52,8 @@ class _ResultScreenState extends State<ResultScreen> {
       SnackBar(
         content: Text(
           _translated
-              ? "Hasil diterjemahkan ke English 🇬🇧 (coming soon)"
-              : "Kembali ke Bahasa Indonesia 🇮🇩",
+              ? 'result_screen.translate_snackbar_en'.tr()
+              : 'result_screen.translate_snackbar_id'.tr(),
         ),
       ),
     );
@@ -68,7 +69,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Scan Result"),
+        title: Text('result_screen.title'.tr()),
         centerTitle: true,
         actions: [
           IconButton(
@@ -102,7 +103,7 @@ class _ResultScreenState extends State<ResultScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          "Error: ${scanProvider.error}",
+                          'result_screen.error_prefix'.tr(args: [scanProvider.error!]),
                           style: TextStyle(color: Colors.red.shade700),
                         ),
                       ),
@@ -110,7 +111,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   ),
                 )
               else if (!isLoading && result == null)
-                const Center(child: Text("Tidak ada hasil"))
+                Center(child: Text('result_screen.no_result'.tr()))
               else
                 // Main content with skeleton loading
                 Skeletonizer(
@@ -122,14 +123,14 @@ class _ResultScreenState extends State<ResultScreen> {
                       if (result == null && isLoading) ...[
                         // Placeholder content for skeleton
                         ResultInfoWidget(
-                          name: "Nama Makanan Loading",
-                          origin: "Asal Daerah Loading",
+                          name: 'result_screen.loading_name'.tr(),
+                          origin: 'result_screen.loading_origin'.tr(),
                           description:
-                              "Ini adalah deskripsi makanan yang sedang dimuat. " *
-                              5,
+                              'result_screen.loading_desc'.tr() *
+                                  5,
                           history:
-                              "Ini adalah sejarah makanan yang sedang dimuat. " *
-                              3,
+                              'result_screen.loading_history'.tr() *
+                                  3,
                           recipe: Recipe(
                             ingredients: [
                               "Bahan 1 loading",
@@ -144,7 +145,7 @@ class _ResultScreenState extends State<ResultScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        ResultTagsWidget(tags: ["Tag1", "Tag2", "Tag3"]),
+                        ResultTagsWidget(tags: const ["Tag1", "Tag2", "Tag3"]),
                         const SizedBox(height: 12),
                         const ResultActionsWidget(),
                       ]

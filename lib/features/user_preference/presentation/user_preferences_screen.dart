@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -126,7 +127,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     if (provider.error == null) {
       messenger.showSnackBar(
         SnackBar(
-          content: const Text('Preferensi berhasil disimpan'),
+          content: Text('user_preferences_screen.snackbar_success'.tr()),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -137,7 +138,8 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     } else {
       messenger.showSnackBar(
         SnackBar(
-          content: Text('Gagal menyimpan: ${provider.error}'),
+          content: Text(
+              'user_preferences_screen.snackbar_fail'.tr(args: [provider.error!])),
           backgroundColor: Theme.of(context).colorScheme.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -159,7 +161,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Edit Preferensi',
+          'user_preferences_screen.title'.tr(),
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
             letterSpacing: -0.3,
@@ -169,7 +171,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Batal',
+              'user_preferences_screen.cancel'.tr(),
               style: TextStyle(
                 color: colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
@@ -207,8 +209,8 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   Widget _buildLikedFlavorsPage(ThemeData theme) {
     return _buildPreferencePage(
       theme: theme,
-      title: 'Rasa Favorit Anda',
-      subtitle: 'Pilih rasa yang Anda sukai',
+      title: 'user_preferences_screen.liked_flavors_title'.tr(),
+      subtitle: 'user_preferences_screen.liked_flavors_subtitle'.tr(),
       icon: Icons.favorite_rounded,
       iconColor: const Color(0xFFE63946),
       options: _flavorOptions,
@@ -239,8 +241,8 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   Widget _buildAvoidedFlavorsPage(ThemeData theme) {
     return _buildPreferencePage(
       theme: theme,
-      title: 'Rasa yang Dihindari',
-      subtitle: 'Pilih rasa yang ingin Anda hindari',
+      title: 'user_preferences_screen.avoided_flavors_title'.tr(),
+      subtitle: 'user_preferences_screen.avoided_flavors_subtitle'.tr(),
       icon: Icons.block_rounded,
       iconColor: const Color(0xFFF77F00),
       options: _flavorOptions,
@@ -271,8 +273,8 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   Widget _buildAllergiesPage(ThemeData theme) {
     return _buildPreferencePage(
       theme: theme,
-      title: 'Alergi Makanan',
-      subtitle: 'Beri tahu kami tentang alergi Anda',
+      title: 'user_preferences_screen.allergies_title'.tr(),
+      subtitle: 'user_preferences_screen.allergies_subtitle'.tr(),
       icon: Icons.health_and_safety_rounded,
       iconColor: const Color(0xFF06A77D),
       options: _allergyOptions,
@@ -302,8 +304,8 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   Widget _buildCategoriesPage(ThemeData theme) {
     return _buildPreferencePage(
       theme: theme,
-      title: 'Kategori Makanan',
-      subtitle: 'Pilih jenis makanan yang Anda sukai',
+      title: 'user_preferences_screen.categories_title'.tr(),
+      subtitle: 'user_preferences_screen.categories_subtitle'.tr(),
       icon: Icons.restaurant_menu_rounded,
       iconColor: const Color(0xFF7209B7),
       options: _categoryOptions,
@@ -405,7 +407,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
           TextField(
             controller: customController,
             decoration: InputDecoration(
-              hintText: 'Tambahkan lainnya...',
+              hintText: 'user_preferences_screen.add_more'.tr(),
               hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
               suffixIcon: IconButton(
                 icon: Icon(Icons.add_rounded, color: colorScheme.primary),

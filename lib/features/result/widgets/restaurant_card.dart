@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -45,7 +46,7 @@ class RestaurantCard extends StatelessWidget {
                   children: [
                     // Restaurant name
                     Text(
-                      place.displayName?.text ?? 'Unknown Restaurant',
+                      place.displayName?.text ?? 'result_screen.unknown_restaurant_name'.tr(),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colorScheme.onSurface,
@@ -69,7 +70,7 @@ class RestaurantCard extends StatelessWidget {
                           Text(
                             place.formattedAddress ??
                                 place.shortFormattedAddress ??
-                                'Address not available',
+                                'result_screen.no_address'.tr(),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -224,7 +225,7 @@ class RestaurantCard extends StatelessWidget {
         ),
         icon: const Icon(Icons.directions, size: 18),
         label: Text(
-          'Navigate',
+          'result_screen.navigate'.tr(),
           style: theme.textTheme.labelLarge?.copyWith(
             color: colorScheme.onPrimary,
           ),
@@ -281,7 +282,8 @@ class RestaurantCard extends StatelessWidget {
     if (place.location != null) {
       final lat = place.location!.latitude;
       final lng = place.location!.longitude;
-      final name = Uri.encodeComponent(place.displayName?.text ?? 'Restaurant');
+      final name = Uri.encodeComponent(
+          place.displayName?.text ?? 'result_screen.default_restaurant_name'.tr());
 
       // Try Google Maps URL scheme
       final googleMapsUrl = Uri.parse(
@@ -298,9 +300,9 @@ class RestaurantCard extends StatelessWidget {
       } else {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Unable to open maps'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text('result_screen.maps_fail'.tr()),
+              duration: const Duration(seconds: 2),
             ),
           );
         }
@@ -309,9 +311,9 @@ class RestaurantCard extends StatelessWidget {
       // No location data available
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Location information not available'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text('result_screen.location_fail'.tr()),
+            duration: const Duration(seconds: 2),
           ),
         );
       }

@@ -1,4 +1,5 @@
 import 'package:dishcovery_app/core/models/feed_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -207,7 +208,7 @@ class _FeedCardState extends State<FeedCard>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.star, size: 16, color: Colors.amber),
+                        const Icon(Icons.star, size: 16, color: Colors.amber),
                         const SizedBox(width: 4),
                         Text(
                           widget.feedItem.rating!.toStringAsFixed(1),
@@ -278,7 +279,9 @@ class _FeedCardState extends State<FeedCard>
               // Likes Count
               if (_likes > 0)
                 Text(
-                  _likes == 1 ? '1 like' : '$_likes likes',
+                  _likes == 1
+                      ? 'feed_card.like_single'.tr()
+                      : 'feed_card.like_plural'.tr(args: [_likes.toString()]),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -322,7 +325,8 @@ class _FeedCardState extends State<FeedCard>
                 GestureDetector(
                   onTap: widget.onComment,
                   child: Text(
-                    'View all ${widget.feedItem.comments} comments',
+                    'feed_card.view_all_comments'
+                        .tr(args: [widget.feedItem.comments.toString()]),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),

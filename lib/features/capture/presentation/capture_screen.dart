@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
@@ -71,8 +72,7 @@ class _CaptureScreenState extends State<CaptureScreen>
           _hasPermission = false;
           _isPermanentlyDenied = true;
           _isLoading = false;
-          _errorMessage =
-              'Akses kamera telah diblokir.\nSilakan aktifkan izin kamera di pengaturan aplikasi untuk melanjutkan.';
+          _errorMessage = 'capture.permission_permanently_denied'.tr();
         });
         return;
       }
@@ -85,8 +85,7 @@ class _CaptureScreenState extends State<CaptureScreen>
             _hasPermission = false;
             _isPermanentlyDenied = true;
             _isLoading = false;
-            _errorMessage =
-                'Akses kamera telah diblokir.\nSilakan aktifkan izin kamera di pengaturan aplikasi untuk melanjutkan.';
+            _errorMessage = 'capture.permission_permanently_denied'.tr();
           });
           return;
         }
@@ -95,8 +94,7 @@ class _CaptureScreenState extends State<CaptureScreen>
           setState(() {
             _hasPermission = false;
             _isLoading = false;
-            _errorMessage =
-                'Dishcovery memerlukan akses kamera untuk memindai makanan Anda.\nSilakan berikan izin untuk melanjutkan.';
+            _errorMessage = 'capture.permission_denied'.tr();
           });
           return;
         }
@@ -108,8 +106,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       if (_cameras == null || _cameras!.isEmpty) {
         setState(() {
           _isLoading = false;
-          _errorMessage =
-              'Kamera tidak tersedia di perangkat ini.\nPastikan kamera berfungsi dengan baik.';
+          _errorMessage = 'capture.no_camera'.tr();
         });
         return;
       }
@@ -146,18 +143,14 @@ class _CaptureScreenState extends State<CaptureScreen>
       // Handle specific platform exceptions
       if (e.toString().contains('PermissionHandler.PermissionManager')) {
         if (e.toString().contains('already running')) {
-          friendlyMessage =
-              'Sedang memproses izin kamera.\nMohon tunggu sebentar dan coba lagi.';
+          friendlyMessage = 'capture.processing_permission'.tr();
         } else {
-          friendlyMessage =
-              'Terjadi masalah dengan izin kamera.\nSilakan coba lagi dalam beberapa saat.';
+          friendlyMessage = 'capture.permission_issue'.tr();
         }
       } else if (e.toString().contains('CameraException')) {
-        friendlyMessage =
-            'Kamera sedang digunakan aplikasi lain.\nTutup aplikasi kamera lain dan coba lagi.';
+        friendlyMessage = 'capture.camera_in_use'.tr();
       } else {
-        friendlyMessage =
-            'Terjadi masalah saat mengakses kamera.\nPastikan kamera berfungsi dengan baik dan coba lagi.';
+        friendlyMessage = 'capture.camera_access_error'.tr();
       }
 
       setState(() {
@@ -198,7 +191,7 @@ class _CaptureScreenState extends State<CaptureScreen>
 
   Future<void> _takePicture() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
-      _showSnackBar('Kamera belum siap, mohon tunggu sebentar');
+      _showSnackBar('capture.camera_not_ready'.tr());
       return;
     }
 
@@ -221,11 +214,9 @@ class _CaptureScreenState extends State<CaptureScreen>
     } catch (e) {
       String friendlyMessage;
       if (e.toString().contains('CameraException')) {
-        friendlyMessage =
-            'Gagal mengambil foto. Pastikan kamera berfungsi dengan baik dan coba lagi.';
+        friendlyMessage = 'capture.failed_to_take_photo'.tr();
       } else {
-        friendlyMessage =
-            'Terjadi masalah saat mengambil foto. Silakan coba lagi.';
+        friendlyMessage = 'capture.failed_to_take_photo_generic'.tr();
       }
       _showSnackBar(friendlyMessage);
       setState(() {
@@ -289,14 +280,11 @@ class _CaptureScreenState extends State<CaptureScreen>
 
       String friendlyMessage;
       if (e.toString().contains('photo_access_denied')) {
-        friendlyMessage =
-            'Akses galeri ditolak. Silakan berikan izin akses galeri di pengaturan aplikasi.';
+        friendlyMessage = 'capture.gallery_access_denied'.tr();
       } else if (e.toString().contains('photo_access_restricted')) {
-        friendlyMessage =
-            'Akses galeri dibatasi. Periksa pengaturan privasi perangkat Anda.';
+        friendlyMessage = 'capture.gallery_access_restricted'.tr();
       } else {
-        friendlyMessage =
-            'Terjadi masalah saat memilih gambar dari galeri. Silakan coba lagi.';
+        friendlyMessage = 'capture.failed_to_pick_image'.tr();
       }
       _showSnackBar(friendlyMessage);
     }
@@ -313,7 +301,7 @@ class _CaptureScreenState extends State<CaptureScreen>
         _isFlashOn = !_isFlashOn;
       });
     } catch (e) {
-      _showSnackBar('Flash tidak dapat digunakan pada perangkat ini');
+      _showSnackBar('capture.flash_unavailable'.tr());
     }
   }
 
@@ -410,19 +398,19 @@ class _CaptureScreenState extends State<CaptureScreen>
                           await openAppSettings();
                         },
                         icon: const Icon(Icons.settings),
-                        label: const Text('Buka Pengaturan'),
+                        label: Text('capture.open_settings'.tr()),
                       )
                     else if (!_hasPermission)
                       FilledButton.icon(
                         onPressed: _initializeCamera,
                         icon: const Icon(Icons.camera_alt),
-                        label: const Text('Berikan Izin Kamera'),
+                        label: Text('capture.grant_camera_permission'.tr()),
                       )
                     else
                       FilledButton.icon(
                         onPressed: _initializeCamera,
                         icon: const Icon(Icons.refresh),
-                        label: const Text('Coba Lagi'),
+                        label: Text('capture.try_again'.tr()),
                       ),
                   ],
                 ),
@@ -507,18 +495,18 @@ class _CaptureScreenState extends State<CaptureScreen>
                       color: theme.primaryColor.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.tips_and_updates,
                           color: Colors.white,
                           size: 20,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
-                          'Pastikan pencahayaan cukup',
-                          style: TextStyle(
+                          'capture.lighting_tip'.tr(),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,

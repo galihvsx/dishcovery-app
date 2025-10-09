@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dishcovery_app/providers/theme_provider.dart';
@@ -29,8 +30,10 @@ class SettingThemeCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Theme Mode',
-                              style: Theme.of(context).textTheme.titleMedium
+                              'settings_widgets.theme_card.title'.tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             Consumer<ThemeProvider>(
@@ -41,8 +44,17 @@ class SettingThemeCard extends StatelessWidget {
                                     context,
                                   );
                                   return Text(
-                                    'Currently: ${isDark ? 'Dark' : 'Light'} (System)',
-                                    style: Theme.of(context).textTheme.bodySmall
+                                    'settings_widgets.theme_card.current_theme_system'
+                                        .tr(args: [
+                                      isDark
+                                          ? 'settings_widgets.theme_card.dark'
+                                              .tr()
+                                          : 'settings_widgets.theme_card.light'
+                                              .tr()
+                                    ]),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
                                         ?.copyWith(
                                           color: Theme.of(
                                             context,
@@ -61,8 +73,15 @@ class SettingThemeCard extends StatelessWidget {
                           if (themeProvider.themeMode == ThemeMode.system) {
                             final isDark = themeProvider.isDarkMode(context);
                             return Text(
-                              'Currently: ${isDark ? 'Dark' : 'Light'} (System)',
-                              style: Theme.of(context).textTheme.bodySmall
+                              'settings_widgets.theme_card.current_theme_system'
+                                  .tr(args: [
+                                isDark
+                                    ? 'settings_widgets.theme_card.dark'.tr()
+                                    : 'settings_widgets.theme_card.light'.tr()
+                              ]),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
                                   ?.copyWith(
                                     color: Theme.of(
                                       context,
@@ -111,9 +130,9 @@ class SettingThemeCard extends StatelessWidget {
                           value: ThemeMode.light,
                           child: Row(
                             children: [
-                              Icon(Icons.light_mode, size: 20),
+                              const Icon(Icons.light_mode, size: 20),
                               const SizedBox(width: 8),
-                              const Text('Light'),
+                              Text('settings_widgets.theme_card.light'.tr()),
                               if (themeProvider.themeMode ==
                                   ThemeMode.light) ...[
                                 const Spacer(),
@@ -139,9 +158,9 @@ class SettingThemeCard extends StatelessWidget {
                           value: ThemeMode.dark,
                           child: Row(
                             children: [
-                              Icon(Icons.dark_mode, size: 20),
+                              const Icon(Icons.dark_mode, size: 20),
                               const SizedBox(width: 8),
-                              const Text('Dark'),
+                              Text('settings_widgets.theme_card.dark'.tr()),
                               if (themeProvider.themeMode ==
                                   ThemeMode.dark) ...[
                                 const Spacer(),
@@ -167,9 +186,9 @@ class SettingThemeCard extends StatelessWidget {
                           value: ThemeMode.system,
                           child: Row(
                             children: [
-                              Icon(Icons.auto_mode, size: 20),
+                              const Icon(Icons.auto_mode, size: 20),
                               const SizedBox(width: 8),
-                              const Text('System'),
+                              Text('settings_widgets.theme_card.system'.tr()),
                               if (themeProvider.themeMode ==
                                   ThemeMode.system) ...[
                                 const Spacer(),

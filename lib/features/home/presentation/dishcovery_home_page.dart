@@ -1,5 +1,6 @@
 import 'package:dishcovery_app/core/models/feed_model.dart';
 import 'package:dishcovery_app/features/home/presentation/widgets/feed_card.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -68,7 +69,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.link),
-                title: const Text('Copy Link'),
+                title: Text('home_screen.copy_link'.tr()),
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Implement copy link
@@ -76,7 +77,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.share_outlined),
-                title: const Text('Share to...'),
+                title: Text('home_screen.share_to'.tr()),
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Implement share
@@ -84,7 +85,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.report_outlined),
-                title: const Text('Report'),
+                title: Text('home_screen.report'.tr()),
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Implement report
@@ -92,7 +93,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.notifications_off_outlined),
-                title: const Text('Turn off notifications'),
+                title: Text('home_screen.turn_off_notifications'.tr()),
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Implement notification settings

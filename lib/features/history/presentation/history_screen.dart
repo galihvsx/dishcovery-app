@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dishcovery_app/core/widgets/custom_app_bar.dart';
@@ -31,7 +32,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'History', actions: [ThemeSwitcher()]),
+      appBar: CustomAppBar(
+          title: 'history_screen.title'.tr(), actions: const [ThemeSwitcher()]),
       body: RefreshIndicator(
         onRefresh: () => _refreshHistory(context),
         child: Consumer<HistoryProvider>(
@@ -39,23 +41,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
             final history = provider.historyList;
 
             if (history.isEmpty) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.history, size: 80, color: Colors.grey),
-                    SizedBox(height: 16),
+                    const Icon(Icons.history, size: 80, color: Colors.grey),
+                    const SizedBox(height: 16),
                     Text(
-                      'No history yet',
-                      style: TextStyle(
+                      'history_screen.empty_title'.tr(),
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      'Start capturing food to see your history',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      'history_screen.empty_subtitle'.tr(),
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -94,7 +96,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: Icon(Icons.fastfood),
                           ),
                     title: Text(
-                      item.name.isNotEmpty ? item.name : 'Unknown Dish',
+                      item.name.isNotEmpty
+                          ? item.name
+                          : 'history_screen.unknown_dish'.tr(),
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
@@ -103,7 +107,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     subtitle: Text(
                       item.description.isNotEmpty
                           ? item.description
-                          : 'No description available.',
+                          : 'history_screen.no_description'.tr(),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(color: Colors.grey, fontSize: 13),
@@ -114,14 +118,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Delete History'),
-                            content: const Text(
-                              'Are you sure you want to delete this item?',
+                            title: Text('history_screen.delete_dialog_title'.tr()),
+                            content: Text(
+                              'history_screen.delete_dialog_content'.tr(),
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
+                                child: Text('common.cancel'.tr()),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -130,14 +134,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   Navigator.pop(context);
                                   if (!mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Item deleted'),
+                                    SnackBar(
+                                      content: Text(
+                                          'history_screen.snackbar_deleted'.tr()),
                                     ),
                                   );
                                 },
-                                child: const Text(
-                                  'Delete',
-                                  style: TextStyle(color: Colors.red),
+                                child: Text(
+                                  'common.delete'.tr(),
+                                  style: const TextStyle(color: Colors.red),
                                 ),
                               ),
                             ],
@@ -164,7 +169,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         onPressed: () {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(const SnackBar(content: Text('Add new dish history')));
+          ).showSnackBar(SnackBar(content: Text('history_screen.snackbar_add'.tr())));
         },
         backgroundColor: Theme.of(context).primaryColor,
         child: const Icon(Icons.add, size: 28),
