@@ -97,7 +97,9 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(77),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withAlpha(77),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -148,53 +150,53 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
     );
   }
 
-  void _showOptionsSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.link),
-                title: Text('home_screen.copy_link'.tr()),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Implement copy link
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.share_outlined),
-                title: Text('home_screen.share_to'.tr()),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Implement share
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.report_outlined),
-                title: Text('home_screen.report'.tr()),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Implement report
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.notifications_off_outlined),
-                title: Text('home_screen.turn_off_notifications'.tr()),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Implement notification settings
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // void _showOptionsSheet() {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) {
+  //       return Container(
+  //         padding: const EdgeInsets.symmetric(vertical: 8),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             ListTile(
+  //               leading: const Icon(Icons.link),
+  //               title: Text('home_screen.copy_link'.tr()),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 // TODO: Implement copy link
+  //               },
+  //             ),
+  //             ListTile(
+  //               leading: const Icon(Icons.share_outlined),
+  //               title: Text('home_screen.share_to'.tr()),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 // TODO: Implement share
+  //               },
+  //             ),
+  //             ListTile(
+  //               leading: const Icon(Icons.report_outlined),
+  //               title: Text('home_screen.report'.tr()),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 // TODO: Implement report
+  //               },
+  //             ),
+  //             ListTile(
+  //               leading: const Icon(Icons.notifications_off_outlined),
+  //               title: Text('home_screen.turn_off_notifications'.tr()),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 // TODO: Implement notification settings
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -315,7 +317,8 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                         );
                       }
                     },
-                    childCount: provider.feeds.length +
+                    childCount:
+                        provider.feeds.length +
                         (provider.hasMore || provider.isLoading ? 1 : 1),
                   ),
                 );
