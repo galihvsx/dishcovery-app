@@ -59,7 +59,10 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadPreferences();
+    });
   }
 
   Future<void> _loadPreferences() async {
@@ -68,6 +71,7 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       listen: false,
     );
     await provider.load();
+    if (!mounted) return;
     final p = provider.prefs;
     setState(() {
       _likedFlavors = List<String>.from(p.likedFlavors);
