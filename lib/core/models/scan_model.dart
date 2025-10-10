@@ -21,6 +21,7 @@ class ScanResult {
   final bool isFavorite; // Local favorite/collection flag
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String? transactionId; // For tracking scan operations and preventing duplicates
 
   ScanResult({
     this.id,
@@ -41,6 +42,7 @@ class ScanResult {
     this.isFavorite = false,
     DateTime? createdAt,
     this.updatedAt,
+    this.transactionId,
   }) : createdAt = createdAt ?? DateTime.now();
 
   factory ScanResult.fromJson(Map<String, dynamic> json) {
@@ -84,6 +86,7 @@ class ScanResult {
                 ? DateTime.parse(json['updatedAt'])
                 : (json['updatedAt'] as dynamic).toDate())
           : null,
+      transactionId: json['transactionId']?.toString(),
     );
   }
 
@@ -107,6 +110,7 @@ class ScanResult {
       'isFavorite': isFavorite,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'transactionId': transactionId,
     };
   }
 
@@ -126,6 +130,7 @@ class ScanResult {
       'isPublic': isPublic,
       'createdAt': createdAt,
       'updatedAt': DateTime.now(),
+      'transactionId': transactionId,
     };
   }
 
@@ -151,6 +156,7 @@ class ScanResult {
       updatedAt: dbMap['updatedAt'] != null
           ? DateTime.parse(dbMap['updatedAt'])
           : null,
+      transactionId: dbMap['transactionId'],
     );
   }
 
@@ -174,6 +180,7 @@ class ScanResult {
       'isFavorite': isFavorite ? 1 : 0,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'transactionId': transactionId,
     };
   }
 
@@ -196,6 +203,7 @@ class ScanResult {
     bool? isFavorite,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? transactionId,
   }) {
     return ScanResult(
       id: id ?? this.id,
@@ -216,6 +224,7 @@ class ScanResult {
       isFavorite: isFavorite ?? this.isFavorite,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      transactionId: transactionId ?? this.transactionId,
     );
   }
 }

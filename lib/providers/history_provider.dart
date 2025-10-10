@@ -17,6 +17,9 @@ class HistoryProvider extends ChangeNotifier {
   StreamSubscription? _historySubscription;
   bool _isLoading = false;
   final Set<String> _processedFirestoreIds = {};
+  final Set<String> _processedTransactionIds = {};
+  final Map<String, DateTime> _lastProcessedTimes = {};
+  static const Duration _deduplicationWindow = Duration(seconds: 5);
 
   HistoryProvider(this._database) {
     _initializeHistory();
@@ -25,6 +28,21 @@ class HistoryProvider extends ChangeNotifier {
   List<ScanResult> get historyList => _historyList;
   List<ScanResult> get favoritesList => _favoritesList;
   bool get isLoading => _isLoading;
+
+  /// Check if a scan was recently processed (within deduplication window)
+  bool _wasRecentlyProcessed(String firestoreId) {
+    final lastProcessed = _lastProcessedTimes[firestoreId];
+    if (lastProcessed == null) return false;
+    return DateTime.now().difference(lastProcessed) < _deduplicationWindow;
+  }
+
+  /// Mark a scan as recently processed
+  void _markAsProcessed(String firestoreId) {
+    _lastProcessedTimes[firestoreId] = DateTime.now();
+    // Clean up old entries
+    _lastProcessedTimes.removeWhere((id, time) =>
+        DateTime.now().difference(time) > _deduplicationWindow * 2);
+  }
 
   void _initializeHistory() {
     _auth.authStateChanges().listen((user) {
@@ -54,21 +72,63 @@ class HistoryProvider extends ChangeNotifier {
     try {
       // Clear processed IDs when reloading
       _processedFirestoreIds.clear();
+      _processedTransactionIds.clear();
+      _lastProcessedTimes.clear();
 
       // Subscribe to Firestore updates
       _historySubscription = _firestoreService
           .getUserScans(user.uid)
           .listen(
             (scans) {
-              // Use a Set to ensure unique items by firestoreId
-              final uniqueScans = <String, ScanResult>{};
+              // Filter and deduplicate scans
+              final filteredScans = <ScanResult>[];
+              final seenFirestoreIds = <String>{};
+              final seenTransactionIds = <String>{};
+
               for (final scan in scans) {
+                // Skip if already processed in this session
+                if (scan.firestoreId != null &&
+                    _processedFirestoreIds.contains(scan.firestoreId!)) {
+                  continue;
+                }
+
+                // Skip if recently processed
+                if (scan.firestoreId != null &&
+                    _wasRecentlyProcessed(scan.firestoreId!)) {
+                  continue;
+                }
+
+                // Skip duplicate by firestoreId
+                if (scan.firestoreId != null &&
+                    seenFirestoreIds.contains(scan.firestoreId!)) {
+                  continue;
+                }
+
+                // Skip duplicate by transactionId
+                if (scan.transactionId != null &&
+                    seenTransactionIds.contains(scan.transactionId!)) {
+                  continue;
+                }
+
+                // Add to filtered list
+                filteredScans.add(scan);
+
+                // Mark as seen
                 if (scan.firestoreId != null) {
-                  uniqueScans[scan.firestoreId!] = scan;
+                  seenFirestoreIds.add(scan.firestoreId!);
+                  _processedFirestoreIds.add(scan.firestoreId!);
+                  _markAsProcessed(scan.firestoreId!);
+                }
+                if (scan.transactionId != null) {
+                  seenTransactionIds.add(scan.transactionId!);
+                  _processedTransactionIds.add(scan.transactionId!);
                 }
               }
 
-              _historyList = uniqueScans.values.toList();
+              // Sort by creation time (newest first)
+              filteredScans.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+              _historyList = filteredScans;
               _isLoading = false;
               notifyListeners();
 
@@ -134,14 +194,30 @@ class HistoryProvider extends ChangeNotifier {
   /// Add new scan (saved to both Firestore and ObjectBox)
   /// Note: This is called after Firestore save, so the listener will also pick it up
   /// We need to ensure we don't duplicate it
-  Future<void> addHistory(ScanResult data) async {
+  Future<void> addHistory(ScanResult data, {String? transactionId}) async {
     // Check if already exists in history list by firestoreId
     if (data.firestoreId != null) {
+      // Check if exists in current list
       final exists = _historyList.any((s) => s.firestoreId == data.firestoreId);
       if (exists) {
         print('Scan already exists in history, skipping addHistory');
         return;
       }
+
+      // Check if recently processed
+      if (_wasRecentlyProcessed(data.firestoreId!)) {
+        print('Scan was recently processed, skipping addHistory');
+        return;
+      }
+    }
+
+    // Check by transactionId if provided
+    if (transactionId != null) {
+      if (_processedTransactionIds.contains(transactionId)) {
+        print('Transaction ID already processed, skipping addHistory');
+        return;
+      }
+      _processedTransactionIds.add(transactionId);
     }
 
     // Cache locally immediately
@@ -150,6 +226,7 @@ class HistoryProvider extends ChangeNotifier {
     // Add to processed IDs to prevent duplicate processing
     if (data.firestoreId != null) {
       _processedFirestoreIds.add(data.firestoreId!);
+      _markAsProcessed(data.firestoreId!);
     }
 
     // The Firestore listener will update the list, so we don't need to do it here
@@ -258,6 +335,8 @@ class HistoryProvider extends ChangeNotifier {
     _historySubscription?.cancel();
     _historySubscription = null;
     _processedFirestoreIds.clear();
+    _processedTransactionIds.clear();
+    _lastProcessedTimes.clear();
     _historyList.clear();
     _favoritesList.clear();
     _database.close();

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:math';
 
 class ScanProvider extends ChangeNotifier {
   final FirebaseAiService _aiService = FirebaseAiService();
@@ -17,11 +18,34 @@ class ScanProvider extends ChangeNotifier {
   String? _error;
   String _loadingMessage = "Memproses gambar...";
   BuildContext? _lastContext;
+  String? _currentTransactionId;
+  final Set<String> _completedTransactions = {};
 
   bool get loading => _loading;
   ScanResult? get result => _result;
   String? get error => _error;
   String get loadingMessage => _loadingMessage;
+
+  /// Generate unique transaction ID for tracking scan operations
+  String _generateTransactionId() {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final random = Random().nextInt(100000);
+    return 'scan_${timestamp}_$random';
+  }
+
+  /// Check if a transaction has been completed
+  bool _isTransactionCompleted(String transactionId) {
+    return _completedTransactions.contains(transactionId);
+  }
+
+  /// Mark a transaction as completed
+  void _markTransactionCompleted(String transactionId) {
+    _completedTransactions.add(transactionId);
+    // Keep only last 50 transactions to prevent memory leak
+    if (_completedTransactions.length > 50) {
+      _completedTransactions.remove(_completedTransactions.first);
+    }
+  }
 
   /// Optimize image before sending to API
   Future<Uint8List> _optimizeImage(String imagePath) async {
@@ -55,6 +79,10 @@ class ScanProvider extends ChangeNotifier {
   }
 
   Future<void> processImage(String imagePath, {BuildContext? context}) async {
+    // Generate new transaction ID for this scan operation
+    _currentTransactionId = _generateTransactionId();
+    final transactionId = _currentTransactionId!;
+
     _loading = true;
     _error = null;
     _loadingMessage = "Memproses gambar...";
@@ -62,6 +90,14 @@ class ScanProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Check if this transaction was already completed
+      if (_isTransactionCompleted(transactionId)) {
+        debugPrint("Transaction $transactionId already completed, skipping");
+        _loading = false;
+        notifyListeners();
+        return;
+      }
+
       // Optimize image first
       final optimizedBytes = await _optimizeImage(imagePath);
 
@@ -87,9 +123,13 @@ Jika makanan, berikan informasi singkat dan padat:
       // Safe parsing with error handling
       final ScanResult parsed;
       try {
-        parsed = ScanResult.fromJson(res).copyWith(imagePath: imagePath);
+        parsed = ScanResult.fromJson(res).copyWith(
+          imagePath: imagePath,
+          transactionId: transactionId, // Add transaction ID for tracking
+        );
         debugPrint("Parsed result: ${parsed.name}");
         debugPrint("History: ${parsed.history}");
+        debugPrint("Transaction ID: $transactionId");
       } catch (parseError) {
         debugPrint("Error parsing result: $parseError");
         throw Exception("Failed to parse API response: $parseError");
@@ -117,13 +157,17 @@ Jika makanan, berikan informasi singkat dan padat:
                 _lastContext!,
                 listen: false,
               );
-              await historyProvider.addHistory(updatedResult);
+              // Pass transaction ID to prevent duplicate processing
+              await historyProvider.addHistory(updatedResult, transactionId: transactionId);
             }
           }
         } catch (e) {
           debugPrint("Error saving scan result: $e");
         }
       }
+
+      // Mark transaction as completed
+      _markTransactionCompleted(transactionId);
     } catch (e, stackTrace) {
       debugPrint("Error processing image: ${e.toString()}");
       debugPrint("Stack trace: $stackTrace");
@@ -139,6 +183,10 @@ Jika makanan, berikan informasi singkat dan padat:
     String imagePath, {
     BuildContext? context,
   }) async {
+    // Generate new transaction ID for this scan operation
+    _currentTransactionId = _generateTransactionId();
+    final transactionId = _currentTransactionId!;
+
     _loading = true;
     _error = null;
     _loadingMessage = "Memproses gambar...";
@@ -146,6 +194,14 @@ Jika makanan, berikan informasi singkat dan padat:
     notifyListeners();
 
     try {
+      // Check if this transaction was already completed
+      if (_isTransactionCompleted(transactionId)) {
+        debugPrint("Transaction $transactionId already completed, skipping");
+        _loading = false;
+        notifyListeners();
+        return;
+      }
+
       // Optimize image first
       final optimizedBytes = await _optimizeImage(imagePath);
 
@@ -172,7 +228,10 @@ Jika makanan, berikan informasi singkat dan padat:
         try {
           final parsed = ScanResult.fromJson(
             res,
-          ).copyWith(imagePath: imagePath);
+          ).copyWith(
+            imagePath: imagePath,
+            transactionId: transactionId, // Add transaction ID for tracking
+          );
           _result = parsed;
 
           if (firstUpdate) {
@@ -218,13 +277,17 @@ Jika makanan, berikan informasi singkat dan padat:
                 _lastContext!,
                 listen: false,
               );
-              await historyProvider.addHistory(updatedResult);
+              // Pass transaction ID to prevent duplicate processing
+              await historyProvider.addHistory(updatedResult, transactionId: transactionId);
             }
           }
         } catch (e) {
           debugPrint("Error saving scan result: $e");
         }
       }
+
+      // Mark transaction as completed
+      _markTransactionCompleted(transactionId);
     } catch (e, stackTrace) {
       debugPrint("Error processing image with stream: ${e.toString()}");
       debugPrint("Stack trace: $stackTrace");

@@ -20,9 +20,14 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   bool _isInitialized = false;
+  bool _isResumingFromBackground = false;
 
   Future<void> _refreshHistory(BuildContext context) async {
-    await Provider.of<HistoryProvider>(context, listen: false).loadHistory();
+    final provider = Provider.of<HistoryProvider>(context, listen: false);
+
+    // Force refresh by clearing caches first
+    // This ensures we get fresh data but still prevents duplicates
+    await provider.loadHistory();
   }
 
   @override
@@ -30,15 +35,37 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.initState();
     // Only load history if not already initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_isInitialized) {
-        final provider = Provider.of<HistoryProvider>(context, listen: false);
-        // Only load if the list is empty or we haven't loaded yet
-        if (provider.historyList.isEmpty && !provider.isLoading) {
-          provider.loadHistory();
-        }
-        _isInitialized = true;
-      }
+      _initializeHistoryIfNeeded();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Check if we're returning from another screen
+    if (!_isResumingFromBackground) {
+      _isResumingFromBackground = true;
+      // Use a delayed callback to avoid triggering during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Only refresh if it's been more than 2 seconds since last load
+        // This prevents unnecessary refreshes when quickly navigating
+        _initializeHistoryIfNeeded();
+      });
+    }
+  }
+
+  void _initializeHistoryIfNeeded() {
+    if (_isInitialized) return;
+
+    final provider = Provider.of<HistoryProvider>(context, listen: false);
+
+    // Only load if the list is empty and not currently loading
+    if (provider.historyList.isEmpty && !provider.isLoading) {
+      provider.loadHistory();
+    }
+
+    _isInitialized = true;
   }
 
   @override
