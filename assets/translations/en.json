@@ -100,7 +100,7 @@
     "language_card": {
       "title": "Language",
       "snackbar_changed": "Language changed to {} (Not implemented yet)",
-      "indonesian": "Bahasa Indonesia",
+      "indonesian": "Indonesian",
       "english": "English"
     },
     "profile_card": {

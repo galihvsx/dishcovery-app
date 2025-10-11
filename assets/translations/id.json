@@ -21,7 +21,7 @@
   "language": {
     "language": "Bahasa",
     "en": "Inggris",
-    "id": "Bahasa Indonesia"
+    "id": "Indonesia"
   },
   "theme": {
     "theme": "Tema",
@@ -100,7 +100,7 @@
     "language_card": {
       "title": "Bahasa",
       "snackbar_changed": "Bahasa diubah ke {} (Belum diimplementasikan)",
-      "indonesian": "Bahasa Indonesia",
+      "indonesian": "Indonesia",
       "english": "Inggris"
     },
     "profile_card": {
