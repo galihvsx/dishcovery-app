@@ -188,30 +188,58 @@ If you encounter any issues or have questions:
 -----
 
 **Happy Cooking! 🍳**
+## 📂 Folder Structure
+
+```text
 lib/
-├── core/              # Core functionality
-│   ├── config/        # App configuration
-│   ├── controllers/   # Shared controllers
-│   ├── database/     # Local database (ObjectBox)
-│   ├── extensions/   # Extension methods
-│   ├── models/       # Core data models
-│   ├── navigation/   # Navigation services
-│   ├── services/     # Core services
-│   ├── theme/        # Theme configuration
-│   └── widgets/      # Reusable widgets
+├─ main.dart # Entry point aplikasi
+├─ app.dart # Root MaterialApp, theme, route init
 │
-├── features/          # Feature modules
-│   ├── auth/         # Authentication
-│   ├── capture/      # Image capture
-│   ├── history/      # Search history
-│   ├── home/         # Home screen
-│   ├── onboarding/   # User onboarding
-│   ├── result/       # Recognition results
-│   └── settings/     # App settings
+├─ routes/
+│ └─ app_routes.dart # Route name & generator/GoRouter
 │
-├── providers/         # State management
-├── res/              # Resources
-└── utils/            # Utilities
+├─ config/
+│ ├─ env.dart # Runtime env (dart-define)
+│ └─ theme.dart # Konfigurasi light/dark theme
+│
+├─ core/
+│ ├─ utils/ # Helper (debounce, formatter, etc.)
+│ ├─ errors/ # AppException, failure mapper
+│ └─ widgets/ # Reusable UI atoms (EmptyState, Button, dll.)
+│
+├─ services/
+│ ├─ api_client.dart # HTTP client (Dio singleton + interceptors)
+│ ├─ image_picker_service.dart # Kamera / galeri handler
+│ └─ storage_service.dart # Local storage wrapper (SharedPref/Hive/Isar)
+│
+├─ models/
+│ ├─ recognition_result.dart # Data model hasil pengenalan
+│ └─ food_item.dart # Data model item makanan
+│
+├─ repositories/
+│ ├─ food_repository.dart # Akses API: recognize, recommendations
+│ └─ history_repository.dart # Akses lokal CRUD history
+│
+├─ controllers/
+│ ├─ recognition_controller.dart # State + logic untuk food recognition
+│ ├─ history_controller.dart # State + logic untuk riwayat
+│ └─ settings_controller.dart # State + logic untuk pengaturan
+│
+└─ views/
+├─ capture/
+│ ├─ capture_page.dart # UI untuk ambil/pilih foto
+│ └─ widgets/...
+│
+├─ result/
+│ ├─ result_page.dart # UI untuk hasil pengenalan
+│ └─ widgets/...
+│
+├─ history/
+│ ├─ history_page.dart # UI daftar riwayat pencarian
+│ └─ widgets/...
+│
+└─ settings/
+└─ settings_page.dart # UI halaman pengaturan
 
 
 
