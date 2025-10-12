@@ -29,8 +29,6 @@ Dishcovery is a mobile application that helps users discover and learn about Ind
 
 This project uses **Clean Architecture** with **Feature-First** organization for better scalability and maintainability:
 
-```
-
 -----
 
 ## 🛠️ Tech Stack
@@ -163,9 +161,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👥 Team
 
 BEKUP 2025 Capstone Project Team:
-- [Team Member 1](https://github.com/username)
-- [Team Member 2](https://github.com/username)
-- [Team Member 3](https://github.com/username)
+- [Fadhil Alif Priyatno](https://github.com/FadhilAlif)
+- [Galih Putro Aji](https://github.com/galihvsx)
+- [Yunanto Biantoro](https://github.com/Drmobkey)
+- [Mochammad Rizky Ramadhani](https://github.com/Mokyra18)
 
 -----
 
