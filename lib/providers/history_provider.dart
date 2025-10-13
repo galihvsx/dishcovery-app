@@ -93,19 +93,19 @@ class HistoryProvider extends ChangeNotifier {
                   continue;
                 }
 
-                // Skip if recently processed
+                // Skip if recently processed (within deduplication window)
                 if (scan.firestoreId != null &&
                     _wasRecentlyProcessed(scan.firestoreId!)) {
                   continue;
                 }
 
-                // Skip duplicate by firestoreId
+                // Skip duplicate by firestoreId within this batch
                 if (scan.firestoreId != null &&
                     seenFirestoreIds.contains(scan.firestoreId!)) {
                   continue;
                 }
 
-                // Skip duplicate by transactionId
+                // Skip duplicate by transactionId within this batch
                 if (scan.transactionId != null &&
                     seenTransactionIds.contains(scan.transactionId!)) {
                   continue;
@@ -120,7 +120,7 @@ class HistoryProvider extends ChangeNotifier {
                 // Add to filtered list
                 filteredScans.add(scan);
 
-                // Mark as seen
+                // Mark as seen and processed
                 if (scan.firestoreId != null) {
                   seenFirestoreIds.add(scan.firestoreId!);
                   _processedFirestoreIds.add(scan.firestoreId!);
@@ -178,9 +178,13 @@ class HistoryProvider extends ChangeNotifier {
         // Skip if already processed in this session
         if (_processedFirestoreIds.contains(scan.firestoreId)) continue;
 
+        // Skip if recently processed to prevent duplicate saves
+        if (_wasRecentlyProcessed(scan.firestoreId!)) continue;
+
         if (!existingFirestoreIds.contains(scan.firestoreId)) {
           // New scan, insert it
           await _database.insertScanResult(scan);
+          print('Cached new scan to ObjectBox: ${scan.name} (${scan.firestoreId})');
         } else {
           // Existing scan, update it
           // Find the existing scan with matching firestoreId
@@ -190,11 +194,13 @@ class HistoryProvider extends ChangeNotifier {
           );
           if (existingScan.id != null) {
             await _database.updateScanResult(scan.copyWith(id: existingScan.id));
+            print('Updated existing scan in ObjectBox: ${scan.name} (${scan.firestoreId})');
           }
         }
 
         // Mark as processed
         _processedFirestoreIds.add(scan.firestoreId!);
+        _markAsProcessed(scan.firestoreId!);
       } catch (e) {
         print('Error caching scan: $e');
       }
@@ -202,9 +208,14 @@ class HistoryProvider extends ChangeNotifier {
   }
 
   /// Add new scan (saved to both Firestore and ObjectBox)
-  /// Note: This is called after Firestore save, so the listener will also pick it up
-  /// We need to ensure we don't duplicate it
+  /// Note: This method is now deprecated as we rely on Firestore listener for all caching
+  /// Keeping for backward compatibility but should not be called from ScanProvider
+  @Deprecated('Use Firestore listener for automatic caching instead')
   Future<void> addHistory(ScanResult data, {String? transactionId}) async {
+    // This method is now deprecated - the Firestore listener handles all caching
+    // automatically to prevent duplicate saves
+    print('addHistory called - this should be handled by Firestore listener');
+    
     // Check if already exists in history list by firestoreId
     if (data.firestoreId != null) {
       // Check if exists in current list

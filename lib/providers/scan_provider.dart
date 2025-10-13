@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
 
+import 'package:crypto/crypto.dart';
 import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/core/services/firebase_ai_service.dart';
 import 'package:dishcovery_app/core/services/firestore_service.dart';
@@ -62,7 +62,11 @@ class ScanProvider extends ChangeNotifier {
   }
 
   /// Generate content hash from image bytes and food name
-  String _generateContentHash(Uint8List imageBytes, String foodName, String userId) {
+  String _generateContentHash(
+    Uint8List imageBytes,
+    String foodName,
+    String userId,
+  ) {
     // Create a simple hash of the first 1000 bytes (for performance)
     // Combined with food name and user ID for uniqueness
     final sampleSize = imageBytes.length > 1000 ? 1000 : imageBytes.length;
@@ -70,7 +74,7 @@ class ScanProvider extends ChangeNotifier {
 
     // Combine image sample, food name, and userId for the hash
     final contentToHash = utf8.encode(
-      '${base64.encode(imageSample)}_${foodName.toLowerCase()}_$userId'
+      '${base64.encode(imageSample)}_${foodName.toLowerCase()}_$userId',
     );
 
     // Generate SHA256 hash
@@ -184,9 +188,7 @@ Jika makanan, berikan informasi singkat dan padat:
 
       _result = parsed;
 
-      // Save to Firestore only if not a duplicate
-      // Note: HistoryProvider's Firestore listener will automatically add it to local cache
-      // This prevents duplicate entries (one from direct save, one from listener)
+      // Save to Firestore only - HistoryProvider listener will handle local caching
       if (parsed.name.toLowerCase() != "bukan makanan" && parsed.isFood) {
         // Prevent concurrent saves
         if (_isSaving) {
@@ -208,16 +210,16 @@ Jika makanan, berikan informasi singkat dan padat:
             );
 
             if (isDuplicate) {
-              debugPrint("Duplicate scan detected by content hash, skipping save");
+              debugPrint(
+                "Duplicate scan detected by content hash, skipping save",
+              );
               _isSaving = false;
               return;
             }
 
             // Check for recent similar scan (same food within 1 minute)
-            final hasRecentSimilar = await _firestoreService.checkRecentSimilarScan(
-              parsed.name,
-              user.uid,
-            );
+            final hasRecentSimilar = await _firestoreService
+                .checkRecentSimilarScan(parsed.name, user.uid);
 
             if (hasRecentSimilar) {
               debugPrint("Recent similar scan detected, skipping save");
@@ -237,8 +239,18 @@ Jika makanan, berikan informasi singkat dan padat:
             final updatedResult = parsed.copyWith(firestoreId: firestoreId);
             _result = updatedResult;
 
-            // Firestore listener in HistoryProvider will automatically handle caching
-            debugPrint("Scan saved to Firestore with ID: $firestoreId");
+            // Cache locally using HistoryProvider (ObjectBox)
+            if (_lastContext != null && _lastContext!.mounted) {
+              final historyProvider = Provider.of<HistoryProvider>(
+                _lastContext!,
+                listen: false,
+              );
+              // Pass transaction ID to prevent duplicate processing
+              await historyProvider.addHistory(
+                updatedResult,
+                transactionId: transactionId,
+              );
+            }
           }
         } catch (e) {
           debugPrint("Error saving scan result: $e");
@@ -328,7 +340,8 @@ Jika makanan, berikan informasi singkat dan padat:
           final parsed = ScanResult.fromJson(res).copyWith(
             imagePath: imagePath,
             transactionId: transactionId, // Add transaction ID for tracking
-            contentHash: contentHash, // Add content hash for duplicate detection
+            contentHash:
+                contentHash, // Add content hash for duplicate detection
           );
           _result = parsed;
 
@@ -352,9 +365,7 @@ Jika makanan, berikan informasi singkat dan padat:
         }
       }
 
-      // Save to Firestore only after stream completes and if not a duplicate
-      // Note: HistoryProvider's Firestore listener will automatically add it to local cache
-      // This prevents duplicate entries (one from direct save, one from listener)
+      // Save to Firestore only - HistoryProvider listener will handle local caching
       final result = _result;
       if (result != null &&
           result.name.toLowerCase() != "bukan makanan" &&
@@ -379,16 +390,16 @@ Jika makanan, berikan informasi singkat dan padat:
             );
 
             if (isDuplicate) {
-              debugPrint("Duplicate scan detected by content hash, skipping save");
+              debugPrint(
+                "Duplicate scan detected by content hash, skipping save",
+              );
               _isSaving = false;
               return;
             }
 
             // Check for recent similar scan (same food within 1 minute)
-            final hasRecentSimilar = await _firestoreService.checkRecentSimilarScan(
-              result.name,
-              user.uid,
-            );
+            final hasRecentSimilar = await _firestoreService
+                .checkRecentSimilarScan(result.name, user.uid);
 
             if (hasRecentSimilar) {
               debugPrint("Recent similar scan detected, skipping save");
@@ -408,8 +419,18 @@ Jika makanan, berikan informasi singkat dan padat:
             final updatedResult = result.copyWith(firestoreId: firestoreId);
             _result = updatedResult;
 
-            // Firestore listener in HistoryProvider will automatically handle caching
-            debugPrint("Scan saved to Firestore with ID: $firestoreId");
+            // Cache locally using HistoryProvider (ObjectBox)
+            if (_lastContext != null && _lastContext!.mounted) {
+              final historyProvider = Provider.of<HistoryProvider>(
+                _lastContext!,
+                listen: false,
+              );
+              // Pass transaction ID to prevent duplicate processing
+              await historyProvider.addHistory(
+                updatedResult,
+                transactionId: transactionId,
+              );
+            }
           }
         } catch (e) {
           debugPrint("Error saving scan result: $e");
