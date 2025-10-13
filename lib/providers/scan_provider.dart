@@ -1,9 +1,7 @@
 import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/core/services/firebase_ai_service.dart';
 import 'package:dishcovery_app/core/services/firestore_service.dart';
-import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
 import 'dart:io';
 import 'dart:typed_data';
@@ -137,7 +135,7 @@ Jika makanan, berikan informasi singkat dan padat:
 
       _result = parsed;
 
-      // Save to Firestore and cache locally
+      // Save to Firestore only - HistoryProvider listener will handle local caching
       if (parsed.name.toLowerCase() != "bukan makanan" && parsed.isFood) {
         _loadingMessage = "Menyimpan hasil...";
         notifyListeners();
@@ -150,16 +148,9 @@ Jika makanan, berikan informasi singkat dan padat:
             // Update result with Firestore ID
             final updatedResult = parsed.copyWith(firestoreId: firestoreId);
             _result = updatedResult;
-
-            // Cache locally using HistoryProvider (ObjectBox)
-            if (_lastContext != null && _lastContext!.mounted) {
-              final historyProvider = Provider.of<HistoryProvider>(
-                _lastContext!,
-                listen: false,
-              );
-              // Pass transaction ID to prevent duplicate processing
-              await historyProvider.addHistory(updatedResult, transactionId: transactionId);
-            }
+            
+            // Note: HistoryProvider's Firestore listener will automatically
+            // cache this to local ObjectBox, preventing duplicate saves
           }
         } catch (e) {
           debugPrint("Error saving scan result: $e");
@@ -254,7 +245,7 @@ Jika makanan, berikan informasi singkat dan padat:
         }
       }
 
-      // Save to Firestore and cache locally after stream completes
+      // Save to Firestore only - HistoryProvider listener will handle local caching
       final result = _result;
       if (result != null &&
           result.name.toLowerCase() != "bukan makanan" &&
@@ -270,16 +261,9 @@ Jika makanan, berikan informasi singkat dan padat:
             // Update result with Firestore ID
             final updatedResult = result.copyWith(firestoreId: firestoreId);
             _result = updatedResult;
-
-            // Cache locally using HistoryProvider (ObjectBox)
-            if (_lastContext != null && _lastContext!.mounted) {
-              final historyProvider = Provider.of<HistoryProvider>(
-                _lastContext!,
-                listen: false,
-              );
-              // Pass transaction ID to prevent duplicate processing
-              await historyProvider.addHistory(updatedResult, transactionId: transactionId);
-            }
+            
+            // Note: HistoryProvider's Firestore listener will automatically
+            // cache this to local ObjectBox, preventing duplicate saves
           }
         } catch (e) {
           debugPrint("Error saving scan result: $e");
