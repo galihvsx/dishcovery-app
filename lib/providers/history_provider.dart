@@ -19,7 +19,7 @@ class HistoryProvider extends ChangeNotifier {
   final Set<String> _processedFirestoreIds = {};
   final Set<String> _processedTransactionIds = {};
   final Map<String, DateTime> _lastProcessedTimes = {};
-  static const Duration _deduplicationWindow = Duration(seconds: 5);
+  static const Duration _deduplicationWindow = Duration(seconds: 30); // Increased from 5 to 30 seconds
 
   HistoryProvider(this._database) {
     _initializeHistory();
@@ -84,6 +84,7 @@ class HistoryProvider extends ChangeNotifier {
               final filteredScans = <ScanResult>[];
               final seenFirestoreIds = <String>{};
               final seenTransactionIds = <String>{};
+              final seenContentHashes = <String>{};
 
               for (final scan in scans) {
                 // Skip if already processed in this session
@@ -110,6 +111,12 @@ class HistoryProvider extends ChangeNotifier {
                   continue;
                 }
 
+                // Skip duplicate by contentHash
+                if (scan.contentHash != null &&
+                    seenContentHashes.contains(scan.contentHash!)) {
+                  continue;
+                }
+
                 // Add to filtered list
                 filteredScans.add(scan);
 
@@ -122,6 +129,9 @@ class HistoryProvider extends ChangeNotifier {
                 if (scan.transactionId != null) {
                   seenTransactionIds.add(scan.transactionId!);
                   _processedTransactionIds.add(scan.transactionId!);
+                }
+                if (scan.contentHash != null) {
+                  seenContentHashes.add(scan.contentHash!);
                 }
               }
 
