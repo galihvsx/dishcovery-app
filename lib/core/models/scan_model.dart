@@ -22,6 +22,7 @@ class ScanResult {
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String? transactionId; // For tracking scan operations and preventing duplicates
+  final String? contentHash; // Hash of image content + food name for duplicate detection
 
   ScanResult({
     this.id,
@@ -43,6 +44,7 @@ class ScanResult {
     DateTime? createdAt,
     this.updatedAt,
     this.transactionId,
+    this.contentHash,
   }) : createdAt = createdAt ?? DateTime.now();
 
   factory ScanResult.fromJson(Map<String, dynamic> json) {
@@ -87,6 +89,7 @@ class ScanResult {
                 : (json['updatedAt'] as dynamic).toDate())
           : null,
       transactionId: json['transactionId']?.toString(),
+      contentHash: json['contentHash']?.toString(),
     );
   }
 
@@ -111,6 +114,7 @@ class ScanResult {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'transactionId': transactionId,
+      'contentHash': contentHash,
     };
   }
 
@@ -131,6 +135,7 @@ class ScanResult {
       'createdAt': createdAt,
       'updatedAt': DateTime.now(),
       'transactionId': transactionId,
+      'contentHash': contentHash,
     };
   }
 
@@ -157,6 +162,7 @@ class ScanResult {
           ? DateTime.parse(dbMap['updatedAt'])
           : null,
       transactionId: dbMap['transactionId'],
+      contentHash: dbMap['contentHash'],
     );
   }
 
@@ -181,6 +187,7 @@ class ScanResult {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'transactionId': transactionId,
+      'contentHash': contentHash,
     };
   }
 
@@ -204,6 +211,7 @@ class ScanResult {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? transactionId,
+    String? contentHash,
   }) {
     return ScanResult(
       id: id ?? this.id,
@@ -225,6 +233,7 @@ class ScanResult {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       transactionId: transactionId ?? this.transactionId,
+      contentHash: contentHash ?? this.contentHash,
     );
   }
 }

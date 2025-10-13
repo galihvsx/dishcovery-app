@@ -24,12 +24,20 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   bool _translated = false;
   bool _isSaved = false;
+  bool _hasProcessedImage = false; // Guard to prevent duplicate processing
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // PROCESS GUARD: Prevent multiple processImage calls on widget rebuild
+      if (_hasProcessedImage) {
+        debugPrint("ResultScreen: Image already processed, skipping duplicate call");
+        return;
+      }
+
+      _hasProcessedImage = true;
       final scanProvider = context.read<ScanProvider>();
       scanProvider.clear();
 

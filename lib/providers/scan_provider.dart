@@ -7,8 +7,10 @@ import 'package:crypto/crypto.dart';
 import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/core/services/firebase_ai_service.dart';
 import 'package:dishcovery_app/core/services/firestore_service.dart';
+import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
+import 'package:provider/provider.dart';
 
 class ScanProvider extends ChangeNotifier {
   final FirebaseAiService _aiService = FirebaseAiService();
