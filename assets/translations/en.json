@@ -379,11 +379,15 @@
         "full_name": "Full Name",
         "enter_full_name": "Enter full name",
         "name_required": "Name cannot be empty",
+        "name_too_short": "Name must be at least 2 characters",
         "email_cannot_be_changed": "Email cannot be changed",
         "profile_updated_successfully": "Profile updated successfully",
         "failed_to_update_profile": "Failed to update profile",
+        "update_failed": "Failed to update profile",
+        "photo_upload_coming_soon": "Photo upload feature coming soon",
         "saving": "Saving...",
         "save_changes": "Save Changes",
+        "reset_changes": "Reset Changes",
         "change_profile_picture_coming_soon": "Change profile picture feature coming soon"
     },
     "user_preferences": {

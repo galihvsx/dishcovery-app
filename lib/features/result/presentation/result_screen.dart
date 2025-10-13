@@ -87,9 +87,9 @@ class _ResultScreenState extends State<ResultScreen> {
     final result = scanProvider.result;
 
     // Determine image source: prefer imageUrl for Firebase data, fall back to local path
-    final String? imageUrl = widget.initialData?.imageUrl?.isNotEmpty == true
+    final String? imageUrl = (widget.initialData?.imageUrl ?? '').isNotEmpty
         ? widget.initialData!.imageUrl
-        : result?.imageUrl?.isNotEmpty == true
+        : (result?.imageUrl ?? '').isNotEmpty
             ? result!.imageUrl
             : null;
     final String? localImagePath = widget.initialData?.imagePath ?? widget.imagePath;

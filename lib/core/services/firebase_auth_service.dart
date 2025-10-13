@@ -175,12 +175,22 @@ class FirebaseAuthService {
   Future<void> updateProfile({String? displayName, String? photoURL}) async {
     try {
       final user = currentUser;
-      if (user != null) {
-        await user.updateDisplayName(displayName);
-        await user.updatePhotoURL(photoURL);
-      } else {
+      if (user == null) {
         throw Exception('No user is currently signed in');
       }
+
+      // Only update fields that are provided (not null)
+      if (displayName != null) {
+        await user.updateDisplayName(displayName);
+      }
+      if (photoURL != null) {
+        await user.updatePhotoURL(photoURL);
+      }
+
+      // Reload user to ensure changes are reflected
+      await user.reload();
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
     } catch (e) {
       throw Exception('Failed to update profile: ${e.toString()}');
     }

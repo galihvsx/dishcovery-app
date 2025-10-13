@@ -379,11 +379,15 @@
         "full_name": "Nama Lengkap",
         "enter_full_name": "Masukkan nama lengkap",
         "name_required": "Nama tidak boleh kosong",
+        "name_too_short": "Nama harus minimal 2 karakter",
         "email_cannot_be_changed": "Email tidak dapat diubah",
         "profile_updated_successfully": "Profil berhasil diperbarui",
         "failed_to_update_profile": "Gagal memperbarui profil",
+        "update_failed": "Gagal memperbarui profil",
+        "photo_upload_coming_soon": "Fitur unggah foto segera hadir",
         "saving": "Menyimpan...",
         "save_changes": "Simpan Perubahan",
+        "reset_changes": "Atur Ulang Perubahan",
         "change_profile_picture_coming_soon": "Fitur ganti foto profil segera hadir"
     },
     "user_preferences": {
