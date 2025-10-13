@@ -9,6 +9,7 @@ import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:iconify_design/iconify_design.dart';
 import 'package:provider/provider.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -20,14 +21,14 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  bool _isInitialized = false;
-  bool _isResumingFromBackground = false;
+  bool _hasScheduledInitialLoad = false;
   DateTime? _lastRefreshTime;
   bool _isRefreshing = false;
 
   Future<void> _refreshHistory(
     BuildContext context, {
     bool force = false,
+    bool showFeedback = true,
   }) async {
     if (_isRefreshing) return;
 
@@ -36,7 +37,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     });
 
     // Haptic feedback for better UX
-    HapticFeedback.lightImpact();
+    if (showFeedback) {
+      HapticFeedback.lightImpact();
+    }
 
     final provider = Provider.of<HistoryProvider>(context, listen: false);
 
@@ -49,7 +52,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       _lastRefreshTime = DateTime.now();
 
       // Show success feedback
-      if (mounted) {
+      if (mounted && showFeedback) {
         HapticFeedback.selectionClick();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -102,39 +105,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    // Only load history if not already initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeHistoryIfNeeded();
+      _ensureInitialHistoryLoaded();
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Check if we're returning from another screen
-    if (!_isResumingFromBackground) {
-      _isResumingFromBackground = true;
-      // Use a delayed callback to avoid triggering during build
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Only refresh if it's been more than 2 seconds since last load
-        // This prevents unnecessary refreshes when quickly navigating
-        _initializeHistoryIfNeeded();
-      });
-    }
-  }
-
-  void _initializeHistoryIfNeeded() {
-    if (_isInitialized) return;
+  void _ensureInitialHistoryLoaded() {
+    if (_hasScheduledInitialLoad) return;
 
     final provider = Provider.of<HistoryProvider>(context, listen: false);
 
-    // Only load if the list is empty and not currently loading
     if (provider.historyList.isEmpty && !provider.isLoading) {
-      provider.loadHistory();
+      _refreshHistory(context, showFeedback: false);
     }
 
-    _isInitialized = true;
+    _hasScheduledInitialLoad = true;
   }
 
   /// Format the last refresh time
@@ -197,35 +182,70 @@ class _HistoryScreenState extends State<HistoryScreen> {
           builder: (context, provider, child) {
             final history = provider.historyList;
 
-            if (history.isEmpty && !provider.isLoading) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.history, size: 80, color: Colors.grey),
-                    const SizedBox(height: 16),
-                    Text(
-                      'history_screen.empty_title'.tr(),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+            if (provider.isLoading && history.isEmpty) {
+              return CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(
+                          Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'history_screen.empty_subtitle'.tr(),
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'history_screen.pull_to_refresh_hint'.tr(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              );
+            }
+
+            if (history.isEmpty) {
+              return CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.history, size: 80, color: Colors.grey),
+                            const SizedBox(height: 16),
+                            Text(
+                              'history_screen.empty_title'.tr(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'history_screen.empty_subtitle'.tr(),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'history_screen.pull_to_refresh_hint'.tr(),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               );
             }
 
@@ -234,6 +254,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               return ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: history.length > 5 ? 5 : history.length,
+                physics: const AlwaysScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   return Container(
                     height: 200,
@@ -256,6 +277,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             }
 
             return CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 // Header with item count and last refresh info
                 if (history.isNotEmpty || _lastRefreshTime != null)
@@ -361,14 +383,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         });
                       },
                       child: Container(
-                        height: 200,
+                        height: 240,
                         margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
                           color: Theme.of(context).colorScheme.surface,
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
@@ -507,7 +528,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 top: 8,
                                 right: 8,
                                 child: Material(
-                                  color: Colors.black54,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainer.withAlpha(160),
                                   borderRadius: BorderRadius.circular(20),
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(20),
@@ -559,12 +582,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                         ),
                                       );
                                     },
-                                    child: const Padding(
+                                    child: Padding(
                                       padding: EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        Icons.delete_outline,
+                                      child: IconifyIcon(
+                                        icon: 'solar:trash-bin-trash-bold',
                                         size: 20,
-                                        color: Colors.white,
+                                        color: Colors.red,
                                       ),
                                     ),
                                   ),
