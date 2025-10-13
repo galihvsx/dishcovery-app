@@ -1,19 +1,19 @@
 import 'package:dishcovery_app/core/database/objectbox_database.dart';
-import 'package:dishcovery_app/providers/history_provider.dart';
-import 'package:dishcovery_app/providers/feeds_provider.dart';
-import 'package:dishcovery_app/providers/camera_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:easy_localization/easy_localization.dart';
-
 import 'package:dishcovery_app/core/services/user_preferences_service.dart';
 import 'package:dishcovery_app/core/theme/theme.dart';
 import 'package:dishcovery_app/providers/auth_provider.dart';
+import 'package:dishcovery_app/providers/camera_provider.dart';
+import 'package:dishcovery_app/providers/comment_provider.dart';
+import 'package:dishcovery_app/providers/feeds_provider.dart';
+import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:dishcovery_app/providers/scan_provider.dart';
 import 'package:dishcovery_app/providers/theme_provider.dart';
 import 'package:dishcovery_app/providers/user_preferences_provider.dart';
 import 'package:dishcovery_app/utils/routes/app_routes.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class App extends StatelessWidget {
   final SharedPreferences preferences;
@@ -49,6 +49,7 @@ class App extends StatelessWidget {
           create: (_) => HistoryProvider(objectBoxDatabase),
         ),
         ChangeNotifierProvider(create: (_) => FeedsProvider()),
+        ChangeNotifierProvider(create: (_) => CommentProvider()),
         ChangeNotifierProxyProvider<AuthProvider, UserPreferencesProvider>(
           create: (context) => UserPreferencesProvider(
             service: UserPreferencesService(),
