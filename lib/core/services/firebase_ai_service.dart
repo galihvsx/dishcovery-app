@@ -92,6 +92,7 @@ class FirebaseAiService {
   Future<Map<String, dynamic>> imageToDishcovery({
     required Uint8List imageBytes,
     String prompt = '',
+    String languageCode = 'id',
   }) async {
     final parts = <Part>[];
     if (prompt.trim().isNotEmpty) {
@@ -103,7 +104,7 @@ class FirebaseAiService {
       [Content.multi(parts)],
       generationConfig: GenerationConfig(
         responseMimeType: 'application/json',
-        responseSchema: _dishcoverySchema(),
+        responseSchema: _dishcoverySchema(languageCode),
       ),
     );
 
@@ -123,6 +124,7 @@ class FirebaseAiService {
   Stream<Map<String, dynamic>> imageToDishcoveryStream({
     required Uint8List imageBytes,
     String prompt = '',
+    String languageCode = 'id',
   }) async* {
     final parts = <Part>[];
     if (prompt.trim().isNotEmpty) {
@@ -134,7 +136,7 @@ class FirebaseAiService {
       [Content.multi(parts)],
       generationConfig: GenerationConfig(
         responseMimeType: 'application/json',
-        responseSchema: _dishcoverySchema(),
+        responseSchema: _dishcoverySchema(languageCode),
       ),
     );
 
@@ -201,41 +203,57 @@ class FirebaseAiService {
     );
   }
 
-  Schema _dishcoverySchema() {
+  Schema _dishcoverySchema([String languageCode = 'id']) {
+    final isIndonesian = languageCode == 'id';
+
     return Schema.object(
       properties: {
         'name': Schema.string(
-          description: "Nama makanan dalam Bahasa Indonesia.",
+          description: isIndonesian
+              ? "Nama makanan dalam Bahasa Indonesia."
+              : "Food name in English.",
         ),
         'origin': Schema.string(
-          description:
-              "Daerah asal makanan, dengan format 'Nama Kota, Nama Provinsi' - contoh: 'Bandung, Jawa Barat'.",
+          description: isIndonesian
+              ? "Daerah asal makanan, dengan format 'Nama Kota, Nama Provinsi' - contoh: 'Bandung, Jawa Barat'."
+              : "Origin of the food, with format 'City Name, Province Name' - example: 'Bandung, West Java'.",
         ),
         'description': Schema.string(
-          description:
-              "Deskripsi singkat dan menarik tentang makanan dalam format Markdown.",
+          description: isIndonesian
+              ? "Deskripsi singkat dan menarik tentang makanan dalam format Markdown."
+              : "Brief and interesting description about the food in Markdown format.",
         ),
-        'isFood': Schema.boolean(description: "Apakah ini adalah makanan?"),
+        'isFood': Schema.boolean(
+          description: isIndonesian
+              ? "Apakah ini adalah makanan?"
+              : "Is this food?",
+        ),
         'history': Schema.string(
-          description:
-              "Cerita atau sejarah singkat atau fakta unik di balik makanan dalam format Markdown.",
-        ), // <-- FIELD BARU
+          description: isIndonesian
+              ? "Cerita atau sejarah singkat atau fakta unik di balik makanan dalam format Markdown."
+              : "Brief story or history or unique facts behind the food in Markdown format.",
+        ),
         'recipe': Schema.object(
-          // <-- OBJEK BARU
           properties: {
             'ingredients': Schema.array(
               items: Schema.string(),
-              description: "Daftar bahan-bahan yang dibutuhkan.",
+              description: isIndonesian
+                  ? "Daftar bahan-bahan yang dibutuhkan."
+                  : "List of required ingredients.",
             ),
             'steps': Schema.array(
               items: Schema.string(),
-              description: "Langkah-langkah memasak.",
+              description: isIndonesian
+                  ? "Langkah-langkah memasak."
+                  : "Cooking steps.",
             ),
           },
         ),
         'tags': Schema.array(
           items: Schema.string(),
-          description: "Tag - tag untuk pengkategorian makanan.",
+          description: isIndonesian
+              ? "Tag - tag untuk pengkategorian makanan."
+              : "Tags for food categorization.",
         ),
       },
     );
