@@ -65,12 +65,19 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
       createdAt: feed.createdAt,
     );
 
+    debugPrint('[DEBUG] DishcoveryHomePage: Navigating to ResultScreen');
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ResultScreen(initialData: scanResult),
       ),
-    );
+    ).then((_) {
+      debugPrint(
+        '[DEBUG] DishcoveryHomePage: Returned from ResultScreen - refreshing feeds',
+      );
+      // Refresh feeds when returning from result screen to show new scan data
+      context.read<FeedsProvider>().refreshFeeds();
+    });
   }
 
   void _showCommentSheet(String feedId) {

@@ -25,7 +25,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   DateTime? _lastRefreshTime;
   bool _isRefreshing = false;
 
-  Future<void> _refreshHistory(BuildContext context, {bool force = false}) async {
+  Future<void> _refreshHistory(
+    BuildContext context, {
+    bool force = false,
+  }) async {
     if (_isRefreshing) return;
 
     setState(() {
@@ -142,9 +145,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
     if (difference.inMinutes < 1) {
       return 'history_screen.just_now'.tr();
     } else if (difference.inMinutes < 60) {
-      return 'history_screen.minutes_ago'.tr(args: [difference.inMinutes.toString()]);
+      return 'history_screen.minutes_ago'.tr(
+        args: [difference.inMinutes.toString()],
+      );
     } else if (difference.inHours < 24) {
-      return 'history_screen.hours_ago'.tr(args: [difference.inHours.toString()]);
+      return 'history_screen.hours_ago'.tr(
+        args: [difference.inHours.toString()],
+      );
     } else {
       return DateFormat('dd MMM HH:mm').format(time);
     }
@@ -160,7 +167,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
           Consumer<HistoryProvider>(
             builder: (context, provider, child) {
               return IconButton(
-                onPressed: _isRefreshing ? null : () => _refreshHistory(context, force: true),
+                onPressed: _isRefreshing
+                    ? null
+                    : () => _refreshHistory(context, force: true),
                 icon: _isRefreshing
                     ? SizedBox(
                         width: 20,
@@ -205,10 +214,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'history_screen.empty_subtitle'.tr(),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -239,7 +245,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                       ),
                     ),
                   );
@@ -254,9 +262,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   SliverToBoxAdapter(
                     child: Container(
                       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -264,10 +277,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         children: [
                           Text(
                             history.isNotEmpty
-                                ? 'history_screen.item_count'.tr(args: [history.length.toString()])
+                                ? 'history_screen.item_count'.tr(
+                                    args: [history.length.toString()],
+                                  )
                                 : 'history_screen.no_items'.tr(),
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -278,7 +295,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 args: [_formatRefreshTime(_lastRefreshTime!)],
                               ),
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                                 fontSize: 12,
                               ),
                             ),
@@ -288,238 +307,275 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                 // Main content
                 SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final ScanResult item = history[index];
-                      final dateFormatter = DateFormat('dd MMM yyyy, HH:mm');
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final ScanResult item = history[index];
+                    final dateFormatter = DateFormat('dd MMM yyyy, HH:mm');
 
-                      Widget buildErrorPlaceholder() {
-                        return Container(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image_outlined,
-                              size: 48,
-                              color: Colors.grey,
-                            ),
+                    Widget buildErrorPlaceholder() {
+                      return Container(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        child: const Center(
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            size: 48,
+                            color: Colors.grey,
                           ),
-                        );
-                      }
+                        ),
+                      );
+                    }
 
-                      Widget buildEmptyPlaceholder() {
-                        return Container(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          child: const Center(
-                            child: Icon(
-                              Icons.restaurant,
-                              size: 64,
-                              color: Colors.grey,
-                            ),
+                    Widget buildEmptyPlaceholder() {
+                      return Container(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        child: const Center(
+                          child: Icon(
+                            Icons.restaurant,
+                            size: 64,
+                            color: Colors.grey,
                           ),
-                        );
-                      }
+                        ),
+                      );
+                    }
 
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ResultScreen(initialData: item),
-                            ),
+                    return GestureDetector(
+                      onTap: () {
+                        debugPrint(
+                          '[DEBUG] HistoryScreen: Navigating to ResultScreen',
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ResultScreen(initialData: item),
+                          ),
+                        ).then((_) {
+                          debugPrint(
+                            '[DEBUG] HistoryScreen: Returned from ResultScreen - refreshing history',
                           );
-                        },
-                        child: Container(
-                          height: 200,
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: Theme.of(context).colorScheme.surface,
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                // Background image
-                                if (item.imagePath.isNotEmpty && File(item.imagePath).existsSync())
-                                  Image.file(
-                                    File(item.imagePath),
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return buildErrorPlaceholder();
-                                    },
-                                  )
-                                else if (item.imageUrl.isNotEmpty)
-                                  Image.network(
-                                    item.imageUrl,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        return child;
-                                      }
-                                      return buildEmptyPlaceholder();
-                                    },
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return buildErrorPlaceholder();
-                                    },
-                                  )
-                                else
-                                  buildEmptyPlaceholder(),
+                          // Refresh history when returning from result screen to show updated data
+                          _refreshHistory(context);
+                        });
+                      },
+                      child: Container(
+                        height: 200,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Theme.of(context).colorScheme.surface,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // Background image
+                              if (item.imagePath.isNotEmpty &&
+                                  File(item.imagePath).existsSync())
+                                Image.file(
+                                  File(item.imagePath),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return buildErrorPlaceholder();
+                                  },
+                                )
+                              else if (item.imageUrl.isNotEmpty)
+                                Image.network(
+                                  item.imageUrl,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return buildEmptyPlaceholder();
+                                      },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return buildErrorPlaceholder();
+                                  },
+                                )
+                              else
+                                buildEmptyPlaceholder(),
 
-                                // Gradient overlay
-                                Container(
-                                  decoration: const BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        Colors.transparent,
-                                        Colors.black26,
-                                        Colors.black87,
-                                      ],
-                                      stops: [0.3, 0.6, 1.0],
-                                    ),
+                              // Gradient overlay
+                              Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black26,
+                                      Colors.black87,
+                                    ],
+                                    stops: [0.3, 0.6, 1.0],
                                   ),
                                 ),
+                              ),
 
-                                // Content overlay with backdrop blur
-                                Positioned(
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.only(
-                                      bottomLeft: Radius.circular(16),
-                                      bottomRight: Radius.circular(16),
+                              // Content overlay with backdrop blur
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                    bottomLeft: Radius.circular(16),
+                                    bottomRight: Radius.circular(16),
+                                  ),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                      sigmaX: 8,
+                                      sigmaY: 8,
                                     ),
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(16),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.black26,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              item.name.isNotEmpty
-                                                  ? item.name
-                                                  : 'history_screen.unknown_dish'.tr(),
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.location_on,
-                                                  size: 14,
-                                                  color: Colors.white70,
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  item.origin.isNotEmpty
-                                                      ? item.origin
-                                                      : 'history_screen.unknown_origin'.tr(),
-                                                  style: const TextStyle(
-                                                    color: Colors.white70,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.access_time,
-                                                  size: 14,
-                                                  color: Colors.white70,
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  dateFormatter.format(item.createdAt),
-                                                  style: const TextStyle(
-                                                    color: Colors.white70,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black26,
                                       ),
-                                    ),
-                                  ),
-                                ),
-
-                                // Delete button
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Material(
-                                    color: Colors.black54,
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(20),
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: Text('history_screen.delete_dialog_title'.tr()),
-                                            content: Text('history_screen.delete_dialog_content'.tr()),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(context),
-                                                child: Text('common.cancel'.tr()),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            item.name.isNotEmpty
+                                                ? item.name
+                                                : 'history_screen.unknown_dish'
+                                                      .tr(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.location_on,
+                                                size: 14,
+                                                color: Colors.white70,
                                               ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  await provider.deleteHistory(item);
-                                                  if (!mounted) return;
-                                                  Navigator.pop(context);
-                                                  if (!mounted) return;
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(
-                                                      content: Text('history_screen.snackbar_deleted'.tr()),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Text(
-                                                  'common.delete'.tr(),
-                                                  style: const TextStyle(color: Colors.red),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                item.origin.isNotEmpty
+                                                    ? item.origin
+                                                    : 'history_screen.unknown_origin'
+                                                          .tr(),
+                                                style: const TextStyle(
+                                                  color: Colors.white70,
+                                                  fontSize: 12,
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        );
-                                      },
-                                      child: const Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Icon(
-                                          Icons.delete_outline,
-                                          size: 20,
-                                          color: Colors.white,
-                                        ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.access_time,
+                                                size: 14,
+                                                color: Colors.white70,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                dateFormatter.format(
+                                                  item.createdAt,
+                                                ),
+                                                style: const TextStyle(
+                                                  color: Colors.white70,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+
+                              // Delete button
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Material(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(20),
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text(
+                                            'history_screen.delete_dialog_title'
+                                                .tr(),
+                                          ),
+                                          content: Text(
+                                            'history_screen.delete_dialog_content'
+                                                .tr(),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: Text('common.cancel'.tr()),
+                                            ),
+                                            TextButton(
+                                              onPressed: () async {
+                                                await provider.deleteHistory(
+                                                  item,
+                                                );
+                                                if (!mounted) return;
+                                                Navigator.pop(context);
+                                                if (!mounted) return;
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      'history_screen.snackbar_deleted'
+                                                          .tr(),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: Text(
+                                                'common.delete'.tr(),
+                                                style: const TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Icon(
+                                        Icons.delete_outline,
+                                        size: 20,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    },
-                    childCount: history.length,
-                  ),
+                      ),
+                    );
+                  }, childCount: history.length),
                 ),
               ],
             );
