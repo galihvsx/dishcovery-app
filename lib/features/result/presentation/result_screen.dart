@@ -24,12 +24,20 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   bool _translated = false;
   bool _isSaved = false;
+  bool _hasProcessedImage = false; // Guard to prevent duplicate processing
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // PROCESS GUARD: Prevent multiple processImage calls on widget rebuild
+      if (_hasProcessedImage) {
+        debugPrint("ResultScreen: Image already processed, skipping duplicate call");
+        return;
+      }
+
+      _hasProcessedImage = true;
       final scanProvider = context.read<ScanProvider>();
       scanProvider.clear();
 
@@ -87,9 +95,9 @@ class _ResultScreenState extends State<ResultScreen> {
     final result = scanProvider.result;
 
     // Determine image source: prefer imageUrl for Firebase data, fall back to local path
-    final String? imageUrl = widget.initialData?.imageUrl?.isNotEmpty == true
+    final String? imageUrl = (widget.initialData?.imageUrl ?? '').isNotEmpty
         ? widget.initialData!.imageUrl
-        : result?.imageUrl?.isNotEmpty == true
+        : (result?.imageUrl ?? '').isNotEmpty
             ? result!.imageUrl
             : null;
     final String? localImagePath = widget.initialData?.imagePath ?? widget.imagePath;
