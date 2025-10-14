@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
   "project_info": {
     "project_number": "222073084834",
@@ -27,34 +26,4 @@
     }
   ],
   "configuration_version": "1"
-=======
-{
-  "project_info": {
-    "project_number": "222073084834",
-    "project_id": "dishcovery-bekup",
-    "storage_bucket": "dishcovery-bekup.firebasestorage.app"
-  },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:222073084834:android:66227c22af6e2a61fdb0fb",
-        "android_client_info": {
-          "package_name": "id.dishcovery.dishcovery_app"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDkdO18aykouNI6iyZa5VelXBKmyg_XyqU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    }
-  ],
-  "configuration_version": "1"
->>>>>>> 002fada (readme)
 }
