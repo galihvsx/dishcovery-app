@@ -147,11 +147,30 @@ class AuthProvider extends ChangeNotifier {
   /// Update user profile
   Future<bool> updateProfile({String? displayName, String? photoURL}) async {
     return _performAuthOperation(() async {
+      if (_user == null) {
+        throw Exception('No user is currently signed in');
+      }
+
+      // Update Firebase Auth profile
       await _authService.updateProfile(
         displayName: displayName,
         photoURL: photoURL,
       );
+
+      // Update Firestore user document
+      final updateData = <String, dynamic>{};
+      if (displayName != null) updateData['displayName'] = displayName;
+      if (photoURL != null) updateData['photoURL'] = photoURL;
+
+      if (updateData.isNotEmpty) {
+        await _userService.updateUserDocument(_user!.uid, updateData);
+      }
+
+      // Reload user to get the updated information
       await _authService.reloadUser();
+      _user = _authService.currentUser;
+      notifyListeners();
+
       return true;
     });
   }

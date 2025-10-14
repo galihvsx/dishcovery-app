@@ -1,8 +1,8 @@
+import 'package:dishcovery_app/core/models/recipe_model.dart';
+import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/features/home/presentation/widgets/food_feed_card.dart';
 import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
 import 'package:dishcovery_app/providers/feeds_provider.dart';
-import 'package:dishcovery_app/core/models/scan_model.dart';
-import 'package:dishcovery_app/core/models/recipe_model.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -65,12 +65,19 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
       createdAt: feed.createdAt,
     );
 
+    debugPrint('[DEBUG] DishcoveryHomePage: Navigating to ResultScreen');
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ResultScreen(initialData: scanResult),
       ),
-    );
+    ).then((_) {
+      debugPrint(
+        '[DEBUG] DishcoveryHomePage: Returned from ResultScreen - refreshing feeds',
+      );
+      // Refresh feeds when returning from result screen to show new scan data
+      context.read<FeedsProvider>().refreshFeeds();
+    });
   }
 
   void _showCommentSheet(String feedId) {
@@ -150,54 +157,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
     );
   }
 
-  // void _showOptionsSheet() {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     builder: (context) {
-  //       return Container(
-  //         padding: const EdgeInsets.symmetric(vertical: 8),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             ListTile(
-  //               leading: const Icon(Icons.link),
-  //               title: Text('home_screen.copy_link'.tr()),
-  //               onTap: () {
-  //                 Navigator.pop(context);
-  //                 // TODO: Implement copy link
-  //               },
-  //             ),
-  //             ListTile(
-  //               leading: const Icon(Icons.share_outlined),
-  //               title: Text('home_screen.share_to'.tr()),
-  //               onTap: () {
-  //                 Navigator.pop(context);
-  //                 // TODO: Implement share
-  //               },
-  //             ),
-  //             ListTile(
-  //               leading: const Icon(Icons.report_outlined),
-  //               title: Text('home_screen.report'.tr()),
-  //               onTap: () {
-  //                 Navigator.pop(context);
-  //                 // TODO: Implement report
-  //               },
-  //             ),
-  //             ListTile(
-  //               leading: const Icon(Icons.notifications_off_outlined),
-  //               title: Text('home_screen.turn_off_notifications'.tr()),
-  //               onTap: () {
-  //                 Navigator.pop(context);
-  //                 // TODO: Implement notification settings
-  //               },
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -218,6 +177,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
               elevation: 0,
               floating: true,
               pinned: false,
+              automaticallyImplyLeading: false,
               snap: true,
               title: Text(
                 'Dishcovery',
@@ -227,14 +187,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                   letterSpacing: 0.5,
                 ),
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    // TODO: Implement search
-                  },
-                ),
-              ],
             ),
             Consumer<FeedsProvider>(
               builder: (context, provider, child) {

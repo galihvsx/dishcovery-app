@@ -1,4 +1,5 @@
 import 'package:dishcovery_app/core/models/feed_model.dart';
+import 'package:dishcovery_app/features/home/presentation/widgets/comments_bottom_sheet.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -248,7 +249,10 @@ class _FeedCardState extends State<FeedCard>
               // Comment Button
               IconButton(
                 icon: const Icon(Icons.comment_outlined),
-                onPressed: widget.onComment,
+                onPressed: () {
+                  CommentsBottomSheet.show(context, widget.feedItem.id);
+                  widget.onComment?.call();
+                },
                 color: colorScheme.onSurface,
               ),
               // Share Button
@@ -323,7 +327,10 @@ class _FeedCardState extends State<FeedCard>
               if (widget.feedItem.comments > 0) ...[
                 const SizedBox(height: 8),
                 GestureDetector(
-                  onTap: widget.onComment,
+                  onTap: () {
+                    CommentsBottomSheet.show(context, widget.feedItem.id);
+                    widget.onComment?.call();
+                  },
                   child: Text(
                     'feed_card.view_all_comments'.tr(
                       args: [widget.feedItem.comments.toString()],

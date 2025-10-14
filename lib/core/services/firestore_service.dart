@@ -14,6 +14,43 @@ class FirestoreService {
   /// Get current user
   User? get currentUser => _auth.currentUser;
 
+  /// Check if a scan with the same content hash already exists
+  Future<bool> checkDuplicateScan(String contentHash, String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(_scansCollection)
+          .where('userId', isEqualTo: userId)
+          .where('contentHash', isEqualTo: contentHash)
+          .limit(1)
+          .get();
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking for duplicate scan: $e');
+      return false; // Allow save to proceed if check fails
+    }
+  }
+
+  /// Check for recent similar scans (within 1 minute with same food name)
+  Future<bool> checkRecentSimilarScan(String foodName, String userId) async {
+    try {
+      final oneMinuteAgo = DateTime.now().subtract(const Duration(minutes: 1));
+
+      final querySnapshot = await _firestore
+          .collection(_scansCollection)
+          .where('userId', isEqualTo: userId)
+          .where('name', isEqualTo: foodName)
+          .where('createdAt', isGreaterThan: oneMinuteAgo)
+          .limit(1)
+          .get();
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking for recent similar scan: $e');
+      return false; // Allow save to proceed if check fails
+    }
+  }
+
   /// Save scan result to Firestore (automatically public)
   Future<String?> saveScanResult(ScanResult scanResult) async {
     try {

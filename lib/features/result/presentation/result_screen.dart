@@ -24,12 +24,20 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   bool _translated = false;
   bool _isSaved = false;
+  bool _hasProcessedImage = false; // Guard to prevent duplicate processing
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // PROCESS GUARD: Prevent multiple processImage calls on widget rebuild
+      if (_hasProcessedImage) {
+        debugPrint("ResultScreen: Image already processed, skipping duplicate call");
+        return;
+      }
+
+      _hasProcessedImage = true;
       final scanProvider = context.read<ScanProvider>();
       scanProvider.clear();
 
@@ -85,7 +93,14 @@ class _ResultScreenState extends State<ResultScreen> {
     final scanProvider = context.watch<ScanProvider>();
     final isLoading = scanProvider.loading;
     final result = scanProvider.result;
-    final displayImagePath = widget.initialData?.imagePath ?? widget.imagePath!;
+
+    // Determine image source: prefer imageUrl for Firebase data, fall back to local path
+    final String? imageUrl = (widget.initialData?.imageUrl ?? '').isNotEmpty
+        ? widget.initialData!.imageUrl
+        : (result?.imageUrl ?? '').isNotEmpty
+            ? result!.imageUrl
+            : null;
+    final String? localImagePath = widget.initialData?.imagePath ?? widget.imagePath;
 
     // Check if result is saved (either local id or firestoreId)
     if (result != null &&
@@ -111,20 +126,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 // Full width image section
                 AspectRatio(
                   aspectRatio: 4 / 3,
-                  child: File(displayImagePath).existsSync()
-                      ? Image.file(File(displayImagePath), fit: BoxFit.cover)
-                      : Container(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image_outlined,
-                              size: 64,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
+                  child: _buildImageWidget(imageUrl, localImagePath, context),
                 ),
                 const SizedBox(height: 16),
 
@@ -332,6 +334,58 @@ class _ResultScreenState extends State<ResultScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildImageWidget(String? imageUrl, String? localPath, BuildContext context) {
+    // First try to use network image if URL is available
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          // If network image fails, try local file
+          if (localPath != null && File(localPath).existsSync()) {
+            return Image.file(File(localPath), fit: BoxFit.cover);
+          }
+          return _buildImageErrorWidget(context);
+        },
+      );
+    }
+
+    // If no URL, try local file
+    if (localPath != null && File(localPath).existsSync()) {
+      return Image.file(File(localPath), fit: BoxFit.cover);
+    }
+
+    // Show error widget if no image can be displayed
+    return _buildImageErrorWidget(context);
+  }
+
+  Widget _buildImageErrorWidget(BuildContext context) {
+    return Container(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: const Center(
+        child: Icon(
+          Icons.broken_image_outlined,
+          size: 64,
+          color: Colors.grey,
+        ),
       ),
     );
   }

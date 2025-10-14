@@ -1,13 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart';
 import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/core/services/firebase_ai_service.dart';
 import 'package:dishcovery_app/core/services/firestore_service.dart';
 import 'package:dishcovery_app/providers/history_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:image/image.dart' as img;
 import 'package:easy_localization/easy_localization.dart';
-import 'dart:io';
-import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
+import 'package:provider/provider.dart';
 
 class ScanProvider extends ChangeNotifier {
   final FirebaseAiService _aiService = FirebaseAiService();
@@ -18,11 +22,68 @@ class ScanProvider extends ChangeNotifier {
   String? _error;
   String _loadingMessage = '';
   BuildContext? _lastContext;
+  String? _currentTransactionId;
+  final Set<String> _completedTransactions = {};
+  final Set<String> _inProgressTransactions = {};
+  bool _isSaving = false; // Prevent concurrent saves
 
   bool get loading => _loading;
   ScanResult? get result => _result;
   String? get error => _error;
   String get loadingMessage => _loadingMessage;
+
+  /// Generate unique transaction ID for tracking scan operations
+  String _generateTransactionId() {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final random = Random().nextInt(100000);
+    return 'scan_${timestamp}_$random';
+  }
+
+  /// Check if a transaction has been completed
+  bool _isTransactionCompleted(String transactionId) {
+    return _completedTransactions.contains(transactionId);
+  }
+
+  /// Check if a transaction is currently in progress
+  bool _isTransactionInProgress(String transactionId) {
+    return _inProgressTransactions.contains(transactionId);
+  }
+
+  /// Mark a transaction as in progress
+  void _markTransactionInProgress(String transactionId) {
+    _inProgressTransactions.add(transactionId);
+  }
+
+  /// Mark a transaction as completed
+  void _markTransactionCompleted(String transactionId) {
+    _inProgressTransactions.remove(transactionId);
+    _completedTransactions.add(transactionId);
+    // Keep only last 50 transactions to prevent memory leak
+    if (_completedTransactions.length > 50) {
+      _completedTransactions.remove(_completedTransactions.first);
+    }
+  }
+
+  /// Generate content hash from image bytes and food name
+  String _generateContentHash(
+    Uint8List imageBytes,
+    String foodName,
+    String userId,
+  ) {
+    // Create a simple hash of the first 1000 bytes (for performance)
+    // Combined with food name and user ID for uniqueness
+    final sampleSize = imageBytes.length > 1000 ? 1000 : imageBytes.length;
+    final imageSample = imageBytes.sublist(0, sampleSize);
+
+    // Combine image sample, food name, and userId for the hash
+    final contentToHash = utf8.encode(
+      '${base64.encode(imageSample)}_${foodName.toLowerCase()}_$userId',
+    );
+
+    // Generate SHA256 hash
+    final digest = sha256.convert(contentToHash);
+    return digest.toString();
+  }
 
   // Build prompt based on language code
   String _buildPrompt(String languageCode) {
@@ -84,6 +145,23 @@ Respond in English.
   }
 
   Future<void> processImage(String imagePath, {BuildContext? context}) async {
+    // Generate new transaction ID for this scan operation
+    _currentTransactionId = _generateTransactionId();
+    final transactionId = _currentTransactionId!;
+
+    // PRE-AI GUARD: Check if this transaction is already in progress or completed
+    // This prevents duplicate AI calls when the same image is processed multiple times
+    if (_isTransactionInProgress(transactionId) ||
+        _isTransactionCompleted(transactionId)) {
+      debugPrint(
+        "Transaction $transactionId already in progress or completed, skipping",
+      );
+      return;
+    }
+
+    // Mark transaction as in progress immediately
+    _markTransactionInProgress(transactionId);
+
     _loading = true;
     _error = null;
 
@@ -117,9 +195,24 @@ Respond in English.
       // Safe parsing with error handling
       final ScanResult parsed;
       try {
-        parsed = ScanResult.fromJson(res).copyWith(imagePath: imagePath);
+        // Generate content hash before creating the result
+        final user = _firestoreService.currentUser;
+        final userId = user?.uid ?? 'anonymous';
+        final contentHash = _generateContentHash(
+          optimizedBytes,
+          res['name'] ?? '',
+          userId,
+        );
+
+        parsed = ScanResult.fromJson(res).copyWith(
+          imagePath: imagePath,
+          transactionId: transactionId, // Add transaction ID for tracking
+          contentHash: contentHash, // Add content hash for duplicate detection
+        );
         debugPrint("Parsed result: ${parsed.name}");
         debugPrint("History: ${parsed.history}");
+        debugPrint("Transaction ID: $transactionId");
+        debugPrint("Content Hash: $contentHash");
       } catch (parseError) {
         debugPrint("Error parsing result: $parseError");
         throw Exception("Failed to parse API response: $parseError");
@@ -127,14 +220,51 @@ Respond in English.
 
       _result = parsed;
 
-      // Save to Firestore and cache locally
+      // Save to Firestore only - HistoryProvider listener will handle local caching
       if (parsed.name.toLowerCase() != "bukan makanan" &&
           parsed.name.toLowerCase() != "not food" &&
           parsed.isFood) {
+        // Prevent concurrent saves
+        if (_isSaving) {
+          debugPrint("Save already in progress, skipping duplicate save");
+          return;
+        }
+        _isSaving = true;
+
         _loadingMessage = 'scan_loading.saving'.tr();
         notifyListeners();
 
         try {
+          final user = _firestoreService.currentUser;
+          if (user != null && parsed.contentHash != null) {
+            // Check for duplicate by content hash
+            final isDuplicate = await _firestoreService.checkDuplicateScan(
+              parsed.contentHash!,
+              user.uid,
+            );
+
+            if (isDuplicate) {
+              debugPrint(
+                "Duplicate scan detected by content hash, skipping save",
+              );
+              _isSaving = false;
+              return;
+            }
+
+            // Check for recent similar scan (same food within 1 minute)
+            final hasRecentSimilar = await _firestoreService
+                .checkRecentSimilarScan(parsed.name, user.uid);
+
+            if (hasRecentSimilar) {
+              debugPrint("Recent similar scan detected, skipping save");
+              _isSaving = false;
+              return;
+            }
+          }
+
+          _loadingMessage = "Menyimpan hasil...";
+          notifyListeners();
+
           // Save to Firestore (cloud-first)
           final firestoreId = await _firestoreService.saveScanResult(parsed);
 
@@ -149,13 +279,22 @@ Respond in English.
                 _lastContext!,
                 listen: false,
               );
-              await historyProvider.addHistory(updatedResult);
+              // Pass transaction ID to prevent duplicate processing
+              await historyProvider.addHistory(
+                updatedResult,
+                transactionId: transactionId,
+              );
             }
           }
         } catch (e) {
           debugPrint("Error saving scan result: $e");
+        } finally {
+          _isSaving = false;
         }
       }
+
+      // Mark transaction as completed
+      _markTransactionCompleted(transactionId);
     } catch (e, stackTrace) {
       debugPrint("Error processing image: ${e.toString()}");
       debugPrint("Stack trace: $stackTrace");
@@ -171,6 +310,23 @@ Respond in English.
     String imagePath, {
     BuildContext? context,
   }) async {
+    // Generate new transaction ID for this scan operation
+    _currentTransactionId = _generateTransactionId();
+    final transactionId = _currentTransactionId!;
+
+    // PRE-AI GUARD: Check if this transaction is already in progress or completed
+    // This prevents duplicate AI calls when the same image is processed multiple times
+    if (_isTransactionInProgress(transactionId) ||
+        _isTransactionCompleted(transactionId)) {
+      debugPrint(
+        "Transaction $transactionId already in progress or completed, skipping",
+      );
+      return;
+    }
+
+    // Mark transaction as in progress immediately
+    _markTransactionInProgress(transactionId);
+
     _loading = true;
     _error = null;
 
@@ -201,11 +357,27 @@ Respond in English.
       );
 
       bool firstUpdate = true;
+      String? contentHash;
       await for (final res in stream) {
         try {
-          final parsed = ScanResult.fromJson(
-            res,
-          ).copyWith(imagePath: imagePath);
+          // Generate content hash on first successful parse with name
+          if (contentHash == null && res['name'] != null) {
+            final user = _firestoreService.currentUser;
+            final userId = user?.uid ?? 'anonymous';
+            contentHash = _generateContentHash(
+              optimizedBytes,
+              res['name'] ?? '',
+              userId,
+            );
+            debugPrint("Generated content hash: $contentHash");
+          }
+
+          final parsed = ScanResult.fromJson(res).copyWith(
+            imagePath: imagePath,
+            transactionId: transactionId, // Add transaction ID for tracking
+            contentHash:
+                contentHash, // Add content hash for duplicate detection
+          );
           _result = parsed;
 
           if (firstUpdate) {
@@ -228,16 +400,53 @@ Respond in English.
         }
       }
 
-      // Save to Firestore and cache locally after stream completes
+      // Save to Firestore only - HistoryProvider listener will handle local caching
       final result = _result;
       if (result != null &&
           result.name.toLowerCase() != "bukan makanan" &&
           result.name.toLowerCase() != "not food" &&
           result.isFood) {
+        // Prevent concurrent saves
+        if (_isSaving) {
+          debugPrint("Save already in progress, skipping duplicate save");
+          return;
+        }
+        _isSaving = true;
+
         _loadingMessage = 'scan_loading.saving'.tr();
         notifyListeners();
 
         try {
+          final user = _firestoreService.currentUser;
+          if (user != null && result.contentHash != null) {
+            // Check for duplicate by content hash
+            final isDuplicate = await _firestoreService.checkDuplicateScan(
+              result.contentHash!,
+              user.uid,
+            );
+
+            if (isDuplicate) {
+              debugPrint(
+                "Duplicate scan detected by content hash, skipping save",
+              );
+              _isSaving = false;
+              return;
+            }
+
+            // Check for recent similar scan (same food within 1 minute)
+            final hasRecentSimilar = await _firestoreService
+                .checkRecentSimilarScan(result.name, user.uid);
+
+            if (hasRecentSimilar) {
+              debugPrint("Recent similar scan detected, skipping save");
+              _isSaving = false;
+              return;
+            }
+          }
+
+          _loadingMessage = "Menyimpan hasil...";
+          notifyListeners();
+
           // Save to Firestore (cloud-first)
           final firestoreId = await _firestoreService.saveScanResult(result);
 
@@ -252,13 +461,22 @@ Respond in English.
                 _lastContext!,
                 listen: false,
               );
-              await historyProvider.addHistory(updatedResult);
+              // Pass transaction ID to prevent duplicate processing
+              await historyProvider.addHistory(
+                updatedResult,
+                transactionId: transactionId,
+              );
             }
           }
         } catch (e) {
           debugPrint("Error saving scan result: $e");
+        } finally {
+          _isSaving = false;
         }
       }
+
+      // Mark transaction as completed
+      _markTransactionCompleted(transactionId);
     } catch (e, stackTrace) {
       debugPrint("Error processing image with stream: ${e.toString()}");
       debugPrint("Stack trace: $stackTrace");
