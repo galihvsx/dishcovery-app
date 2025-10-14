@@ -21,12 +21,13 @@
   "language": {
     "language": "Bahasa",
     "en": "Inggris",
-    "id": "Bahasa Indonesia"
+    "id": "Indonesia"
   },
   "theme": {
     "theme": "Tema",
     "dark": "Gelap",
-    "light": "Terang"
+    "light": "Terang",
+    "system": "Sistem"
   },
   "auth": {
     "welcome": "Selamat datang di Dishcovery",
@@ -99,7 +100,7 @@
     "language_card": {
       "title": "Bahasa",
       "snackbar_changed": "Bahasa diubah ke {} (Belum diimplementasikan)",
-      "indonesian": "Bahasa Indonesia",
+      "indonesian": "Indonesia",
       "english": "Inggris"
     },
     "profile_card": {
@@ -258,7 +259,9 @@
     "no_address": "Alamat tidak tersedia",
     "navigate": "Navigasi",
     "maps_fail": "Tidak dapat membuka peta",
-    "location_fail": "Informasi lokasi tidak tersedia"
+    "location_fail": "Informasi lokasi tidak tersedia",
+    "sharing_result": "Membagikan hasil...",
+    "saved_to_collection": "Resep disimpan ke koleksi Anda"
   },
   "scan_loading": {
     "processing": "Memproses gambar...",

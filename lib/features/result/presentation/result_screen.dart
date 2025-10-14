@@ -50,22 +50,6 @@ class _ResultScreenState extends State<ResultScreen> {
     });
   }
 
-  void _toggleTranslate() {
-    if (_isSaved) {
-      setState(() => _translated = !_translated);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _translated
-                ? 'result_screen.translate_snackbar_en'.tr()
-                : 'result_screen.translate_snackbar_id'.tr(),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
   void _saveToCollection() {
     if (_isSaved) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -220,14 +204,6 @@ class _ResultScreenState extends State<ResultScreen> {
                                     isEnabled: _isSaved,
                                     isActive: false,
                                     onTap: _saveToCollection,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  _buildActionButton(
-                                    context,
-                                    icon: Icons.translate,
-                                    isEnabled: _isSaved,
-                                    isActive: _translated,
-                                    onTap: _toggleTranslate,
                                   ),
                                   const SizedBox(width: 8),
                                   _buildActionButton(

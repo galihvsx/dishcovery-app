@@ -26,7 +26,8 @@
   "theme": {
     "theme": "Theme",
     "dark": "Dark",
-    "light": "Light"
+    "light": "Light",
+    "system": "System"
   },
   "auth": {
     "welcome": "Welcome to Dishcovery",
@@ -99,7 +100,7 @@
     "language_card": {
       "title": "Language",
       "snackbar_changed": "Language changed to {} (Not implemented yet)",
-      "indonesian": "Bahasa Indonesia",
+      "indonesian": "Indonesian",
       "english": "English"
     },
     "profile_card": {
@@ -269,7 +270,9 @@
     "no_address": "Address not available",
     "navigate": "Navigate",
     "maps_fail": "Unable to open maps",
-    "location_fail": "Location information not available"
+    "location_fail": "Location information not available",
+    "sharing_result": "Sharing result...",
+    "saved_to_collection": "Recipe saved to your collection"
   },
   "scan_loading": {
     "processing": "Processing image...",
