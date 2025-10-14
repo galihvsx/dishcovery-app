@@ -1,58 +1,56 @@
 # 🍽️ DISHCOVERY App
 
-[![Codemagic build status](https://api.codemagic.io/apps/YOUR_APP_ID/YOUR_WORKFLOW_ID/status_badge.svg)](https://codemagic.io/apps/YOUR_APP_ID/YOUR_WORKFLOW_ID/latest_build)
-
 A Flutter application for discovering and exploring Indonesian culinary treasures using AI-powered recognition.
 
------
+---
 
-## � About The App
+## 📝 About The App
 
 Dishcovery is a mobile application that helps users discover and learn about Indonesian cuisine through advanced AI image recognition. Built for the BEKUP 2025 Capstone Project, this app makes exploring Indonesian culinary delights easier and more engaging.
 
------
+---
 
 ## ✨ Key Features
 
-  - 📸 AI-powered food recognition
-  - 🍳 Detailed food information and recipes
-  - 📍 Location-based food recommendations
-  - 📱 Offline-first architecture with ObjectBox
-  - 🌙 Dark/Light theme support
-  - 🌐 Multi-language support (ID/EN)
-  - 📚 Search history management
-  - 🎯 Personalized food preferences
+- 📸 AI-powered food recognition
+- 🍳 Detailed food information and recipes
+- 📍 Location-based food recommendations
+- 📱 Offline-first architecture with ObjectBox
+- 🌙 Dark/Light theme support
+- 🌐 Multi-language support (ID/EN)
+- 📚 Search history management
+- 🎯 Personalized food preferences
 
------
+---
 
 ## 🏗️ Architecture
 
 This project uses **Clean Architecture** with **Feature-First** organization for better scalability and maintainability:
 
------
+---
 
 ## 🛠️ Tech Stack
 
-  - **Framework**: Flutter
-  - **Language**: Dart
-  - **State Management**: Provider
-  - **Local Database**: ObjectBox
-  - **Authentication**: Firebase Auth
-  - **AI Services**: Custom AI API
-  - **Analytics**: Firebase Analytics
-  - **Image Processing**: Camera API
-  - **Localization**: Easy Localization
-  - **Navigation**: GoRouter
+- **Framework**: Flutter
+- **Language**: Dart
+- **State Management**: Provider
+- **Local Database**: ObjectBox
+- **Authentication**: Firebase Auth
+- **AI Services**: Custom AI API
+- **Analytics**: Firebase Analytics
+- **Image Processing**: Camera API
+- **Localization**: Easy Localization
+- **Navigation**: GoRouter
 
------
+---
 
 ## 🚀 Installation & Setup
 
 ### Prerequisites
 
-  - [Flutter SDK](https://flutter.dev/docs/get-started/install)
-  - [Firebase CLI](https://firebase.google.com/docs/cli)
-  - [Git](https://git-scm.com/)
+- [Flutter SDK](https://flutter.dev/docs/get-started/install)
+- [Firebase CLI](https://firebase.google.com/docs/cli)
+- [Git](https://git-scm.com/)
 
 ### Installation Steps
 
@@ -70,6 +68,7 @@ This project uses **Clean Architecture** with **Feature-First** organization for
     ```
 
 3.  **Firebase Setup**
+
     - Create a Firebase project
     - Add Android & iOS apps in Firebase Console
     - Download and place configuration files:
@@ -93,7 +92,7 @@ This project uses **Clean Architecture** with **Feature-First** organization for
     flutter run
     ```
 
------
+---
 
 ## 📱 Development
 
@@ -126,7 +125,7 @@ flutter build appbundle --release
 flutter build ios --release
 ```
 
------
+---
 
 ## 🧪 Testing
 
@@ -138,35 +137,36 @@ flutter test
 flutter test --coverage
 ```
 
------
+---
 
 ## 📁 Project Structure
 
 For detailed project structure and organization, see the folder structure above in the Architecture section.
 
------
+---
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
 
------
+---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
------
+---
 
 ## 👥 Team
 
 BEKUP 2025 Capstone Project Team:
+
 - [Fadhil Alif Priyatno](https://github.com/FadhilAlif)
 - [Galih Putro Aji](https://github.com/galihvsx)
 - [Yunanto Biantoro](https://github.com/Drmobkey)
 - [Mochammad Rizky Ramadhani](https://github.com/Mokyra18)
 
------
+---
 
 ## 📞 Support
 
@@ -176,7 +176,7 @@ If you encounter any issues or have questions:
 2. Create a new issue
 3. Contact the development team
 
------
+---
 
 ## 🙏 Acknowledgments
 
@@ -184,9 +184,10 @@ If you encounter any issues or have questions:
 - The Flutter Community
 - Our mentors and advisors
 
------
+---
 
 **Happy Cooking! 🍳**
+
 ## 📂 Folder Structure
 
 ```text
@@ -242,3 +243,4 @@ lib/
 
 
 
+```
