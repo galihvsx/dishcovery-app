@@ -220,6 +220,15 @@
     "snackbar_deleted": "Item deleted",
     "snackbar_add": "Add new dish history"
   },
+  "collection_screen": {
+    "title": "Collection",
+    "empty_title": "No saved dishes yet",
+    "empty_subtitle": "Save dishes to your collection to revisit them here",
+    "view_detail": "View Detail",
+    "remove_tooltip": "Remove from collection",
+    "added_message": "Saved to your collection",
+    "removed_message": "Removed from your collection"
+  },
   "home_screen": {
     "copy_link": "Copy Link",
     "share_to": "Share to...",
@@ -269,7 +278,10 @@
     "no_address": "Address not available",
     "navigate": "Navigate",
     "maps_fail": "Unable to open maps",
-    "location_fail": "Location information not available"
+    "location_fail": "Location information not available",
+    "saved_to_collection": "Saved to your collection",
+    "removed_from_collection": "Removed from your collection",
+    "sharing_result": "Sharing result... (coming soon)"
   },
   "scan_loading": {
     "processing": "Processing image...",
