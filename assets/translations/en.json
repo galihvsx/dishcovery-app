@@ -26,7 +26,8 @@
     "theme": {
         "theme": "Theme",
         "dark": "Dark",
-        "light": "Light"
+        "light": "Light",
+        "system": "System"
     },
     "auth": {
         "welcome": "Welcome to Dishcovery",
@@ -87,6 +88,8 @@
         "food_preferences": "Food Preferences",
         "set_taste_allergies": "Set your taste and allergies",
         "edit_profile": "Edit Profile",
+        "notifications": "Notifications",
+        "manage_notification_settings": "Manage notification settings",
         "security": "Security",
         "privacy_security_settings": "Privacy and security settings",
         "help_center": "Help Center",
@@ -126,6 +129,8 @@
         }
     },
     "notifications": {
+        "notifications_coming_soon": "Notifications coming soon",
+        "notifications_settings_coming_soon": "Notifications settings coming soon",
         "security_settings_coming_soon": "Security settings coming soon",
         "help_center_coming_soon": "Help center coming soon",
         "language_changed_to_indonesian": "Language successfully changed to Indonesian",
@@ -216,19 +221,11 @@
         "snackbar_deleted": "Item deleted",
         "snackbar_add": "Add new dish history"
     },
-    "collection_screen": {
-        "title": "Collection",
-        "empty_title": "No saved dishes yet",
-        "empty_subtitle": "Save dishes to your collection to revisit them here",
-        "view_detail": "View Detail",
-        "remove_tooltip": "Remove from collection",
-        "added_message": "Saved to your collection",
-        "removed_message": "Removed from your collection"
-    },
     "home_screen": {
         "copy_link": "Copy Link",
         "share_to": "Share to...",
         "report": "Report",
+        "turn_off_notifications": "Turn off notifications",
         "all_feeds_viewed": "All feeds viewed",
         "no_feeds_yet": "No feeds yet",
         "start_scanning": "Start taking photos of food to see your feed",
@@ -273,10 +270,7 @@
         "no_address": "Address not available",
         "navigate": "Navigate",
         "maps_fail": "Unable to open maps",
-        "location_fail": "Location information not available",
-        "saved_to_collection": "Saved to your collection",
-        "removed_from_collection": "Removed from your collection",
-        "sharing_result": "Sharing result... (coming soon)"
+        "location_fail": "Location information not available"
     },
     "scan_loading": {
         "processing": "Processing image...",

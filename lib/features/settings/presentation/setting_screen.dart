@@ -62,11 +62,16 @@ class _SettingScreenState extends State<SettingScreen> {
             SettingsSectionHeader(title: 'settings.appearance'.tr()),
             Consumer<ThemeProvider>(
               builder: (context, themeProvider, child) {
-                final isDark = themeProvider.themeMode == ThemeMode.dark;
+                final isDark = themeProvider.isDarkMode(context);
+                final isSystemMode =
+                    themeProvider.themeMode == ThemeMode.system;
+
                 return SettingsMenuItem(
                   icon: Icons.palette_outlined,
                   title: 'theme.theme'.tr(),
-                  subtitle: isDark ? 'theme.dark'.tr() : 'theme.light'.tr(),
+                  subtitle: isSystemMode
+                      ? '${isDark ? 'theme.dark'.tr() : 'theme.light'.tr()} (${'theme.system'.tr()})'
+                      : (isDark ? 'theme.dark'.tr() : 'theme.light'.tr()),
                   trailing: Switch(
                     value: isDark,
                     onChanged: (value) {

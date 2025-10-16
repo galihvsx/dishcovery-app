@@ -81,15 +81,11 @@ class _ResultScreenState extends State<ResultScreen> {
     await historyProvider.setFavoriteStatus(activeResult, !currentlyCollected);
     final firestoreId = activeResult.firestoreId;
     if (firestoreId != null) {
-      await FirestoreService().setSavedStatus(
-        firestoreId,
-        !currentlyCollected,
-      );
+      await FirestoreService().setSavedStatus(firestoreId, !currentlyCollected);
       try {
         final feedsProvider = context.read<FeedsProvider>();
         feedsProvider.updateSavedStatus(firestoreId, !currentlyCollected);
-      } catch (_) {
-      }
+      } catch (_) {}
     }
 
     if (!mounted) return;

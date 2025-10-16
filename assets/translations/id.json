@@ -87,6 +87,8 @@
         "food_preferences": "Preferensi Makanan",
         "set_taste_allergies": "Atur selera dan alergi Anda",
         "edit_profile": "Edit Profil",
+        "notifications": "Notifikasi",
+        "manage_notification_settings": "Kelola pengaturan notifikasi",
         "security": "Keamanan",
         "privacy_security_settings": "Pengaturan privasi dan keamanan",
         "help_center": "Pusat Bantuan",
@@ -126,6 +128,8 @@
         }
     },
     "notifications": {
+        "notifications_coming_soon": "Notifikasi segera hadir",
+        "notifications_settings_coming_soon": "Pengaturan notifikasi segera hadir",
         "security_settings_coming_soon": "Pengaturan keamanan segera hadir",
         "help_center_coming_soon": "Pusat bantuan segera hadir",
         "language_changed_to_indonesian": "Bahasa berhasil diubah ke Bahasa Indonesia",
@@ -198,33 +202,12 @@
         "title": "Riwayat",
         "empty_title": "Belum ada riwayat",
         "empty_subtitle": "Mulai ambil foto makanan untuk melihat riwayat Anda",
-        "pull_to_refresh_hint": "Tarik ke bawah untuk menyegarkan",
         "unknown_dish": "Hidangan Tidak Dikenal",
-        "unknown_origin": "Asal Tidak Diketahui",
         "no_description": "Tidak ada deskripsi yang tersedia.",
-        "refresh_tooltip": "Segarkan",
-        "refresh_success": "Riwayat diperbarui! Ditemukan {} item",
-        "refresh_no_data": "Riwayat diperbarui! Tidak ada item",
-        "refresh_error": "Gagal menyegarkan riwayat",
-        "item_count": "{} item",
-        "no_items": "Tidak ada item",
-        "last_updated": "Diperbarui {}",
-        "just_now": "baru saja",
-        "minutes_ago": "{} menit lalu",
-        "hours_ago": "{} jam lalu",
         "delete_dialog_title": "Hapus Riwayat",
         "delete_dialog_content": "Apakah Anda yakin ingin menghapus item ini?",
         "snackbar_deleted": "Item dihapus",
         "snackbar_add": "Tambah riwayat hidangan baru"
-    },
-    "collection_screen": {
-        "title": "Koleksi",
-        "empty_title": "Belum ada hidangan tersimpan",
-        "empty_subtitle": "Simpan hidangan ke koleksi agar mudah ditemukan di sini",
-        "view_detail": "Lihat Detail",
-        "remove_tooltip": "Hapus dari koleksi",
-        "added_message": "Tersimpan ke koleksi kamu",
-        "removed_message": "Dihapus dari koleksi kamu"
     },
     "home_screen": {
         "copy_link": "Salin Tautan",
@@ -275,10 +258,7 @@
         "no_address": "Alamat tidak tersedia",
         "navigate": "Navigasi",
         "maps_fail": "Tidak dapat membuka peta",
-        "location_fail": "Informasi lokasi tidak tersedia",
-        "saved_to_collection": "Tersimpan ke koleksi kamu",
-        "removed_from_collection": "Dihapus dari koleksi kamu",
-        "sharing_result": "Membagikan hasil... (segera hadir)"
+        "location_fail": "Informasi lokasi tidak tersedia"
     },
     "scan_loading": {
         "processing": "Memproses gambar...",
