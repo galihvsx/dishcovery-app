@@ -1,0 +1,10 @@
+package_rename_config:
+    android:
+        app_name: Dishcovery
+        package_name: "id.dishcovery.dishcovery_app"
+        lang: "kotlin"
+
+    ios:
+        app_name: Dishcovery
+        bundle_name: "id.dishcovery"
+        package_name: "id.dishcovery.dishcovery_app"
