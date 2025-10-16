@@ -36,7 +36,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
       _isRefreshing = true;
     });
 
-    // Haptic feedback for better UX
     if (showFeedback) {
       HapticFeedback.lightImpact();
     }
@@ -44,14 +43,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final provider = Provider.of<HistoryProvider>(context, listen: false);
 
     try {
-      // Force refresh by clearing caches first
-      // This ensures we get fresh data but still prevents duplicates
       await provider.loadHistory();
 
-      // Update last refresh time
       _lastRefreshTime = DateTime.now();
 
-      // Show success feedback
       if (mounted && showFeedback) {
         HapticFeedback.selectionClick();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -122,7 +117,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _hasScheduledInitialLoad = true;
   }
 
-  /// Format the last refresh time
   String _formatRefreshTime(DateTime time) {
     final now = DateTime.now();
     final difference = now.difference(time);
@@ -148,7 +142,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: CustomAppBar(
         title: 'history_screen.title'.tr(),
         actions: [
-          // Refresh button in app bar
           Consumer<HistoryProvider>(
             builder: (context, provider, child) {
               return IconButton(
@@ -249,7 +242,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
               );
             }
 
-            // Show loading skeleton when refreshing
             if (provider.isLoading && history.isNotEmpty) {
               return ListView.builder(
                 padding: const EdgeInsets.all(16),
@@ -279,7 +271,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
             return CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-                // Header with item count and last refresh info
                 if (history.isNotEmpty || _lastRefreshTime != null)
                   SliverToBoxAdapter(
                     child: Container(
@@ -327,7 +318,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                     ),
                   ),
-                // Main content
                 SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final ScanResult item = history[index];
@@ -378,7 +368,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           debugPrint(
                             '[DEBUG] HistoryScreen: Returned from ResultScreen - refreshing history',
                           );
-                          // Refresh history when returning from result screen to show updated data
                           _refreshHistory(context);
                         });
                       },
@@ -393,7 +382,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              // Background image
                               if (item.imagePath.isNotEmpty &&
                                   File(item.imagePath).existsSync())
                                 Image.file(
@@ -421,7 +409,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               else
                                 buildEmptyPlaceholder(),
 
-                              // Gradient overlay
                               Container(
                                 decoration: const BoxDecoration(
                                   gradient: LinearGradient(
@@ -437,7 +424,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 ),
                               ),
 
-                              // Content overlay with backdrop blur
                               Positioned(
                                 bottom: 0,
                                 left: 0,
@@ -523,7 +509,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 ),
                               ),
 
-                              // Delete button
                               Positioned(
                                 top: 8,
                                 right: 8,

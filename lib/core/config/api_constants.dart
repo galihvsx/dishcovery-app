@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-/// Central place for API-related constants.
 class ApiConstants {
   ApiConstants._();
 
@@ -11,7 +10,6 @@ class ApiConstants {
   static const String placesApiBaseUrl =
       'https://places.googleapis.com/v1/places:searchText';
 
-  /// Returns the Google Places API key appropriate for the current platform.
   static String googlePlacesApiKey({TargetPlatform? platform}) {
     final resolvedPlatform = platform ?? defaultTargetPlatform;
 

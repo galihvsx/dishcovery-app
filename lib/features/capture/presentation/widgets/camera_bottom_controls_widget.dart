@@ -15,6 +15,9 @@ class CameraBottomControlsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canSwitchCamera = (provider.cameras?.length ?? 0) > 1;
+    final isBusy = provider.isLoading;
+
     return Positioned(
       bottom: MediaQuery.of(context).padding.bottom + 32,
       left: 0,
@@ -24,7 +27,6 @@ class CameraBottomControlsWidget extends StatelessWidget {
         children: [
           const SizedBox(width: 64),
 
-          // Capture Button
           GestureDetector(
             onTap: () async {
               final XFile? picture = await provider.takePicture();
@@ -50,17 +52,19 @@ class CameraBottomControlsWidget extends StatelessWidget {
             ),
           ),
 
-          // Switch Camera Button (placeholder - add switchCamera to provider if needed)
           IconButton(
-            onPressed: () {
-              // TODO: Add switchCamera method to CameraProvider if needed
-              // provider.switchCamera();
-            },
+            onPressed: !canSwitchCamera || isBusy
+                ? null
+                : () {
+                    provider.switchCamera();
+                  },
             icon: Container(
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.black54,
+                color: (!canSwitchCamera || isBusy)
+                    ? Colors.black26
+                    : Colors.black54,
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(color: Colors.white, width: 2),
               ),

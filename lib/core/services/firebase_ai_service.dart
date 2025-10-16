@@ -10,12 +10,11 @@ class FirebaseAiService {
     : _model =
           model ??
           FirebaseAI.googleAI().generativeModel(
-            model: modelName ?? 'gemini-2.5-flash', // Keep using 2.5-flash
+            model: modelName ?? 'gemini-2.5-flash',
           );
 
   final GenerativeModel _model;
 
-  /// Convert image to plain text description
   Future<String> imageToText({
     required Uint8List imageBytes,
     String prompt = '',
@@ -33,7 +32,6 @@ class FirebaseAiService {
     return res.text!;
   }
 
-  /// Convert image to structured data (generic schema)
   Future<Map<String, dynamic>> imageToStructured({
     required Uint8List imageBytes,
     String prompt = '',
@@ -64,7 +62,6 @@ class FirebaseAiService {
     return decoded;
   }
 
-  /// Convert text to structured JSON
   Future<Map<String, dynamic>> textToStructured({
     required String prompt,
   }) async {
@@ -88,7 +85,6 @@ class FirebaseAiService {
     return decoded;
   }
 
-  /// Convert image to Dishcovery structured schema
   Future<Map<String, dynamic>> imageToDishcovery({
     required Uint8List imageBytes,
     String prompt = '',
@@ -120,7 +116,6 @@ class FirebaseAiService {
     return decoded;
   }
 
-  /// Convert image to Dishcovery with streaming response
   Stream<Map<String, dynamic>> imageToDishcoveryStream({
     required Uint8List imageBytes,
     String prompt = '',
@@ -157,7 +152,6 @@ class FirebaseAiService {
       }
     }
 
-    // Final parse if we haven't yielded anything yet
     if (accumulatedText.isNotEmpty) {
       try {
         final decoded = json.decode(accumulatedText);
@@ -170,7 +164,6 @@ class FirebaseAiService {
     }
   }
 
-  /// Read image from file path into bytes
   Future<Uint8List> readImageFile(String path) async {
     final f = File(path);
     if (!await f.exists()) {
@@ -179,7 +172,6 @@ class FirebaseAiService {
     return await f.readAsBytes();
   }
 
-  // Default schemas
   Schema _defaultImageSchema() {
     return Schema.object(
       properties: {

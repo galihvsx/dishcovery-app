@@ -89,12 +89,10 @@ class _FeedCardState extends State<FeedCard>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header Section
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: Row(
             children: [
-              // User Avatar
               Container(
                 width: 40,
                 height: 40,
@@ -120,7 +118,6 @@ class _FeedCardState extends State<FeedCard>
                 ),
               ),
               const SizedBox(width: 12),
-              // Username and Location
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +138,6 @@ class _FeedCardState extends State<FeedCard>
                   ],
                 ),
               ),
-              // More Options Button
               IconButton(
                 icon: const Icon(Icons.more_vert),
                 onPressed: widget.onMoreOptions,
@@ -151,7 +147,6 @@ class _FeedCardState extends State<FeedCard>
           ),
         ),
 
-        // Image Section
         GestureDetector(
           onDoubleTap: () {
             if (!_isLiked) {
@@ -192,7 +187,6 @@ class _FeedCardState extends State<FeedCard>
                   ),
                 ),
               ),
-              // Rating Badge (if available)
               if (widget.feedItem.rating != null)
                 Positioned(
                   top: 12,
@@ -225,12 +219,10 @@ class _FeedCardState extends State<FeedCard>
           ),
         ),
 
-        // Action Buttons Section
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
           child: Row(
             children: [
-              // Like Button
               IconButton(
                 icon: AnimatedBuilder(
                   animation: _heartAnimation,
@@ -246,7 +238,6 @@ class _FeedCardState extends State<FeedCard>
                 ),
                 onPressed: _handleLike,
               ),
-              // Comment Button
               IconButton(
                 icon: const Icon(Icons.comment_outlined),
                 onPressed: () {
@@ -255,14 +246,12 @@ class _FeedCardState extends State<FeedCard>
                 },
                 color: colorScheme.onSurface,
               ),
-              // Share Button
               IconButton(
                 icon: const Icon(Icons.send_outlined),
                 onPressed: widget.onShare,
                 color: colorScheme.onSurface,
               ),
               const Spacer(),
-              // Save Button
               IconButton(
                 icon: Icon(
                   _isSaved ? Icons.bookmark : Icons.bookmark_border,
@@ -274,13 +263,11 @@ class _FeedCardState extends State<FeedCard>
           ),
         ),
 
-        // Likes and Caption Section
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Likes Count
               if (_likes > 0)
                 Text(
                   _likes == 1
@@ -292,7 +279,6 @@ class _FeedCardState extends State<FeedCard>
                 ),
               const SizedBox(height: 4),
 
-              // Caption
               RichText(
                 text: TextSpan(
                   style: theme.textTheme.bodyMedium,
@@ -307,7 +293,6 @@ class _FeedCardState extends State<FeedCard>
                 ),
               ),
 
-              // Tags
               if (widget.feedItem.tags.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Wrap(
@@ -323,7 +308,6 @@ class _FeedCardState extends State<FeedCard>
                 ),
               ],
 
-              // Comments Count
               if (widget.feedItem.comments > 0) ...[
                 const SizedBox(height: 8),
                 GestureDetector(
@@ -342,7 +326,6 @@ class _FeedCardState extends State<FeedCard>
                 ),
               ],
 
-              // Ingredients (Food specific)
               if (widget.feedItem.recipe.ingredients.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Row(
@@ -370,7 +353,6 @@ class _FeedCardState extends State<FeedCard>
                 ),
               ],
 
-              // Timestamp
               const SizedBox(height: 8),
               Text(
                 timeago.format(widget.feedItem.createdAt),
@@ -384,7 +366,6 @@ class _FeedCardState extends State<FeedCard>
 
         const SizedBox(height: 12),
 
-        // Divider between posts
         Divider(
           height: 1,
           thickness: 0.5,

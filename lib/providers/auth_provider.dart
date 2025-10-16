@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:dishcovery_app/core/services/firebase_auth_service.dart';
 import 'package:dishcovery_app/core/services/user_service.dart';
 
-/// Provider for managing authentication state and operations
 class AuthProvider extends ChangeNotifier {
   AuthProvider({FirebaseAuthService? authService, UserService? userService})
     : _authService = authService ?? FirebaseAuthService(),
@@ -18,13 +17,11 @@ class AuthProvider extends ChangeNotifier {
   final UserService _userService;
   StreamSubscription<User?>? _authStateSubscription;
 
-  // Authentication state
   User? _user;
   bool _isLoading = false;
   String? _error;
   bool _isInitialized = false;
 
-  // Getters
   User? get user => _user;
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -32,7 +29,6 @@ class AuthProvider extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
   bool get isEmailVerified => _user?.emailVerified ?? false;
 
-  /// Initialize the provider and listen to auth state changes
   void _init() {
     _authStateSubscription = _authService.authStateChanges.listen(
       (User? user) async {
@@ -41,7 +37,6 @@ class AuthProvider extends ChangeNotifier {
         _isInitialized = true;
         _clearError();
 
-        // If user just signed in (was null, now not null), create user document
         if (previousUser == null && user != null) {
           debugPrint('🔐 AuthProvider: User signed in, creating user document');
           try {
@@ -55,7 +50,6 @@ class AuthProvider extends ChangeNotifier {
             debugPrint('🔐 AuthProvider: User document created successfully');
           } catch (e) {
             debugPrint('🔐 AuthProvider: Error creating user document: $e');
-            // Don't set error state as this shouldn't block the user flow
           }
         }
 
@@ -67,7 +61,6 @@ class AuthProvider extends ChangeNotifier {
     );
   }
 
-  /// Sign in with email and password
   Future<bool> signInWithEmailAndPassword({
     required String email,
     required String password,
@@ -81,7 +74,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Register with email and password
   Future<bool> registerWithEmailAndPassword({
     required String email,
     required String password,
@@ -97,7 +89,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Send password reset email
   Future<bool> sendPasswordResetEmail({required String email}) async {
     return _performAuthOperation(() async {
       await _authService.sendPasswordResetEmail(email: email);
@@ -105,7 +96,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Sign in with Google
   Future<bool> signInWithGoogle() async {
     debugPrint('🔐 AuthProvider: Starting Google Sign-In process');
     debugPrint('🔐 AuthProvider: Current loading state: $_isLoading');
@@ -128,7 +118,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Sign out
   Future<bool> signOut() async {
     return _performAuthOperation(() async {
       await _authService.signOut();
@@ -136,7 +125,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Delete current user account
   Future<bool> deleteAccount() async {
     return _performAuthOperation(() async {
       await _authService.deleteAccount();
@@ -144,20 +132,17 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Update user profile
   Future<bool> updateProfile({String? displayName, String? photoURL}) async {
     return _performAuthOperation(() async {
       if (_user == null) {
         throw Exception('No user is currently signed in');
       }
 
-      // Update Firebase Auth profile
       await _authService.updateProfile(
         displayName: displayName,
         photoURL: photoURL,
       );
 
-      // Update Firestore user document
       final updateData = <String, dynamic>{};
       if (displayName != null) updateData['displayName'] = displayName;
       if (photoURL != null) updateData['photoURL'] = photoURL;
@@ -166,7 +151,6 @@ class AuthProvider extends ChangeNotifier {
         await _userService.updateUserDocument(_user!.uid, updateData);
       }
 
-      // Reload user to get the updated information
       await _authService.reloadUser();
       _user = _authService.currentUser;
       notifyListeners();
@@ -175,7 +159,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Update user email
   Future<bool> updateEmail({required String newEmail}) async {
     return _performAuthOperation(() async {
       await _authService.updateEmail(newEmail: newEmail);
@@ -183,7 +166,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Update user password
   Future<bool> updatePassword({required String newPassword}) async {
     return _performAuthOperation(() async {
       await _authService.updatePassword(newPassword: newPassword);
@@ -191,7 +173,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Send email verification
   Future<bool> sendEmailVerification() async {
     return _performAuthOperation(() async {
       await _authService.sendEmailVerification();
@@ -199,7 +180,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  /// Reload user data
   Future<void> reloadUser() async {
     try {
       await _authService.reloadUser();
@@ -212,12 +192,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Clear any existing error
   void clearError() {
     _clearError();
   }
 
-  /// Helper method to perform authentication operations with loading state
   Future<T> _performAuthOperation<T>(Future<T> Function() operation) async {
     try {
       debugPrint('🔄 AuthProvider: Setting loading state to true');
@@ -242,20 +220,17 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Set loading state
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
   }
 
-  /// Set error message
   void _setError(String error) {
     _error = error;
     _isLoading = false;
     notifyListeners();
   }
 
-  /// Clear error message
   void _clearError() {
     if (_error != null) {
       _error = null;
@@ -263,7 +238,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Get sign-in method from user provider data
   String _getSignInMethod(User user) {
     if (user.providerData.isEmpty) return 'unknown';
 

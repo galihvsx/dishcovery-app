@@ -3,26 +3,26 @@ import 'dart:convert';
 import 'package:dishcovery_app/core/models/recipe_model.dart';
 
 class ScanResult {
-  final int? id; // Local ObjectBox ID
-  final String? firestoreId; // Firestore document ID
-  final String? userId; // User who created the scan
+  final int? id;
+  final String? firestoreId;
+  final String? userId;
   final String? userEmail;
   final String? userName;
   final bool isFood;
   final String imagePath;
-  final String imageUrl; // Firebase Storage URL for public feeds
+  final String imageUrl;
   final String name;
   final String origin;
   final String description;
   final String history;
   final Recipe recipe;
   final List<String> tags;
-  final bool isPublic; // Whether this is visible in feeds
-  final bool isFavorite; // Local favorite/collection flag
+  final bool isPublic;
+  final bool isFavorite;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  final String? transactionId; // For tracking scan operations and preventing duplicates
-  final String? contentHash; // Hash of image content + food name for duplicate detection
+  final String? transactionId;
+  final String? contentHash;
 
   ScanResult({
     this.id,

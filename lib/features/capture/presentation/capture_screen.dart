@@ -1,4 +1,3 @@
-// ignore_for_file: unused_element_parameter
 
 import 'package:camera/camera.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,7 +27,6 @@ class _CaptureScreenState extends State<CaptureScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Initialize camera after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _cameraProvider = context.read<CameraProvider>();
       _cameraProvider.initializeCamera();
@@ -38,7 +36,6 @@ class _CaptureScreenState extends State<CaptureScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    // Dispose camera when leaving the screen
     _cameraProvider.disposeCamera();
     super.dispose();
   }
@@ -47,7 +44,6 @@ class _CaptureScreenState extends State<CaptureScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final cameraController = _cameraProvider.cameraController;
 
-    // App state changed before we got the chance to initialize.
     if (cameraController == null || !cameraController.value.isInitialized) {
       return;
     }
@@ -73,7 +69,6 @@ class _CaptureScreenState extends State<CaptureScreen>
     final picture = await cameraProvider.takePicture();
 
     if (picture != null && mounted) {
-      // Navigate to result screen
       Navigator.of(context).pushReplacementNamed(
         ResultScreen.path,
         arguments: AppRoutes.createArguments(imagePath: picture.path),
@@ -92,16 +87,13 @@ class _CaptureScreenState extends State<CaptureScreen>
 
     if (!mounted) return;
 
-    // If user canceled selection, just return without doing anything
     if (image == null) {
-      // Reinitialize camera if it was disposed during picker lifecycle
       if (!cameraProvider.isInitialized) {
         await cameraProvider.initializeCamera();
       }
       return;
     }
 
-    // Navigate to result screen with selected image
     Navigator.of(context).pushReplacementNamed(
       ResultScreen.path,
       arguments: AppRoutes.createArguments(imagePath: image.path),
@@ -208,14 +200,11 @@ class _CaptureScreenState extends State<CaptureScreen>
         builder: (context, cameraProvider, child) {
           return Stack(
             children: [
-              // Camera Preview
               if (cameraProvider.isInitialized)
                 _buildCameraPreview(cameraProvider),
 
-              // Gamification Overlay (frame guide)
               if (cameraProvider.isInitialized) _buildGamificationOverlay(),
 
-              // Loading State
               if (cameraProvider.isLoading && !cameraProvider.isInitialized)
                 const Center(
                   child: Column(
@@ -224,12 +213,10 @@ class _CaptureScreenState extends State<CaptureScreen>
                   ),
                 ),
 
-              // Error State
               if (cameraProvider.errorMessage != null &&
                   !cameraProvider.isInitialized)
                 _buildErrorState(cameraProvider, theme),
 
-              // Top gradient overlay
               if (cameraProvider.isInitialized)
                 Positioned(
                   top: 0,
@@ -250,7 +237,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                   ),
                 ),
 
-              // Bottom gradient overlay
               if (cameraProvider.isInitialized)
                 Positioned(
                   bottom: 0,
@@ -271,7 +257,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                   ),
                 ),
 
-              // Top Controls (Back button) - ABOVE gradients
               if (cameraProvider.isInitialized)
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 16,
@@ -280,7 +265,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Back Button
                       _ControlButton(
                         icon: Icons.close,
                         onTap: () => Navigator.of(context).pop(),
@@ -289,7 +273,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                   ),
                 ),
 
-              // Bottom instruction and tips
               if (cameraProvider.isInitialized)
                 Positioned(
                   bottom: MediaQuery.of(context).padding.bottom + 140,
@@ -297,7 +280,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                   right: 20,
                   child: Column(
                     children: [
-                      // Instruction text
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -318,7 +300,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                         ),
                       ),
                       const SizedBox(height: 12),
-                      // Lighting tip
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -352,7 +333,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                   ),
                 ),
 
-              // Bottom Controls (Capture Button and Gallery Button) - ABOVE gradients
               if (cameraProvider.isInitialized)
                 Positioned(
                   bottom: MediaQuery.of(context).padding.bottom + 40,
@@ -361,7 +341,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      // Gallery Button
                       GestureDetector(
                         onTap: cameraProvider.isLoading
                             ? null
@@ -389,7 +368,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                         ),
                       ),
 
-                      // Capture Button (Main)
                       GestureDetector(
                         onTap: cameraProvider.isLoading ? null : _takePicture,
                         child: Container(
@@ -430,7 +408,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                         ),
                       ),
 
-                      // Flash Toggle Button
                       GestureDetector(
                         onTap: cameraProvider.isLoading
                             ? null
@@ -479,18 +456,12 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 }
 
-// Custom control button widget
 class _ControlButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  final Color? backgroundColor;
-  final Color? iconColor;
-
   const _ControlButton({
     required this.icon,
     required this.onTap,
-    this.backgroundColor,
-    this.iconColor,
   });
 
   @override
@@ -501,20 +472,19 @@ class _ControlButton extends StatelessWidget {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: backgroundColor ?? Colors.black.withValues(alpha: 0.5),
+          color: Colors.black.withValues(alpha: 0.5),
           shape: BoxShape.circle,
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
-        child: Icon(icon, color: iconColor ?? Colors.white, size: 24),
+        child: Icon(icon, color: Colors.white, size: 24),
       ),
     );
   }
 }
 
-// Custom painter for food frame overlay
 class _FoodFramePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -526,14 +496,11 @@ class _FoodFramePainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width * 0.35;
 
-    // Draw circular frame
     canvas.drawCircle(center, radius, paint);
 
-    // Draw corner guides
     final cornerLength = 30.0;
     final cornerOffset = radius * 0.7;
 
-    // Top-left corner
     canvas.drawLine(
       Offset(center.dx - cornerOffset - cornerLength, center.dy - cornerOffset),
       Offset(center.dx - cornerOffset, center.dy - cornerOffset),
@@ -545,7 +512,6 @@ class _FoodFramePainter extends CustomPainter {
       paint,
     );
 
-    // Top-right corner
     canvas.drawLine(
       Offset(center.dx + cornerOffset + cornerLength, center.dy - cornerOffset),
       Offset(center.dx + cornerOffset, center.dy - cornerOffset),
@@ -557,7 +523,6 @@ class _FoodFramePainter extends CustomPainter {
       paint,
     );
 
-    // Bottom-left corner
     canvas.drawLine(
       Offset(center.dx - cornerOffset - cornerLength, center.dy + cornerOffset),
       Offset(center.dx - cornerOffset, center.dy + cornerOffset),
@@ -569,7 +534,6 @@ class _FoodFramePainter extends CustomPainter {
       paint,
     );
 
-    // Bottom-right corner
     canvas.drawLine(
       Offset(center.dx + cornerOffset + cornerLength, center.dy + cornerOffset),
       Offset(center.dx + cornerOffset, center.dy + cornerOffset),

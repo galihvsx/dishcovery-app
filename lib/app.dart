@@ -26,14 +26,12 @@ class App extends StatelessWidget {
   });
 
   String get _initialRoute {
-    // Check if user has seen the onboarding
     final hasSeenOnboarding = preferences.getBool('hasSeenOnboarding') ?? false;
 
     if (!hasSeenOnboarding) {
       return AppRoutes.onboarding;
     }
 
-    // If onboarding is complete, go to main route (which has auth guards)
     return AppRoutes.main;
   }
 

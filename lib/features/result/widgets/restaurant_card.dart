@@ -15,7 +15,6 @@ class RestaurantCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Extract city from address components
     String? city = _extractCity();
 
     return GestureDetector(
@@ -34,17 +33,14 @@ class RestaurantCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image section
             _buildImageSection(colorScheme),
 
-            // Content section
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Restaurant name
                     Text(
                       place.displayName?.text ??
                           'result_screen.unknown_restaurant_name'.tr(),
@@ -57,13 +53,11 @@ class RestaurantCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
 
-                    // Rating and price level
                     if (place.rating != null || place.priceLevel != null)
                       _buildRatingAndPrice(theme, colorScheme),
 
                     const SizedBox(height: 4),
 
-                    // Address
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +96,6 @@ class RestaurantCard extends StatelessWidget {
                       ),
                     ),
 
-                    // Navigate button
                     const SizedBox(height: 8),
                     _buildNavigateButton(context, theme, colorScheme),
                   ],
@@ -116,7 +109,6 @@ class RestaurantCard extends StatelessWidget {
   }
 
   Widget _buildImageSection(ColorScheme colorScheme) {
-    // Check if place has photos
     final hasPhoto = place.photos != null && place.photos!.isNotEmpty;
 
     return Container(
@@ -132,8 +124,6 @@ class RestaurantCard extends StatelessWidget {
   }
 
   Widget _buildPhotoWidget(Photo photo) {
-    // For now, we'll use a placeholder since we need to implement photo fetching
-    // In production, you would use the photo reference to fetch from Google Places Photos API
     return Container(
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -141,7 +131,6 @@ class RestaurantCard extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Placeholder for actual image
           Container(
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.vertical(
@@ -242,7 +231,6 @@ class RestaurantCard extends StatelessWidget {
       if (component.types?.contains('locality') ?? false) {
         return component.longText ?? component.shortText;
       }
-      // Fallback to administrative area if locality not found
       if (component.types?.contains('administrative_area_level_2') ?? false) {
         return component.longText ?? component.shortText;
       }
@@ -271,7 +259,6 @@ class RestaurantCard extends StatelessWidget {
 
   Future<void> _openInMaps(BuildContext context) async {
     if (place.googleMapsUri != null) {
-      // Try to open Google Maps URI first
       final uri = Uri.parse(place.googleMapsUri!);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -279,7 +266,6 @@ class RestaurantCard extends StatelessWidget {
       }
     }
 
-    // Fallback to coordinates if available
     if (place.location != null) {
       final lat = place.location!.latitude;
       final lng = place.location!.longitude;
@@ -287,7 +273,6 @@ class RestaurantCard extends StatelessWidget {
         place.displayName?.text ?? 'result_screen.default_restaurant_name'.tr(),
       );
 
-      // Try Google Maps URL scheme
       final googleMapsUrl = Uri.parse(
         'google.navigation:q=$lat,$lng&title=$name',
       );
@@ -310,7 +295,6 @@ class RestaurantCard extends StatelessWidget {
         }
       }
     } else {
-      // No location data available
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

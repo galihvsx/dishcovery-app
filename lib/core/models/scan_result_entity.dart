@@ -98,20 +98,16 @@ class ScanResultEntity {
     );
   }
 
-  // Helper method to get tags as list
   List<String> get tags => tagsString.isEmpty ? [] : tagsString.split(',');
 
-  // Helper method to set tags from list
   set tags(List<String> tags) {
     tagsString = tags.join(',');
   }
 
-  // Helper method to get Recipe object
   Recipe getRecipe() {
     return Recipe.fromJson(jsonDecode(recipeJson));
   }
 
-  // Helper method to set Recipe object
   void setRecipe(Recipe recipe) {
     recipeJson = jsonEncode(recipe.toJson());
   }
