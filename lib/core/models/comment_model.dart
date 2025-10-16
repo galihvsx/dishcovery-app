@@ -1,30 +1,21 @@
 import 'package:flutter/foundation.dart';
 
-/// Model representing a comment on a feed item
 @immutable
 class Comment {
-  /// Unique identifier for the comment
   final String id;
 
-  /// Reference to the feed/scan this comment belongs to
   final String feedId;
 
-  /// User ID of the commenter
   final String userId;
 
-  /// Display name of the commenter
   final String userName;
 
-  /// Optional profile photo URL of the commenter
   final String? userPhotoUrl;
 
-  /// The comment text content
   final String content;
 
-  /// Timestamp when the comment was created
   final DateTime createdAt;
 
-  /// Optional timestamp when the comment was last updated
   final DateTime? updatedAt;
 
   const Comment({
@@ -38,7 +29,6 @@ class Comment {
     this.updatedAt,
   });
 
-  /// Creates a copy of this comment with the given fields replaced with new values
   Comment copyWith({
     String? id,
     String? feedId,
@@ -61,7 +51,6 @@ class Comment {
     );
   }
 
-  /// Converts this comment to a Map for Firestore storage
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -75,7 +64,6 @@ class Comment {
     };
   }
 
-  /// Creates a Comment instance from a Firestore Map
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
       id: json['id'] ?? '',

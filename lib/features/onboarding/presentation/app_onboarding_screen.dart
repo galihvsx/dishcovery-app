@@ -55,7 +55,6 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
             ),
           ),
 
-          // Content overlay
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -63,7 +62,6 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
                 children: [
                   const Spacer(flex: 3),
 
-                  // Title and description
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -91,7 +89,6 @@ class _AppOnboardingScreenState extends State<AppOnboardingScreen> {
 
                   const SizedBox(height: 48),
 
-                  // Get Started Button
                   SizedBox(
                     width: double.infinity,
                     height: 56,

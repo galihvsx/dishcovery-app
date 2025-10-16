@@ -93,7 +93,6 @@ class ResultInfoWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Judul Makanan
           Text(
             name,
             style: textTheme.headlineSmall?.copyWith(
@@ -116,7 +115,6 @@ class ResultInfoWidget extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // Section Deskripsi
           _buildSection(
             context,
             icon: Icons.restaurant_menu_rounded,
@@ -124,7 +122,6 @@ class ResultInfoWidget extends StatelessWidget {
             content: description,
           ),
 
-          // Section Sejarah
           _buildSection(
             context,
             icon: Icons.history_edu_rounded,
@@ -132,7 +129,6 @@ class ResultInfoWidget extends StatelessWidget {
             content: history,
           ),
 
-          // Section Bahan
           if (ingredientsMarkdown.isNotEmpty)
             _buildSection(
               context,
@@ -141,7 +137,6 @@ class ResultInfoWidget extends StatelessWidget {
               content: ingredientsMarkdown,
             ),
 
-          // Section Langkah
           if (stepsMarkdown.isNotEmpty)
             _buildSection(
               context,

@@ -1,5 +1,3 @@
-/// Model representing a place from Google Places API
-/// All fields are optional since the API returns only requested fields based on field mask
 class PlaceModel {
   final String? id;
   final String? resourceName;
@@ -158,7 +156,6 @@ class PlaceModel {
   }
 }
 
-/// Display name with language code
 class DisplayName {
   final String? text;
   final String? languageCode;
@@ -174,7 +171,6 @@ class DisplayName {
   }
 }
 
-/// Location coordinates
 class Location {
   final double? latitude;
   final double? longitude;
@@ -193,7 +189,6 @@ class Location {
   }
 }
 
-/// Viewport bounds
 class Viewport {
   final Location? low;
   final Location? high;
@@ -212,7 +207,6 @@ class Viewport {
   }
 }
 
-/// Address components
 class AddressComponents {
   final List<AddressComponent> components;
 
@@ -229,7 +223,6 @@ class AddressComponents {
   }
 }
 
-/// Individual address component
 class AddressComponent {
   final String? longText;
   final String? shortText;
@@ -262,7 +255,6 @@ class AddressComponent {
   }
 }
 
-/// Opening hours
 class OpeningHours {
   final bool? openNow;
   final List<Period>? periods;
@@ -303,7 +295,6 @@ class OpeningHours {
   }
 }
 
-/// Period for opening hours
 class Period {
   final DayTime? open;
   final DayTime? close;
@@ -322,7 +313,6 @@ class Period {
   }
 }
 
-/// Day and time
 class DayTime {
   final int? day;
   final int? hour;
@@ -343,7 +333,6 @@ class DayTime {
   }
 }
 
-/// Special day
 class SpecialDay {
   final String? date;
 
@@ -358,7 +347,6 @@ class SpecialDay {
   }
 }
 
-/// Business status enum
 enum BusinessStatus {
   operational('OPERATIONAL'),
   closedTemporarily('CLOSED_TEMPORARILY'),
@@ -375,7 +363,6 @@ enum BusinessStatus {
   }
 }
 
-/// Photo metadata
 class Photo {
   final String? name;
   final int? widthPx;
@@ -407,7 +394,6 @@ class Photo {
   }
 }
 
-/// Author attribution
 class AuthorAttribution {
   final String? displayName;
   final String? uri;
@@ -428,7 +414,6 @@ class AuthorAttribution {
   }
 }
 
-/// Accessibility options
 class AccessibilityOptions {
   final bool? wheelchairAccessibleParking;
   final bool? wheelchairAccessibleEntrance;
@@ -461,7 +446,6 @@ class AccessibilityOptions {
   }
 }
 
-/// Plus code
 class PlusCode {
   final String? globalCode;
   final String? compoundCode;
@@ -480,7 +464,6 @@ class PlusCode {
   }
 }
 
-/// Sub-destination
 class SubDestination {
   final String? name;
   final String? id;
@@ -496,11 +479,10 @@ class SubDestination {
   }
 }
 
-/// Search response model
 class PlacesSearchResponse {
   final List<PlaceModel> places;
   final String? nextPageToken;
-  final String? searchQuery; // Track what query was successful
+  final String? searchQuery;
   final bool isGenericSearch;
 
   PlacesSearchResponse({

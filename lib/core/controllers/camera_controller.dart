@@ -26,7 +26,6 @@ class CameraViewController extends ChangeNotifier {
     try {
       _updateModel(_model.copyWith(isLoading: true, errorMessage: null));
 
-      // Check current permission status first
       final permissionStatus = await Permission.camera.status;
 
       if (permissionStatus.isPermanentlyDenied) {
@@ -35,14 +34,12 @@ class CameraViewController extends ChangeNotifier {
             isLoading: false,
             hasPermission: false,
             isPermanentlyDenied: true,
-            // Don't set error message for permanent denial - let permission view handle it
           ),
         );
         return;
       }
 
       if (permissionStatus.isDenied) {
-        // Try to request permission
         final requestResult = await Permission.camera.request();
 
         if (requestResult.isPermanentlyDenied) {
@@ -51,7 +48,6 @@ class CameraViewController extends ChangeNotifier {
               isLoading: false,
               hasPermission: false,
               isPermanentlyDenied: true,
-              // Don't set error message for permanent denial - let permission view handle it
             ),
           );
           return;
@@ -63,7 +59,6 @@ class CameraViewController extends ChangeNotifier {
               isLoading: false,
               hasPermission: false,
               isPermanentlyDenied: false,
-              // Don't set error message for regular denial either - let permission view handle it
             ),
           );
           return;
@@ -109,7 +104,6 @@ class CameraViewController extends ChangeNotifier {
   }
 
   Future<void> _setupCamera(CameraDescription camera) async {
-    // Aggressively dispose previous controller
     if (_cameraController != null) {
       try {
         await _cameraController!.pausePreview();
@@ -123,14 +117,13 @@ class CameraViewController extends ChangeNotifier {
 
     _cameraController = CameraController(
       camera,
-      ResolutionPreset.low, // Minimal resolution to reduce buffer usage
+      ResolutionPreset.low,
       enableAudio: false,
       imageFormatGroup: ImageFormatGroup.jpeg,
     );
 
     await _cameraController!.initialize();
 
-    // Extended delay for buffer stabilization
     await Future.delayed(const Duration(milliseconds: 300));
   }
 
@@ -203,24 +196,19 @@ class CameraViewController extends ChangeNotifier {
       _isTakingPicture = true;
       _updateModel(_model.copyWith(isLoading: true, errorMessage: null));
 
-      // More aggressive buffer management
       if (!_isPreviewPaused) {
         await _cameraController!.pausePreview();
         _isPreviewPaused = true;
-        // Longer delay to ensure all buffers are released
         await Future.delayed(const Duration(milliseconds: 150));
       }
 
       final XFile photo = await _cameraController!.takePicture();
       final String savedPath = await _savePhotoToAppDirectory(photo);
 
-      // Force garbage collection to free up buffers
       if (!kReleaseMode) {
-        // Only in debug mode to avoid performance impact in release
         await Future.delayed(const Duration(milliseconds: 50));
       }
 
-      // Resume preview after longer delay
       if (_isPreviewPaused) {
         await _cameraController!.resumePreview();
         _isPreviewPaused = false;
@@ -230,7 +218,6 @@ class CameraViewController extends ChangeNotifier {
       _updateModel(_model.copyWith(isLoading: false, imagePath: savedPath));
       return savedPath;
     } catch (e) {
-      // Ensure preview is resumed even if error occurs
       try {
         if (_isPreviewPaused) {
           await _cameraController!.resumePreview();
@@ -271,7 +258,6 @@ class CameraViewController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Add method to manually pause/resume preview for lifecycle management
   Future<void> pausePreview() async {
     if (_cameraController != null && !_isPreviewPaused) {
       try {
@@ -316,13 +302,11 @@ class CameraViewController extends ChangeNotifier {
     if (_isDisposing) return;
     _isDisposing = true;
 
-    // Aggressive cleanup to prevent buffer leaks
     if (_cameraController != null) {
       try {
         if (!_isPreviewPaused) {
           _cameraController!.pausePreview();
         }
-        // Extended delay for buffer cleanup
         Future.delayed(const Duration(milliseconds: 150), () {
           _cameraController?.dispose();
         });

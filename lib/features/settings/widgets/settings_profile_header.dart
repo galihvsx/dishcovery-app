@@ -38,7 +38,6 @@ class SettingsProfileHeader extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Profile Picture
               Stack(
                 children: [
                   Container(
@@ -93,7 +92,6 @@ class SettingsProfileHeader extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: 16),
-              // Name and Email
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +120,6 @@ class SettingsProfileHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              // Edit Button
               IconButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/edit-profile');

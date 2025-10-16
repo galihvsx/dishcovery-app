@@ -59,7 +59,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
       debugPrint(
         '[DEBUG] DishcoveryHomePage: Returned from ResultScreen - refreshing feeds',
       );
-      // Refresh feeds when returning from result screen to show new scan data
       context.read<FeedsProvider>().refreshFeeds();
     });
   }
@@ -73,7 +72,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
 
     await feedsProvider.toggleSave(feedId);
 
-    // Get updated feed state
     if (index >= feedsProvider.feeds.length) return;
     final updatedFeed = feedsProvider.feeds[index];
     final scan = _convertFeedToScan(updatedFeed);
@@ -158,7 +156,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
             Consumer<FeedsProvider>(
               builder: (context, provider, child) {
                 if (provider.feeds.isEmpty && provider.isLoading) {
-                  // Initial loading state
                   return SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) => _buildSkeletonCard(),
@@ -168,7 +165,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                 }
 
                 if (provider.feeds.isEmpty && !provider.isLoading) {
-                  // Empty state
                   return SliverFillRemaining(
                     child: Center(
                       child: Column(
@@ -197,7 +193,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                   );
                 }
 
-                // Feed list with infinite scroll
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -211,7 +206,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                           onComment: _showCommentSheet,
                         );
                       } else if (provider.hasMore) {
-                        // Loading more indicator
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           child: Center(
@@ -222,7 +216,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                           ),
                         );
                       } else {
-                        // End of list
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           child: Center(

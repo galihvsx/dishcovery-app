@@ -56,7 +56,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (success && mounted) {
-        // Show success message and navigate to main screen
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('register.success'.tr()),
@@ -146,7 +145,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Logo and Title
                 const Center(child: AppLogo(size: 60)),
                 const SizedBox(height: 24),
 
@@ -169,7 +167,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 32),
 
-                // Name Field
                 TextFormField(
                   controller: _nameController,
                   textInputAction: TextInputAction.next,
@@ -221,7 +218,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 16),
 
-                // Email Field
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -275,7 +271,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 16),
 
-                // Password Field
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -343,7 +338,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 16),
 
-                // Confirm Password Field
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
@@ -409,7 +403,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 16),
 
-                // Terms and Conditions
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -464,7 +457,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 24),
 
-                // Register Button
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
                     return FilledButton(
@@ -502,7 +494,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 24),
 
-                // Divider
                 Row(
                   children: [
                     Expanded(child: Divider(color: colorScheme.outlineVariant)),
@@ -521,7 +512,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 24),
 
-                // Google Sign-In Button
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
                     return SizedBox(
@@ -560,7 +550,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 32),
 
-                // Sign In Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

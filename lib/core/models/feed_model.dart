@@ -5,7 +5,7 @@ import 'package:dishcovery_app/core/models/recipe_model.dart';
 @immutable
 class FeedItem {
   final String id;
-  final String userId; // ID user yang melakukan scan
+  final String userId;
   final String username;
   final String userAvatarUrl;
   final String imageUrl;
@@ -18,18 +18,16 @@ class FeedItem {
   final DateTime createdAt;
   final String location;
 
-  // Data dari scan result
-  final String? scanResultId; // Referensi ke scan result yang menjadi sumber
+  final String? scanResultId;
   final String foodName;
   final String origin;
   final String description;
   final String history;
-  final Recipe recipe; // Menggunakan Recipe object yang lengkap
+  final Recipe recipe;
   final double? rating;
 
-  // Metadata untuk tracking
-  final bool isFromScan; // Apakah feed ini berasal dari scan result
-  final DateTime? sharedAt; // Kapan di-share ke feed
+  final bool isFromScan;
+  final DateTime? sharedAt;
 
   const FeedItem({
     required this.id,
@@ -166,7 +164,6 @@ class FeedItem {
     return 'FeedItem(id: $id, userId: $userId, username: $username, foodName: $foodName, likes: $likes, comments: $comments)';
   }
 
-  /// Factory method untuk membuat FeedItem dari ScanResult
   factory FeedItem.fromScanResult({
     required String feedId,
     required String userId,
@@ -203,7 +200,6 @@ class FeedItem {
     );
   }
 
-  /// Method untuk konversi ke Map (untuk Firestore)
   Map<String, dynamic> toFirestore() {
     return {
       'id': id,
@@ -229,7 +225,6 @@ class FeedItem {
     };
   }
 
-  /// Factory method untuk membuat FeedItem dari Firestore data
   factory FeedItem.fromFirestore(Map<String, dynamic> data) {
     return FeedItem(
       id: data['id'] ?? '',
@@ -241,8 +236,8 @@ class FeedItem {
       tags: List<String>.from(data['tags'] ?? []),
       likes: data['likes'] ?? 0,
       comments: data['comments'] ?? 0,
-      isSaved: false, // This will be determined by user's collection
-      isLiked: false, // This will be determined by user's likes
+      isSaved: false,
+      isLiked: false,
       createdAt: DateTime.parse(
         data['createdAt'] ?? DateTime.now().toIso8601String(),
       ),
