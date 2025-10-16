@@ -75,18 +75,16 @@ https://bit.ly/dishcover-this
 
     try {
       if (widget.feed.imageUrl.startsWith('http')) {
-        // ignore: deprecated_member_use
-        await Share.share(shareText);
+        await SharePlus.instance.share(ShareParams(text: shareText));
       } else {
-        // For local images
         final file = File(widget.feed.imageUrl);
         if (file.existsSync()) {
           final xFile = XFile(widget.feed.imageUrl);
-          // ignore: deprecated_member_use
-          await Share.shareXFiles([xFile], text: shareText);
+          await SharePlus.instance.share(
+            ShareParams(files: [xFile], text: shareText),
+          );
         } else {
-          // ignore: deprecated_member_use
-          await Share.share(shareText);
+          await SharePlus.instance.share(ShareParams(text: shareText));
         }
       }
     } catch (e) {
@@ -118,7 +116,6 @@ https://bit.ly/dishcover-this
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image with overlay info
             Stack(
               children: [
                 ClipRRect(
@@ -127,7 +124,6 @@ https://bit.ly/dishcover-this
                   ),
                   child: AspectRatio(aspectRatio: 16 / 9, child: _buildImage()),
                 ),
-                // Gradient overlay
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -145,7 +141,6 @@ https://bit.ly/dishcover-this
                     ),
                   ),
                 ),
-                // User info overlay
                 Positioned(
                   bottom: 12,
                   left: 12,
@@ -199,13 +194,11 @@ https://bit.ly/dishcover-this
               ],
             ),
 
-            // Content
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Food name and origin
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -245,7 +238,6 @@ https://bit.ly/dishcover-this
                   ),
                   const SizedBox(height: 12),
 
-                  // Description
                   Text(
                     widget.feed.description,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -256,7 +248,6 @@ https://bit.ly/dishcover-this
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  // Recipe preview
                   if (ingredients.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Container(
@@ -309,7 +300,6 @@ https://bit.ly/dishcover-this
                     ),
                   ],
 
-                  // Tags
                   if (widget.feed.tags.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Wrap(
@@ -341,10 +331,8 @@ https://bit.ly/dishcover-this
 
                   const SizedBox(height: 16),
 
-                  // Action buttons
                   Row(
                     children: [
-                      // Like button
                       _ActionButton(
                         icon:
                             widget.feed.isLiked
@@ -357,7 +345,6 @@ https://bit.ly/dishcover-this
                       ),
                       const SizedBox(width: 16),
 
-                      // Comment button
                       _ActionButton(
                         icon: Icons.chat_bubble_outline,
                         label: widget.feed.commentsCount.toString(),
@@ -365,7 +352,6 @@ https://bit.ly/dishcover-this
                       ),
                       const SizedBox(width: 16),
 
-                      // Share button
                       _ActionButton(
                         icon: Icons.share_outlined,
                         label: 'Share',
@@ -373,7 +359,6 @@ https://bit.ly/dishcover-this
                       ),
                       const Spacer(),
 
-                      // Save button
                       IconButton(
                         icon: Icon(
                           widget.feed.isSaved

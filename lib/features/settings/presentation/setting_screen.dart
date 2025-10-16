@@ -39,10 +39,8 @@ class _SettingScreenState extends State<SettingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Header
             const SettingsProfileHeader(),
 
-            // Account Section
             SettingsSectionHeader(title: 'settings.account'.tr()),
             SettingsMenuItem(
               icon: Icons.person_outline,
@@ -61,7 +59,6 @@ class _SettingScreenState extends State<SettingScreen> {
               },
             ),
 
-            // Appearance Section
             SettingsSectionHeader(title: 'settings.appearance'.tr()),
             Consumer<ThemeProvider>(
               builder: (context, themeProvider, child) {
@@ -95,7 +92,6 @@ class _SettingScreenState extends State<SettingScreen> {
               },
             ),
 
-            // General Section
             SettingsSectionHeader(title: 'settings.general'.tr()),
             SettingsMenuItem(
               icon: Icons.notifications_outlined,
@@ -138,7 +134,6 @@ class _SettingScreenState extends State<SettingScreen> {
               },
             ),
 
-            // Sign Out
             SettingsSectionHeader(title: 'settings.account_actions'.tr()),
             Consumer<AuthProvider>(
               builder: (context, authProvider, child) {
@@ -160,7 +155,6 @@ class _SettingScreenState extends State<SettingScreen> {
 
             const SizedBox(height: 32),
 
-            // Version Info
             Center(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24),
@@ -202,7 +196,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 if (currentLanguage != 'language.id'.tr() && mounted) {
                   await context.setLocale(const Locale('id'));
                   if (mounted) {
-                    navigator.pop(); // Use stored navigator
+                    navigator.pop();
                     scaffoldMessenger.showSnackBar(
                       SnackBar(
                         content: Text(
@@ -211,7 +205,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         duration: const Duration(seconds: 2),
                       ),
                     );
-                    setState(() {}); // Refresh UI
+                    setState(() {});
                   }
                 }
               },
@@ -226,7 +220,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 if (currentLanguage != 'language.en'.tr() && mounted) {
                   await context.setLocale(const Locale('en'));
                   if (mounted) {
-                    navigator.pop(); // Use stored navigator
+                    navigator.pop();
                     scaffoldMessenger.showSnackBar(
                       SnackBar(
                         content: Text(
@@ -235,7 +229,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         duration: const Duration(seconds: 2),
                       ),
                     );
-                    setState(() {}); // Refresh UI
+                    setState(() {});
                   }
                 }
               },

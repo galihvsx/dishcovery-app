@@ -30,12 +30,10 @@ class HttpService {
       ),
     );
 
-    // Add interceptors
     _addInterceptors();
   }
 
   void _addInterceptors() {
-    // Add logging interceptor
     if (kDebugMode) {
       _dio.interceptors.add(
         LogInterceptor(
@@ -54,11 +52,9 @@ class HttpService {
       );
     }
 
-    // Add custom interceptor for API key and error handling
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Add API key to headers if needed for Places API
           if (options.path.contains('places.googleapis.com')) {
             final apiKey = ApiConstants.googlePlacesApiKey();
             if (apiKey.isNotEmpty) {
@@ -68,7 +64,6 @@ class HttpService {
           handler.next(options);
         },
         onError: (DioException error, handler) {
-          // Handle common errors
           String errorMessage = _getErrorMessage(error);
 
           if (kDebugMode) {
@@ -77,7 +72,6 @@ class HttpService {
             print('❌ Error Data: ${error.response?.data}');
           }
 
-          // Create a custom error with user-friendly message
           final customError = DioException(
             requestOptions: error.requestOptions,
             response: error.response,
@@ -143,7 +137,6 @@ class HttpService {
     }
   }
 
-  // Method to make GET requests
   Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -164,7 +157,6 @@ class HttpService {
     }
   }
 
-  // Method to make POST requests
   Future<Response<T>> post<T>(
     String path, {
     dynamic data,
@@ -189,7 +181,6 @@ class HttpService {
     }
   }
 
-  // Method to make PUT requests
   Future<Response<T>> put<T>(
     String path, {
     dynamic data,
@@ -214,7 +205,6 @@ class HttpService {
     }
   }
 
-  // Method to make DELETE requests
   Future<Response<T>> delete<T>(
     String path, {
     dynamic data,
@@ -235,9 +225,8 @@ class HttpService {
     }
   }
 
-  // Method to cancel all requests
   void cancelAllRequests() {
     _dio.close(force: true);
-    _initializeDio(); // Reinitialize after closing
+    _initializeDio();
   }
 }

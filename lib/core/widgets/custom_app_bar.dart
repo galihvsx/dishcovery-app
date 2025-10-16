@@ -58,7 +58,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ? SystemUiOverlayStyle.dark
               : SystemUiOverlayStyle.light),
       toolbarHeight: toolbarHeight,
-      // Add subtle border at bottom
       bottom:
           bottom ??
           PreferredSize(
@@ -78,7 +77,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         : toolbarHeight + 1,
   );
 
-  // Factory constructor for a simple app bar with back button
   factory CustomAppBar.withBack({
     required BuildContext context,
     required String title,
@@ -95,7 +93,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  // Factory constructor for a transparent app bar
   factory CustomAppBar.transparent({
     String? title,
     List<Widget>? actions,

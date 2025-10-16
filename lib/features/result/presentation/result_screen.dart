@@ -27,7 +27,7 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   bool _isSaved = false;
-  bool _hasProcessedImage = false; // Guard to prevent duplicate processing
+  bool _hasProcessedImage = false;
   bool _isTogglingCollection = false;
 
   @override
@@ -35,7 +35,6 @@ class _ResultScreenState extends State<ResultScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // PROCESS GUARD: Prevent multiple processImage calls on widget rebuild
       if (_hasProcessedImage) {
         debugPrint(
           "ResultScreen: Image already processed, skipping duplicate call",
@@ -90,7 +89,6 @@ class _ResultScreenState extends State<ResultScreen> {
         final feedsProvider = context.read<FeedsProvider>();
         feedsProvider.updateSavedStatus(firestoreId, !currentlyCollected);
       } catch (_) {
-        // Feeds provider not available in this context
       }
     }
 
@@ -126,7 +124,6 @@ class _ResultScreenState extends State<ResultScreen> {
     final activeResult = _currentResult(scanProvider, historyProvider);
     final isCollected = historyProvider.isInCollection(activeResult);
 
-    // Determine image source: prefer imageUrl for Firebase data, fall back to local path
     final String? imageUrl = (widget.initialData?.imageUrl ?? '').isNotEmpty
         ? widget.initialData!.imageUrl
         : (result?.imageUrl ?? '').isNotEmpty
@@ -135,7 +132,6 @@ class _ResultScreenState extends State<ResultScreen> {
     final String? localImagePath =
         widget.initialData?.imagePath ?? widget.imagePath;
 
-    // Check if result is saved (either local id or firestoreId)
     if (result != null &&
         (result.id != null || result.firestoreId != null) &&
         !_isSaved) {
@@ -156,7 +152,6 @@ class _ResultScreenState extends State<ResultScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Full width image section
                 AspectRatio(
                   aspectRatio: 4 / 3,
                   child: _buildImageWidget(imageUrl, localImagePath, context),
@@ -168,7 +163,6 @@ class _ResultScreenState extends State<ResultScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Error handling
                       if (scanProvider.error != null)
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -244,7 +238,6 @@ class _ResultScreenState extends State<ResultScreen> {
                               ),
                               const SizedBox(height: 16),
 
-                              // Action buttons
                               Row(
                                 children: [
                                   _buildActionButton(
@@ -376,7 +369,6 @@ class _ResultScreenState extends State<ResultScreen> {
     String? localPath,
     BuildContext context,
   ) {
-    // First try to use network image if URL is available
     if (imageUrl != null && imageUrl.isNotEmpty) {
       return Image.network(
         imageUrl,
@@ -396,7 +388,6 @@ class _ResultScreenState extends State<ResultScreen> {
           );
         },
         errorBuilder: (context, error, stackTrace) {
-          // If network image fails, try local file
           if (localPath != null && File(localPath).existsSync()) {
             return Image.file(File(localPath), fit: BoxFit.cover);
           }
@@ -405,12 +396,10 @@ class _ResultScreenState extends State<ResultScreen> {
       );
     }
 
-    // If no URL, try local file
     if (localPath != null && File(localPath).existsSync()) {
       return Image.file(File(localPath), fit: BoxFit.cover);
     }
 
-    // Show error widget if no image can be displayed
     return _buildImageErrorWidget(context);
   }
 

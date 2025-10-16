@@ -13,7 +13,6 @@ class UserService {
   CollectionReference<Map<String, dynamic>> get _usersCollection =>
       _db.collection('users');
 
-  /// Creates a user document in Firestore after successful authentication
   Future<void> createUserDocument({
     required String uid,
     required String email,
@@ -24,14 +23,12 @@ class UserService {
     try {
       debugPrint('UserService: Creating user document for UID: $uid');
 
-      // Check if user document already exists
       final userDoc = await _usersCollection.doc(uid).get();
 
       if (userDoc.exists) {
         debugPrint(
           'UserService: User document already exists, updating last sign-in',
         );
-        // Update last sign-in time if document exists
         await _usersCollection.doc(uid).update({
           'lastSignInAt': FieldValue.serverTimestamp(),
           'signInMethod': signInMethod,
@@ -39,7 +36,6 @@ class UserService {
         return;
       }
 
-      // Create new user document
       final userData = {
         'uid': uid,
         'email': email,
@@ -55,7 +51,6 @@ class UserService {
       await _usersCollection.doc(uid).set(userData);
       debugPrint('UserService: User document created successfully');
 
-      // Also create initial user_preferences document to prevent loading issues
       await _createInitialUserPreferences(uid);
     } catch (e) {
       debugPrint('UserService: Error creating user document: $e');
@@ -63,7 +58,6 @@ class UserService {
     }
   }
 
-  /// Creates initial user preferences document to prevent loading issues
   Future<void> _createInitialUserPreferences(String uid) async {
     try {
       final prefsCollection = _db.collection('user_preferences');
@@ -78,11 +72,9 @@ class UserService {
       }
     } catch (e) {
       debugPrint('UserService: Error creating initial user preferences: $e');
-      // Don't rethrow here as this is not critical for user creation
     }
   }
 
-  /// Gets user document from Firestore
   Future<Map<String, dynamic>?> getUserDocument(String uid) async {
     try {
       final doc = await _usersCollection.doc(uid).get();
@@ -93,7 +85,6 @@ class UserService {
     }
   }
 
-  /// Updates user document
   Future<void> updateUserDocument(String uid, Map<String, dynamic> data) async {
     try {
       await _usersCollection.doc(uid).update({
@@ -107,7 +98,6 @@ class UserService {
     }
   }
 
-  /// Marks user as inactive (soft delete)
   Future<void> deactivateUser(String uid) async {
     try {
       await _usersCollection.doc(uid).update({
@@ -121,7 +111,6 @@ class UserService {
     }
   }
 
-  /// Creates user document for current authenticated user
   Future<void> createCurrentUserDocument({String? signInMethod}) async {
     final currentUser = _auth.currentUser;
     if (currentUser == null) {

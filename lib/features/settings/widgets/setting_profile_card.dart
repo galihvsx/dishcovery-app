@@ -36,10 +36,8 @@ class SettingProfileCard extends StatelessWidget {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  // Profile Section
                   Row(
                     children: [
-                      // Profile Picture
                       Container(
                         width: 70,
                         height: 70,
@@ -92,7 +90,6 @@ class SettingProfileCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      // Name and Email
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,7 +126,6 @@ class SettingProfileCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // Edit Button
                       IconButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/edit-profile');
@@ -151,7 +147,6 @@ class SettingProfileCard extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // Preferences Summary Section
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(

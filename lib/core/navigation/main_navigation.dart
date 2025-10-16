@@ -123,9 +123,7 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          // Special handling for Scan button (index 2)
           if (index == 2) {
-            // Navigate to camera without changing current index
             Navigator.of(context).pushNamed(CaptureScreen.path);
             return;
           }
@@ -147,17 +145,13 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  /// Maps bottom nav bar index to screen index
-  /// Since Scan button (index 2) doesn't have a corresponding screen,
-  /// we need to adjust indices for items after it
   int _getScreenIndex(int navIndex) {
     if (navIndex < 2) {
-      return navIndex; // Home (0) and History (1) map directly
+      return navIndex;
     } else if (navIndex == 2) {
-      return 0; // Scan button should never be selected, default to Home
+      return 0;
     } else {
-      return navIndex -
-          1; // Saved (3) -> screen index 2, Settings (4) -> screen index 3
+      return navIndex - 1;
     }
   }
 }

@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class CameraProvider extends ChangeNotifier {
-  // Camera state
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
   CameraDescription? _activeCamera;
@@ -15,7 +14,6 @@ class CameraProvider extends ChangeNotifier {
   bool _isFlashOn = false;
   String? _errorMessage;
 
-  // Getters
   CameraController? get cameraController => _cameraController;
   List<CameraDescription>? get cameras => _cameras;
   CameraDescription? get activeCamera => _activeCamera;
@@ -26,19 +24,16 @@ class CameraProvider extends ChangeNotifier {
   bool get isFlashOn => _isFlashOn;
   String? get errorMessage => _errorMessage;
 
-  // Set loading state
   void setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
   }
 
-  // Set error message
   void setError(String? error) {
     _errorMessage = error;
     notifyListeners();
   }
 
-  // Set permission state
   void setPermissionState({
     required bool hasPermission,
     required bool isPermanentlyDenied,
@@ -48,14 +43,12 @@ class CameraProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Initialize camera
   Future<void> initializeCamera({int retryCount = 0}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      // Check camera permission
       final permissionStatus = await Permission.camera.status;
 
       if (permissionStatus.isPermanentlyDenied) {
@@ -87,7 +80,6 @@ class CameraProvider extends ChangeNotifier {
         }
       }
 
-      // Get available cameras
       _cameras = await availableCameras();
 
       if (_cameras == null || _cameras!.isEmpty) {
@@ -97,7 +89,6 @@ class CameraProvider extends ChangeNotifier {
         return;
       }
 
-      // Select back camera
       final backCamera = _cameras!.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.back,
         orElse: () => _cameras!.first,
@@ -122,7 +113,6 @@ class CameraProvider extends ChangeNotifier {
         }
       }
 
-      // Retry logic for camera in use
       if (e.toString().contains('already in use') && retryCount < 3) {
         await Future.delayed(const Duration(seconds: 1));
         await initializeCamera(retryCount: retryCount + 1);
@@ -135,7 +125,6 @@ class CameraProvider extends ChangeNotifier {
     }
   }
 
-  // Setup camera controller
   Future<void> _setupCameraController(CameraDescription camera) async {
     if (_cameraController != null) {
       await _cameraController!.dispose();
@@ -151,12 +140,10 @@ class CameraProvider extends ChangeNotifier {
     await _cameraController!.initialize();
     _activeCamera = camera;
 
-    // Set initial flash mode
     await _cameraController!.setFlashMode(FlashMode.off);
     _isFlashOn = false;
   }
 
-  // Toggle flash
   Future<void> toggleFlash() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       return;
@@ -173,7 +160,6 @@ class CameraProvider extends ChangeNotifier {
     }
   }
 
-  // Take picture
   Future<XFile?> takePicture() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       _errorMessage = 'Kamera belum siap';
@@ -185,14 +171,12 @@ class CameraProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // Turn off flash before taking picture if it's on
       if (_isFlashOn) {
         await _cameraController!.setFlashMode(FlashMode.off);
       }
 
       final XFile picture = await _cameraController!.takePicture();
 
-      // Re-enable flash if it was on
       if (_isFlashOn) {
         await _cameraController!.setFlashMode(FlashMode.torch);
       }
@@ -217,7 +201,6 @@ class CameraProvider extends ChangeNotifier {
     }
   }
 
-  // Pick image from gallery
   Future<XFile?> pickFromGallery() async {
     try {
       _isLoading = true;
@@ -244,7 +227,6 @@ class CameraProvider extends ChangeNotifier {
     }
   }
 
-  // Dispose camera
   Future<void> disposeCamera() async {
     if (_cameraController != null) {
       await _cameraController!.dispose();
@@ -254,13 +236,11 @@ class CameraProvider extends ChangeNotifier {
     _isInitialized = false;
   }
 
-  // Reset camera state
   Future<void> resetCamera() async {
     await disposeCamera();
     await initializeCamera();
   }
 
-  // Switch between available cameras
   Future<void> switchCamera() async {
     if (!_isInitialized || _cameras == null || _cameras!.length < 2) {
       return;

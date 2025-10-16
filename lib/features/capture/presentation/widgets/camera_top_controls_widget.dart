@@ -21,7 +21,6 @@ class CameraTopControlsWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Back Button
           IconButton(
             onPressed: onBackPressed,
             icon: Container(
@@ -34,7 +33,6 @@ class CameraTopControlsWidget extends StatelessWidget {
             ),
           ),
 
-          // Flash Toggle
           IconButton(
             onPressed: provider.toggleFlash,
             icon: Container(

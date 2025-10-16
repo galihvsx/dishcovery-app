@@ -17,7 +17,6 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // Predefined options
   final List<String> _flavorOptions = const [
     'Spicy',
     'Sweet',
@@ -43,13 +42,11 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
     'Street Food',
   ];
 
-  // User selections
   List<String> _likedFlavors = [];
   List<String> _avoidedFlavors = [];
   List<String> _allergies = [];
   List<String> _categories = [];
 
-  // Custom inputs
   final TextEditingController _customFlavorController = TextEditingController();
   final TextEditingController _customAllergyController =
       TextEditingController();
@@ -187,7 +184,6 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       ),
       body: Column(
         children: [
-          // PageView
           Expanded(
             child: PageView(
               controller: _pageController,
@@ -204,7 +200,6 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
               ],
             ),
           ),
-          // Bottom navigation
           _buildBottomNavigation(theme),
         ],
       ),
@@ -351,7 +346,6 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
   }) {
     final colorScheme = theme.colorScheme;
 
-    // Get all options including custom ones
     final allOptions = [...options];
     for (final custom in selectedOptions) {
       if (!allOptions.contains(custom)) {
@@ -364,7 +358,6 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title
           Text(
             title,
             style: theme.textTheme.headlineSmall?.copyWith(
@@ -374,7 +367,6 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          // Subtitle
           Text(
             subtitle,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -382,7 +374,6 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          // Badge/Chip selection
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -408,7 +399,6 @@ class _UserPreferencesScreenState extends State<UserPreferencesScreen> {
             }).toList(),
           ),
           const SizedBox(height: 24),
-          // Custom input
           TextField(
             controller: customController,
             decoration: InputDecoration(

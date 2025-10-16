@@ -27,7 +27,6 @@ class CameraBottomControlsWidget extends StatelessWidget {
         children: [
           const SizedBox(width: 64),
 
-          // Capture Button
           GestureDetector(
             onTap: () async {
               final XFile? picture = await provider.takePicture();
@@ -53,7 +52,6 @@ class CameraBottomControlsWidget extends StatelessWidget {
             ),
           ),
 
-          // Switch camera button
           IconButton(
             onPressed: !canSwitchCamera || isBusy
                 ? null

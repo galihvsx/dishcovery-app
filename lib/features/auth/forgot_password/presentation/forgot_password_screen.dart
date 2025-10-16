@@ -92,12 +92,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             children: [
               const SizedBox(height: 20),
 
-              // Logo
               const Center(child: AppLogo(size: 60)),
 
               const SizedBox(height: 32),
 
-              // Icon
               Container(
                 height: 80,
                 width: 80,
@@ -115,7 +113,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               const SizedBox(height: 32),
 
-              // Title and Description
               Column(
                 children: [
                   Text(
@@ -146,7 +143,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 40),
 
               if (!_emailSent) ...[
-                // Email Form
                 Form(
                   key: _formKey,
                   child: Column(
@@ -205,7 +201,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                       const SizedBox(height: 24),
 
-                      // Send Reset Email Button
                       Consumer<AuthProvider>(
                         builder: (context, authProvider, child) {
                           return SizedBox(
@@ -249,10 +244,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ),
               ] else ...[
-                // Email Sent State
                 Column(
                   children: [
-                    // Instructions
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -285,7 +278,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                     const SizedBox(height: 24),
 
-                    // Resend Email Button
                     OutlinedButton(
                       onPressed: _handleResendEmail,
                       style: OutlinedButton.styleFrom(
@@ -305,7 +297,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                     const SizedBox(height: 16),
 
-                    // Back to Login Button
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
@@ -324,7 +315,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               const SizedBox(height: 40),
 
-              // Help Text
               if (!_emailSent)
                 Text(
                   'forgot_password.remember_password_q'.tr(),
