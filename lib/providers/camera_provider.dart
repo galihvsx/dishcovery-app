@@ -7,6 +7,7 @@ class CameraProvider extends ChangeNotifier {
   // Camera state
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
+  CameraDescription? _activeCamera;
   bool _isInitialized = false;
   bool _isLoading = false;
   bool _hasPermission = false;
@@ -17,6 +18,7 @@ class CameraProvider extends ChangeNotifier {
   // Getters
   CameraController? get cameraController => _cameraController;
   List<CameraDescription>? get cameras => _cameras;
+  CameraDescription? get activeCamera => _activeCamera;
   bool get isInitialized => _isInitialized;
   bool get isLoading => _isLoading;
   bool get hasPermission => _hasPermission;
@@ -147,6 +149,7 @@ class CameraProvider extends ChangeNotifier {
     );
 
     await _cameraController!.initialize();
+    _activeCamera = camera;
 
     // Set initial flash mode
     await _cameraController!.setFlashMode(FlashMode.off);
@@ -247,6 +250,7 @@ class CameraProvider extends ChangeNotifier {
       await _cameraController!.dispose();
       _cameraController = null;
     }
+    _activeCamera = null;
     _isInitialized = false;
   }
 
@@ -254,6 +258,35 @@ class CameraProvider extends ChangeNotifier {
   Future<void> resetCamera() async {
     await disposeCamera();
     await initializeCamera();
+  }
+
+  // Switch between available cameras
+  Future<void> switchCamera() async {
+    if (!_isInitialized || _cameras == null || _cameras!.length < 2) {
+      return;
+    }
+
+    final currentIndex = _cameras!.indexWhere(
+      (camera) => camera == _activeCamera,
+    );
+    final nextIndex =
+        currentIndex >= 0 ? (currentIndex + 1) % _cameras!.length : 0;
+    final nextCamera = _cameras![nextIndex];
+
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      await _setupCameraController(nextCamera);
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      print('Error switching camera: $e');
+      _errorMessage = 'Gagal mengganti kamera.';
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   @override

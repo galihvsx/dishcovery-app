@@ -1,12 +1,11 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'package:dishcovery_app/providers/auth_provider.dart';
-import 'package:dishcovery_app/providers/theme_provider.dart';
 import 'package:dishcovery_app/features/settings/widgets/settings_menu_item.dart';
 import 'package:dishcovery_app/features/settings/widgets/settings_profile_header.dart';
 import 'package:dishcovery_app/features/settings/widgets/settings_section_header.dart';
+import 'package:dishcovery_app/providers/auth_provider.dart';
+import 'package:dishcovery_app/providers/theme_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -35,18 +34,6 @@ class _SettingScreenState extends State<SettingScreen> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('notifications.notifications_coming_soon'.tr()),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(

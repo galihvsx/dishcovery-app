@@ -8,7 +8,6 @@ import 'package:dishcovery_app/features/auth/forgot_password/presentation/forgot
 import 'package:dishcovery_app/features/auth/login/presentation/login_screen.dart';
 import 'package:dishcovery_app/features/auth/register/presentation/register_screen.dart';
 import 'package:dishcovery_app/features/capture/presentation/capture_screen.dart';
-import 'package:dishcovery_app/features/examples/ai_logic_example_screen.dart';
 import 'package:dishcovery_app/features/history/presentation/history_screen.dart';
 import 'package:dishcovery_app/features/home/presentation/dishcovery_home_page.dart';
 import 'package:dishcovery_app/features/onboarding/presentation/app_onboarding_screen.dart';
@@ -30,7 +29,6 @@ class AppRoutes {
 
   /// Main navigation route
   static const String main = '/';
-  static const String aiExample = '/ai-example';
   static const String preferences = '/preferences';
   static const String preferencesOnboarding = '/preferences-onboarding';
   static const String editProfile = '/edit-profile';
@@ -106,10 +104,6 @@ class AppRoutes {
           (_) => const EditProfileScreen(),
         );
 
-      // Public routes (no authentication required)
-      case AiLogicExampleScreen.path:
-        return MaterialPageRoute(builder: (_) => const AiLogicExampleScreen());
-
       default:
         return MaterialPageRoute(
           builder: (_) =>
@@ -133,8 +127,6 @@ class AppRoutes {
     HistoryScreen.path: (_) => const AuthGuard(child: HistoryScreen()),
     SettingScreen.path: (_) => const AuthGuard(child: SettingScreen()),
 
-    // Public routes
-    AiLogicExampleScreen.path: (_) => const AiLogicExampleScreen(),
   };
 
   /// Helper method to navigate with typed arguments

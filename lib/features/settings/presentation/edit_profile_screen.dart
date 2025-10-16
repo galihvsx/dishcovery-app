@@ -147,7 +147,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     size: 22,
                                   ),
                                   onPressed: () {
-                                    // TODO: Implement image picker
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(

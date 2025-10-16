@@ -14,7 +14,7 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
-import 'core/models/scan_result_entity.dart';
+import 'package:dishcovery_app/core/models/scan_result_entity.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
