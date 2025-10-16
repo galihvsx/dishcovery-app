@@ -5,6 +5,7 @@ import 'package:dishcovery_app/features/capture/presentation/capture_screen.dart
 import 'package:dishcovery_app/features/history/presentation/history_screen.dart';
 import 'package:dishcovery_app/features/home/presentation/dishcovery_home_page.dart';
 import 'package:dishcovery_app/features/settings/presentation/setting_screen.dart';
+import 'package:dishcovery_app/features/collections/presentations/collection_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -19,85 +20,94 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _screens = [
     const DishcoveryHomePage(),
     const HistoryScreen(),
-    const Placeholder(),
+    const CollectionScreen(),
     const SettingScreen(),
   ];
 
   final List<BottomNavigationBarItem> _bottomNavItems = [
     BottomNavigationBarItem(
       icon: Builder(
-        builder: (context) => IconifyIcon(
-          icon: 'solar:home-angle-linear',
-          color: Theme.of(context).unselectedWidgetColor,
-        ),
+        builder:
+            (context) => IconifyIcon(
+              icon: 'solar:home-angle-linear',
+              color: Theme.of(context).unselectedWidgetColor,
+            ),
       ),
       activeIcon: Builder(
-        builder: (context) => IconifyIcon(
-          icon: 'solar:home-smile-angle-bold',
-          color: Theme.of(context).primaryColor,
-        ),
+        builder:
+            (context) => IconifyIcon(
+              icon: 'solar:home-smile-angle-bold',
+              color: Theme.of(context).primaryColor,
+            ),
       ),
       label: 'Home',
     ),
     BottomNavigationBarItem(
       icon: Builder(
-        builder: (context) => IconifyIcon(
-          icon: 'solar:history-line-duotone',
-          color: Theme.of(context).unselectedWidgetColor,
-        ),
+        builder:
+            (context) => IconifyIcon(
+              icon: 'solar:history-line-duotone',
+              color: Theme.of(context).unselectedWidgetColor,
+            ),
       ),
       activeIcon: Builder(
-        builder: (context) => IconifyIcon(
-          icon: 'solar:clock-circle-bold',
-          color: Theme.of(context).primaryColor,
-        ),
+        builder:
+            (context) => IconifyIcon(
+              icon: 'solar:clock-circle-bold',
+              color: Theme.of(context).primaryColor,
+            ),
       ),
       label: 'History',
     ),
     BottomNavigationBarItem(
       icon: Builder(
-        builder: (context) => Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            shape: BoxShape.circle,
-          ),
-          child: IconifyIcon(
-            icon: 'solar:camera-minimalistic-bold',
-            color: Colors.white,
-            size: 28,
-          ),
-        ),
+        builder:
+            (context) => Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                shape: BoxShape.circle,
+              ),
+              child: IconifyIcon(
+                icon: 'solar:camera-minimalistic-bold',
+                color: Colors.white,
+                size: 28,
+              ),
+            ),
       ),
       label: 'Scan',
     ),
     BottomNavigationBarItem(
       icon: Builder(
-        builder: (context) => IconifyIcon(
-          icon: 'solar:bookmark-outline',
-          color: Theme.of(context).unselectedWidgetColor,
-        ),
+        builder:
+            (context) => IconifyIcon(
+              icon: 'solar:bookmark-outline',
+              color: Theme.of(context).unselectedWidgetColor,
+            ),
       ),
       activeIcon: Builder(
-        builder: (context) => IconifyIcon(
-          icon: 'solar:bookmark-bold',
-          color: Theme.of(context).primaryColor,
-        ),
+        builder:
+            (context) => IconifyIcon(
+              icon: 'solar:bookmark-bold',
+              color: Theme.of(context).primaryColor,
+            ),
       ),
-      label: 'Saved',
+      label: 'Collection',
     ),
     BottomNavigationBarItem(
       icon: Builder(
-        builder: (context) => IconifyIcon(
-          icon: 'solar:settings-minimalistic-linear',
-          color: Theme.of(context).unselectedWidgetColor,
-        ),
+        builder:
+            (context) => IconifyIcon(
+              icon: 'solar:settings-minimalistic-linear',
+              color: Theme.of(context).unselectedWidgetColor,
+            ),
       ),
       activeIcon: Builder(
-        builder: (context) => IconifyIcon(
-          icon: 'solar:settings-minimalistic-bold',
-          color: Theme.of(context).primaryColor,
-        ),
+        builder:
+            (context) => IconifyIcon(
+              icon: 'solar:settings-minimalistic-bold',
+              color: Theme.of(context).primaryColor,
+            ),
       ),
       label: 'Settings',
     ),
@@ -128,9 +138,8 @@ class _MainNavigationState extends State<MainNavigation> {
         items: _bottomNavItems,
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,
-        backgroundColor: Theme.of(
-          context,
-        ).bottomNavigationBarTheme.backgroundColor,
+        backgroundColor:
+            Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         elevation: 8,
         showSelectedLabels: false,
         showUnselectedLabels: false,

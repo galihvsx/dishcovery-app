@@ -193,6 +193,31 @@ class FirestoreService {
     }
   }
 
+  /// Update the saved status for a feed in the user's saved collection
+  Future<void> setSavedStatus(String feedId, bool isSaved) async {
+    try {
+      final user = currentUser;
+      if (user == null) return;
+
+      final savedRef = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('saved')
+          .doc(feedId);
+
+      if (isSaved) {
+        await savedRef.set({
+          'feedId': feedId,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } else {
+        await savedRef.delete();
+      }
+    } catch (e) {
+      print('Error updating saved status: $e');
+    }
+  }
+
   /// Get single scan by ID
   Future<ScanResult?> getScanById(String docId) async {
     try {

@@ -213,6 +213,41 @@ class FeedsProvider extends ChangeNotifier {
     }
   }
 
+  /// Update saved status locally without hitting Firestore
+  void updateSavedStatus(String feedId, bool isSaved) {
+    final feedIndex = _feeds.indexWhere((f) => f.id == feedId);
+    if (feedIndex == -1) return;
+
+    final current = _feeds[feedIndex];
+    if (current.isSaved == isSaved) return;
+
+    _feeds[feedIndex] = current.copyWith(isSaved: isSaved);
+    notifyListeners();
+  }
+
+  /// Increment the local comment count for a feed
+  void incrementCommentCount(String feedId) {
+    final feedIndex = _feeds.indexWhere((f) => f.id == feedId);
+    if (feedIndex == -1) return;
+
+    final feed = _feeds[feedIndex];
+    _feeds[feedIndex] = feed.copyWith(commentsCount: feed.commentsCount + 1);
+    notifyListeners();
+  }
+
+  /// Decrement the local comment count for a feed
+  void decrementCommentCount(String feedId) {
+    final feedIndex = _feeds.indexWhere((f) => f.id == feedId);
+    if (feedIndex == -1) return;
+
+    final feed = _feeds[feedIndex];
+    final updatedCount = feed.commentsCount > 0 ? feed.commentsCount - 1 : 0;
+    if (updatedCount == feed.commentsCount) return;
+
+    _feeds[feedIndex] = feed.copyWith(commentsCount: updatedCount);
+    notifyListeners();
+  }
+
   /// Add a comment to a feed
   Future<void> addComment(String feedId, String comment) async {
     final userId = currentUser?.uid;

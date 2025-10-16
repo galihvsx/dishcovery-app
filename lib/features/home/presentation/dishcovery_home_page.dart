@@ -1,8 +1,10 @@
 import 'package:dishcovery_app/core/models/recipe_model.dart';
 import 'package:dishcovery_app/core/models/scan_model.dart';
+import 'package:dishcovery_app/features/home/presentation/widgets/comments_bottom_sheet.dart';
 import 'package:dishcovery_app/features/home/presentation/widgets/food_feed_card.dart';
 import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
 import 'package:dishcovery_app/providers/feeds_provider.dart';
+import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -46,25 +48,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
   }
 
   void _navigateToDetail(FeedData feed) {
-    // Convert FeedData to ScanResult for detail view
-    final scanResult = ScanResult(
-      firestoreId: feed.id,
-      userId: feed.userId,
-      userEmail: feed.userEmail,
-      userName: feed.userName,
-      isFood: true,
-      imagePath: feed.imageUrl,
-      imageUrl: feed.imageUrl,
-      name: feed.name,
-      origin: feed.origin,
-      description: feed.description,
-      history: feed.history,
-      recipe: Recipe.fromJson(feed.recipe),
-      tags: feed.tags,
-      isPublic: true,
-      createdAt: feed.createdAt,
-    );
-
+    final scanResult = _convertFeedToScan(feed);
     debugPrint('[DEBUG] DishcoveryHomePage: Navigating to ResultScreen');
     Navigator.push(
       context,
@@ -80,81 +64,64 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
     });
   }
 
-  void _showCommentSheet(String feedId) {
-    final provider = context.read<FeedsProvider>();
-    final textController = TextEditingController();
+  Future<void> _handleSave(String feedId) async {
+    final feedsProvider = context.read<FeedsProvider>();
+    final historyProvider = context.read<HistoryProvider>();
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+    final index = feedsProvider.feeds.indexWhere((feed) => feed.id == feedId);
+    if (index == -1) return;
+
+    await feedsProvider.toggleSave(feedId);
+
+    // Get updated feed state
+    if (index >= feedsProvider.feeds.length) return;
+    final updatedFeed = feedsProvider.feeds[index];
+    final scan = _convertFeedToScan(updatedFeed);
+
+    if (updatedFeed.isSaved) {
+      await historyProvider.setFavoriteStatus(scan, true);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('collection_screen.added_message'.tr()),
+          duration: const Duration(seconds: 2),
         ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      );
+    } else {
+      await historyProvider.setFavoriteStatus(scan, false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('collection_screen.removed_message'.tr()),
+          duration: const Duration(seconds: 2),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurfaceVariant.withAlpha(77),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: textController,
-                      decoration: InputDecoration(
-                        hintText: 'home_screen.write_comment'.tr(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      maxLines: null,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (text) {
-                        if (text.trim().isNotEmpty) {
-                          provider.addComment(feedId, text);
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () {
-                      final text = textController.text;
-                      if (text.trim().isNotEmpty) {
-                        provider.addComment(feedId, text);
-                        Navigator.pop(context);
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      );
+    }
+  }
+
+  ScanResult _convertFeedToScan(FeedData feed) {
+    return ScanResult(
+      firestoreId: feed.id,
+      userId: feed.userId,
+      userEmail: feed.userEmail,
+      userName: feed.userName,
+      isFood: true,
+      imagePath: feed.imageUrl,
+      imageUrl: feed.imageUrl,
+      name: feed.name,
+      origin: feed.origin,
+      description: feed.description,
+      history: feed.history,
+      recipe: Recipe.fromJson(feed.recipe),
+      tags: feed.tags,
+      isPublic: true,
+      createdAt: feed.createdAt,
+      isFavorite: feed.isSaved,
     );
+  }
+
+  void _showCommentSheet(String feedId) {
+    CommentsBottomSheet.show(context, feedId);
   }
 
   @override
@@ -240,7 +207,7 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                           feed: feed,
                           onTap: () => _navigateToDetail(feed),
                           onLike: provider.toggleLike,
-                          onSave: provider.toggleSave,
+                          onSave: _handleSave,
                           onComment: _showCommentSheet,
                         );
                       } else if (provider.hasMore) {
