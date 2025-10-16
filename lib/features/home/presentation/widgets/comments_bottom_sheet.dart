@@ -1,5 +1,6 @@
 import 'package:dishcovery_app/core/models/comment_model.dart';
 import 'package:dishcovery_app/providers/comment_provider.dart';
+import 'package:dishcovery_app/providers/feeds_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -78,6 +79,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
     final success = await provider.addComment(widget.feedId, content);
 
     if (success) {
+      _updateFeedCommentCount(increase: true);
+
       // Clear text field
       _textController.clear();
       setState(() {
@@ -145,6 +148,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
       final success = await provider.deleteComment(comment.id, widget.feedId);
 
       if (success) {
+        _updateFeedCommentCount(increase: false);
         HapticFeedback.lightImpact();
       } else {
         HapticFeedback.heavyImpact();
@@ -164,6 +168,19 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
   Future<void> _handleRefresh(CommentProvider provider) async {
     HapticFeedback.lightImpact();
     await provider.loadComments(widget.feedId);
+  }
+
+  void _updateFeedCommentCount({required bool increase}) {
+    try {
+      final feedsProvider = Provider.of<FeedsProvider>(context, listen: false);
+      if (increase) {
+        feedsProvider.incrementCommentCount(widget.feedId);
+      } else {
+        feedsProvider.decrementCommentCount(widget.feedId);
+      }
+    } on ProviderNotFoundException {
+      // Feed provider not available in this context
+    }
   }
 
   @override
