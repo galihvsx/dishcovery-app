@@ -59,7 +59,33 @@ class ObjectBoxDatabase {
     if (result.id != null) {
       final entity = ScanResultEntity.fromScanResult(result);
       _scanResultBox.put(entity);
+      return;
     }
+
+    if (result.firestoreId != null) {
+      final existing = getScanResultByFirestoreId(result.firestoreId!);
+      if (existing != null && existing.id != null) {
+        final entity = ScanResultEntity.fromScanResult(
+          result.copyWith(id: existing.id),
+        );
+        _scanResultBox.put(entity);
+        return;
+      }
+    }
+
+    // Insert as new entry if no existing record found
+    await insertScanResult(result);
+  }
+
+  /// Get scan result by Firestore document ID
+  ScanResult? getScanResultByFirestoreId(String firestoreId) {
+    final query = _scanResultBox
+        .query(ScanResultEntity_.firestoreId.equals(firestoreId))
+        .build();
+    final entities = query.find();
+    query.close();
+    if (entities.isEmpty) return null;
+    return entities.first.toScanResult();
   }
 
   /// Get a single scan result by ID
