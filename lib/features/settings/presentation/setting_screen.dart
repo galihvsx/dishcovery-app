@@ -108,49 +108,6 @@ class _SettingScreenState extends State<SettingScreen> {
               },
             ),
 
-            // General Section
-            SettingsSectionHeader(title: 'settings.general'.tr()),
-            SettingsMenuItem(
-              icon: Icons.notifications_outlined,
-              title: 'settings.notifications'.tr(),
-              subtitle: 'settings.manage_notification_settings'.tr(),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'notifications.notifications_settings_coming_soon'.tr(),
-                    ),
-                  ),
-                );
-              },
-            ),
-            SettingsMenuItem(
-              icon: Icons.security_outlined,
-              title: 'settings.security'.tr(),
-              subtitle: 'settings.privacy_security_settings'.tr(),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'notifications.security_settings_coming_soon'.tr(),
-                    ),
-                  ),
-                );
-              },
-            ),
-            SettingsMenuItem(
-              icon: Icons.help_outline,
-              title: 'settings.help_center'.tr(),
-              subtitle: 'settings.get_help_support'.tr(),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('notifications.help_center_coming_soon'.tr()),
-                  ),
-                );
-              },
-            ),
-
             // Sign Out
             SettingsSectionHeader(title: 'settings.account_actions'.tr()),
             Consumer<AuthProvider>(
