@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -6,6 +9,12 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -36,7 +45,15 @@ android {
         release {
             // Signing with the debug keys for now so `flutter run --release` works.
             // Provide a dedicated release signing config before publishing to production.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfigs {
+                create("release") {
+                    keyAlias = keystoreProperties["keyAlias"] as String
+                    keyPassword = keystoreProperties["keyPassword"] as String
+                    storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+                    storePassword = keystoreProperties["storePassword"] as String
+                }
+            }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
