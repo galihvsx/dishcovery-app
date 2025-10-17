@@ -371,6 +371,15 @@
         "unable_to_open_maps": "Tidak dapat membuka maps",
         "location_not_available": "Informasi lokasi tidak tersedia"
     },
+    "collection_screen": {
+        "title": "Koleksi",
+        "added_message": "Ditambahkan ke koleksimu",
+        "removed_message": "Dihapus dari koleksimu",
+        "view_detail": "Lihat detail",
+        "remove_tooltip": "Hapus dari koleksi",
+        "empty_title": "Koleksimu masih kosong",
+        "empty_subtitle": "Simpan hidangan favoritmu agar muncul di sini."
+    },
     "errors": {
         "generic": "Terjadi kesalahan. Silakan coba lagi.",
         "network": "Kesalahan jaringan. Periksa koneksi Anda.",

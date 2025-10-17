@@ -278,11 +278,33 @@ class FeedsProvider extends ChangeNotifier {
   }
 
   Future<int> _getCommentsCount(String feedId) async {
+    Future<int?> _readStoredCount(String collection) async {
+      try {
+        final doc = await _firestore.collection(collection).doc(feedId).get();
+        final data = doc.data();
+        final value = data?['comments'];
+        if (value is int) {
+          return value;
+        }
+        if (value is num) {
+          return value.toInt();
+        }
+      } catch (_) {
+        // ignored - fall back to other sources
+      }
+      return null;
+    }
+
+    final storedCount = await _readStoredCount(_feedsCollection)
+        ?? await _readStoredCount('feeds');
+    if (storedCount != null) {
+      return storedCount;
+    }
+
     try {
       final snapshot = await _firestore
-          .collection(_feedsCollection)
-          .doc(feedId)
           .collection(_commentsCollection)
+          .where('feedId', isEqualTo: feedId)
           .count()
           .get();
       return snapshot.count ?? 0;

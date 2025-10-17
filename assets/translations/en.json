@@ -383,6 +383,15 @@
         "unable_to_open_maps": "Unable to open maps",
         "location_not_available": "Location information not available"
     },
+    "collection_screen": {
+        "title": "Collections",
+        "added_message": "Added to your collection",
+        "removed_message": "Removed from your collection",
+        "view_detail": "View details",
+        "remove_tooltip": "Remove from collection",
+        "empty_title": "Your collection is empty",
+        "empty_subtitle": "Save dishes you love to see them here."
+    },
     "errors": {
         "generic": "Something went wrong. Please try again.",
         "network": "Network error. Please check your connection.",
@@ -432,4 +441,3 @@
         "add_new_dish_history": "Add new dish history"
     }
 }
-
