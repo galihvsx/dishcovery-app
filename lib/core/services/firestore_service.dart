@@ -3,7 +3,6 @@ import 'package:dishcovery_app/core/models/scan_model.dart';
 import 'package:dishcovery_app/core/services/firebase_storage_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// Service for managing Firestore operations for scan results and feeds
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -11,10 +10,8 @@ class FirestoreService {
 
   static const String _scansCollection = 'scans';
 
-  /// Get current user
   User? get currentUser => _auth.currentUser;
 
-  /// Check if a scan with the same content hash already exists
   Future<bool> checkDuplicateScan(String contentHash, String userId) async {
     try {
       final querySnapshot = await _firestore
@@ -27,11 +24,10 @@ class FirestoreService {
       return querySnapshot.docs.isNotEmpty;
     } catch (e) {
       print('Error checking for duplicate scan: $e');
-      return false; // Allow save to proceed if check fails
+      return false;
     }
   }
 
-  /// Check for recent similar scans (within 1 minute with same food name)
   Future<bool> checkRecentSimilarScan(String foodName, String userId) async {
     try {
       final oneMinuteAgo = DateTime.now().subtract(const Duration(minutes: 1));
@@ -47,17 +43,15 @@ class FirestoreService {
       return querySnapshot.docs.isNotEmpty;
     } catch (e) {
       print('Error checking for recent similar scan: $e');
-      return false; // Allow save to proceed if check fails
+      return false;
     }
   }
 
-  /// Save scan result to Firestore (automatically public)
   Future<String?> saveScanResult(ScanResult scanResult) async {
     try {
       final user = currentUser;
       if (user == null) return null;
 
-      // Upload image to Firebase Storage if it's a local path
       String? imageUrl = scanResult.imageUrl;
       if (scanResult.imagePath.isNotEmpty &&
           !scanResult.imagePath.startsWith('http')) {
@@ -89,7 +83,6 @@ class FirestoreService {
     }
   }
 
-  /// Update scan result in Firestore
   Future<bool> updateScanResult(String docId, ScanResult scanResult) async {
     try {
       await _firestore
@@ -103,7 +96,6 @@ class FirestoreService {
     }
   }
 
-  /// Get user's scan history
   Stream<List<ScanResult>> getUserScans(String userId) {
     return _firestore
         .collection(_scansCollection)
@@ -119,7 +111,6 @@ class FirestoreService {
         });
   }
 
-  /// Get public feeds (all public scans)
   Stream<List<ScanResult>> getPublicFeeds({int limit = 50}) {
     return _firestore
         .collection(_scansCollection)
@@ -137,7 +128,6 @@ class FirestoreService {
         });
   }
 
-  /// Search feeds by name
   Future<List<ScanResult>> searchFeeds(String query) async {
     try {
       final snapshot = await _firestore
@@ -166,10 +156,8 @@ class FirestoreService {
     }
   }
 
-  /// Delete scan result
   Future<bool> deleteScanResult(String docId) async {
     try {
-      // Get the scan to retrieve the image URL
       final doc = await _firestore
           .collection(_scansCollection)
           .doc(docId)
@@ -178,13 +166,11 @@ class FirestoreService {
         final data = doc.data()!;
         final imageUrl = data['imageUrl'] as String?;
 
-        // Delete image from Firebase Storage if it exists
         if (imageUrl != null) {
           await _storageService.deleteImage(imageUrl);
         }
       }
 
-      // Delete the document from Firestore
       await _firestore.collection(_scansCollection).doc(docId).delete();
       return true;
     } catch (e) {
@@ -193,7 +179,30 @@ class FirestoreService {
     }
   }
 
-  /// Get single scan by ID
+  Future<void> setSavedStatus(String feedId, bool isSaved) async {
+    try {
+      final user = currentUser;
+      if (user == null) return;
+
+      final savedRef = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('saved')
+          .doc(feedId);
+
+      if (isSaved) {
+        await savedRef.set({
+          'feedId': feedId,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } else {
+        await savedRef.delete();
+      }
+    } catch (e) {
+      print('Error updating saved status: $e');
+    }
+  }
+
   Future<ScanResult?> getScanById(String docId) async {
     try {
       final doc = await _firestore
@@ -212,7 +221,6 @@ class FirestoreService {
     }
   }
 
-  /// Batch save scan results (for migration)
   Future<void> batchSaveScanResults(List<ScanResult> scans) async {
     final batch = _firestore.batch();
     final user = currentUser;

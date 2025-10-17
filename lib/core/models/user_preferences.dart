@@ -1,10 +1,10 @@
 class UserPreferences {
-  final List<String> likedFlavors; // contoh: pedas, manis, asam
-  final List<String> avoidedFlavors; // contoh: pedas, asin
-  final List<String> allergies; // contoh: kacang, seafood, susu
+  final List<String> likedFlavors;
+  final List<String> avoidedFlavors;
+  final List<String> allergies;
   final double? latitude;
   final double? longitude;
-  final List<String> categories; // contoh: fastfood, snack, dessert
+  final List<String> categories;
 
   const UserPreferences({
     this.likedFlavors = const [],

@@ -25,7 +25,6 @@ class UserPreferencesProvider extends ChangeNotifier {
   String? get error => _error;
   bool? get hasCompletedOnboarding => _hasCompletedOnboarding;
 
-  // Allow updating auth provider reference (needed for ProxyProvider)
   set auth(AuthProvider value) {
     _auth = value;
   }
@@ -62,12 +61,11 @@ class UserPreferencesProvider extends ChangeNotifier {
       );
       _error = null;
     } catch (e) {
-      // Handle Firestore permission errors gracefully
       if (e.toString().contains('PERMISSION_DENIED')) {
         _error =
             'Akses database ditolak. Pastikan aturan Firestore sudah dikonfigurasi dengan benar.';
         _hasCompletedOnboarding =
-            false; // Assume onboarding not completed if we can't check
+            false;
       } else {
         _error = e.toString();
         _hasCompletedOnboarding = false;
@@ -90,7 +88,6 @@ class UserPreferencesProvider extends ChangeNotifier {
       _hasCompletedOnboarding = true;
       _error = null;
     } catch (e) {
-      // Handle Firestore permission errors with user-friendly messages
       if (e.toString().contains('PERMISSION_DENIED')) {
         _error =
             'Gagal menyimpan preferensi: Akses database ditolak. Hubungi administrator.';

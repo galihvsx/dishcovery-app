@@ -21,7 +21,6 @@ class ThemeSwitcher extends StatelessWidget {
       (provider) => provider.themeMode,
     );
 
-    // Determine if current theme is dark (including system mode)
     final isDark =
         themeProvider == ThemeMode.dark ||
         (themeProvider == ThemeMode.system &&
@@ -43,7 +42,6 @@ class ThemeSwitcher extends StatelessWidget {
     final currentMode = themeProvider.themeMode;
     final theme = Theme.of(context);
 
-    // Toggle between light and dark only
     if (currentMode == ThemeMode.dark ||
         (currentMode == ThemeMode.system &&
             theme.brightness == Brightness.dark)) {

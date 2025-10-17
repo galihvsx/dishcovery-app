@@ -2,12 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-/// A service class that handles Firebase authentication operations.
-/// A service class that handles Firebase authentication operations.
 class FirebaseAuthService {
   static final FirebaseAuthService _instance = FirebaseAuthService._internal();
 
-  /// Factory constructor that returns the singleton instance.
   factory FirebaseAuthService() => _instance;
 
   FirebaseAuthService._internal() {
@@ -21,9 +18,6 @@ class FirebaseAuthService {
   static const String _serverClientId =
       '222073084834-ocgjatr2d87br6osblqvildtnr04m3b1.apps.googleusercontent.com';
 
-  /// Initializes the Google Sign-In service.
-  ///
-  /// This method is called automatically when the service is instantiated.
   Future<void> _initializeGoogleSignIn() async {
     if (_googleSignInInitialized) return;
 
@@ -42,16 +36,12 @@ class FirebaseAuthService {
     }
   }
 
-  /// Returns the currently signed-in user.
   User? get currentUser => _auth.currentUser;
 
-  /// Returns a stream of authentication state changes.
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  /// Returns whether a user is currently authenticated.
   bool get isAuthenticated => currentUser != null;
 
-  /// Sign in with email and password
   Future<UserCredential?> signInWithEmailAndPassword({
     required String email,
     required String password,
@@ -69,7 +59,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Register with email and password
   Future<UserCredential?> registerWithEmailAndPassword({
     required String email,
     required String password,
@@ -93,7 +82,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Send password reset email
   Future<void> sendPasswordResetEmail({required String email}) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
@@ -104,7 +92,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Sign in with Google
   Future<UserCredential?> signInWithGoogle() async {
     try {
       if (!_googleSignInInitialized) await _initializeGoogleSignIn();
@@ -135,7 +122,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Sign out from Google
   Future<void> signOutFromGoogle() async {
     try {
       await _googleSignIn.signOut();
@@ -146,7 +132,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Sign out
   Future<void> signOut() async {
     try {
       await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
@@ -155,7 +140,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Delete current user account
   Future<void> deleteAccount() async {
     try {
       final user = currentUser;
@@ -171,7 +155,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Update user profile
   Future<void> updateProfile({String? displayName, String? photoURL}) async {
     try {
       final user = currentUser;
@@ -179,7 +162,6 @@ class FirebaseAuthService {
         throw Exception('No user is currently signed in');
       }
 
-      // Only update fields that are provided (not null)
       if (displayName != null) {
         await user.updateDisplayName(displayName);
       }
@@ -187,7 +169,6 @@ class FirebaseAuthService {
         await user.updatePhotoURL(photoURL);
       }
 
-      // Reload user to ensure changes are reflected
       await user.reload();
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
@@ -196,7 +177,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Update user email
   Future<void> updateEmail({required String newEmail}) async {
     try {
       final user = currentUser;
@@ -212,7 +192,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Update user password
   Future<void> updatePassword({required String newPassword}) async {
     try {
       final user = currentUser;
@@ -228,7 +207,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Send email verification
   Future<void> sendEmailVerification() async {
     try {
       final user = currentUser;
@@ -246,7 +224,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Reload current user to get updated information
   Future<void> reloadUser() async {
     try {
       await currentUser?.reload();
@@ -257,7 +234,6 @@ class FirebaseAuthService {
     }
   }
 
-  /// Handle Firebase Auth exceptions and return user-friendly messages
   String _handleAuthException(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':

@@ -1,12 +1,11 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'package:dishcovery_app/providers/auth_provider.dart';
-import 'package:dishcovery_app/providers/theme_provider.dart';
 import 'package:dishcovery_app/features/settings/widgets/settings_menu_item.dart';
 import 'package:dishcovery_app/features/settings/widgets/settings_profile_header.dart';
 import 'package:dishcovery_app/features/settings/widgets/settings_section_header.dart';
+import 'package:dishcovery_app/providers/auth_provider.dart';
+import 'package:dishcovery_app/providers/theme_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -35,27 +34,13 @@ class _SettingScreenState extends State<SettingScreen> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('notifications.notifications_coming_soon'.tr()),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Header
             const SettingsProfileHeader(),
 
-            // Account Section
             SettingsSectionHeader(title: 'settings.account'.tr()),
             SettingsMenuItem(
               icon: Icons.person_outline,
@@ -74,7 +59,6 @@ class _SettingScreenState extends State<SettingScreen> {
               },
             ),
 
-            // Appearance Section
             SettingsSectionHeader(title: 'settings.appearance'.tr()),
             Consumer<ThemeProvider>(
               builder: (context, themeProvider, child) {
@@ -113,7 +97,6 @@ class _SettingScreenState extends State<SettingScreen> {
               },
             ),
 
-            // General Section
             SettingsSectionHeader(title: 'settings.general'.tr()),
             SettingsMenuItem(
               icon: Icons.notifications_outlined,
@@ -156,7 +139,6 @@ class _SettingScreenState extends State<SettingScreen> {
               },
             ),
 
-            // Sign Out
             SettingsSectionHeader(title: 'settings.account_actions'.tr()),
             Consumer<AuthProvider>(
               builder: (context, authProvider, child) {
@@ -178,7 +160,6 @@ class _SettingScreenState extends State<SettingScreen> {
 
             const SizedBox(height: 32),
 
-            // Version Info
             Center(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24),
@@ -220,7 +201,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 if (currentLanguage != 'language.id'.tr() && mounted) {
                   await context.setLocale(const Locale('id'));
                   if (mounted) {
-                    navigator.pop(); // Use stored navigator
+                    navigator.pop();
                     scaffoldMessenger.showSnackBar(
                       SnackBar(
                         content: Text(
@@ -229,7 +210,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         duration: const Duration(seconds: 2),
                       ),
                     );
-                    setState(() {}); // Refresh UI
+                    setState(() {});
                   }
                 }
               },
@@ -244,7 +225,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 if (currentLanguage != 'language.en'.tr() && mounted) {
                   await context.setLocale(const Locale('en'));
                   if (mounted) {
-                    navigator.pop(); // Use stored navigator
+                    navigator.pop();
                     scaffoldMessenger.showSnackBar(
                       SnackBar(
                         content: Text(
@@ -253,7 +234,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         duration: const Duration(seconds: 2),
                       ),
                     );
-                    setState(() {}); // Refresh UI
+                    setState(() {});
                   }
                 }
               },

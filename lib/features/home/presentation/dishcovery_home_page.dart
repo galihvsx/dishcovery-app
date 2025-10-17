@@ -1,8 +1,10 @@
 import 'package:dishcovery_app/core/models/recipe_model.dart';
 import 'package:dishcovery_app/core/models/scan_model.dart';
+import 'package:dishcovery_app/features/home/presentation/widgets/comments_bottom_sheet.dart';
 import 'package:dishcovery_app/features/home/presentation/widgets/food_feed_card.dart';
 import 'package:dishcovery_app/features/result/presentation/result_screen.dart';
 import 'package:dishcovery_app/providers/feeds_provider.dart';
+import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -46,8 +48,57 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
   }
 
   void _navigateToDetail(FeedData feed) {
-    // Convert FeedData to ScanResult for detail view
-    final scanResult = ScanResult(
+    final scanResult = _convertFeedToScan(feed);
+    debugPrint('[DEBUG] DishcoveryHomePage: Navigating to ResultScreen');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResultScreen(initialData: scanResult),
+      ),
+    ).then((_) {
+      debugPrint(
+        '[DEBUG] DishcoveryHomePage: Returned from ResultScreen - refreshing feeds',
+      );
+      context.read<FeedsProvider>().refreshFeeds();
+    });
+  }
+
+  Future<void> _handleSave(String feedId) async {
+    final feedsProvider = context.read<FeedsProvider>();
+    final historyProvider = context.read<HistoryProvider>();
+
+    final index = feedsProvider.feeds.indexWhere((feed) => feed.id == feedId);
+    if (index == -1) return;
+
+    await feedsProvider.toggleSave(feedId);
+
+    if (index >= feedsProvider.feeds.length) return;
+    final updatedFeed = feedsProvider.feeds[index];
+    final scan = _convertFeedToScan(updatedFeed);
+
+    if (updatedFeed.isSaved) {
+      await historyProvider.setFavoriteStatus(scan, true);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('collection_screen.added_message'.tr()),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else {
+      await historyProvider.setFavoriteStatus(scan, false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('collection_screen.removed_message'.tr()),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  ScanResult _convertFeedToScan(FeedData feed) {
+    return ScanResult(
       firestoreId: feed.id,
       userId: feed.userId,
       userEmail: feed.userEmail,
@@ -63,98 +114,12 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
       tags: feed.tags,
       isPublic: true,
       createdAt: feed.createdAt,
+      isFavorite: feed.isSaved,
     );
-
-    debugPrint('[DEBUG] DishcoveryHomePage: Navigating to ResultScreen');
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ResultScreen(initialData: scanResult),
-      ),
-    ).then((_) {
-      debugPrint(
-        '[DEBUG] DishcoveryHomePage: Returned from ResultScreen - refreshing feeds',
-      );
-      // Refresh feeds when returning from result screen to show new scan data
-      context.read<FeedsProvider>().refreshFeeds();
-    });
   }
 
   void _showCommentSheet(String feedId) {
-    final provider = context.read<FeedsProvider>();
-    final textController = TextEditingController();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurfaceVariant.withAlpha(77),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: textController,
-                      decoration: InputDecoration(
-                        hintText: 'home_screen.write_comment'.tr(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      maxLines: null,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (text) {
-                        if (text.trim().isNotEmpty) {
-                          provider.addComment(feedId, text);
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () {
-                      final text = textController.text;
-                      if (text.trim().isNotEmpty) {
-                        provider.addComment(feedId, text);
-                        Navigator.pop(context);
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    CommentsBottomSheet.show(context, feedId);
   }
 
   @override
@@ -191,7 +156,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
             Consumer<FeedsProvider>(
               builder: (context, provider, child) {
                 if (provider.feeds.isEmpty && provider.isLoading) {
-                  // Initial loading state
                   return SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) => _buildSkeletonCard(),
@@ -201,7 +165,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                 }
 
                 if (provider.feeds.isEmpty && !provider.isLoading) {
-                  // Empty state
                   return SliverFillRemaining(
                     child: Center(
                       child: Column(
@@ -230,7 +193,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                   );
                 }
 
-                // Feed list with infinite scroll
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -240,11 +202,10 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                           feed: feed,
                           onTap: () => _navigateToDetail(feed),
                           onLike: provider.toggleLike,
-                          onSave: provider.toggleSave,
+                          onSave: _handleSave,
                           onComment: _showCommentSheet,
                         );
                       } else if (provider.hasMore) {
-                        // Loading more indicator
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           child: Center(
@@ -255,7 +216,6 @@ class _DishcoveryHomePageState extends State<DishcoveryHomePage> {
                           ),
                         );
                       } else {
-                        // End of list
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           child: Center(

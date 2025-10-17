@@ -47,7 +47,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                // Header with gradient background
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -64,7 +63,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: Column(
                     children: [
                       const SizedBox(height: 24),
-                      // Profile Picture Section
                       Stack(
                         children: [
                           Container(
@@ -147,7 +145,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     size: 22,
                                   ),
                                   onPressed: () {
-                                    // TODO: Implement image picker
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
@@ -176,7 +173,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
 
-                // Form Section
                 Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Form(
@@ -184,7 +180,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Name Field Card
                         Card(
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -251,7 +246,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                         const SizedBox(height: 16),
 
-                        // Email Field Card (Read-only)
                         Card(
                           elevation: 0,
                           color: Theme.of(context).colorScheme.surfaceContainerHighest
@@ -333,7 +327,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                         const SizedBox(height: 32),
 
-                        // Save Button
                         SizedBox(
                           height: 56,
                           child: FilledButton.icon(

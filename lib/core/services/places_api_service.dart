@@ -6,12 +6,10 @@ import 'package:dishcovery_app/core/models/place_model.dart';
 import 'package:dishcovery_app/core/services/http_service.dart';
 import 'package:dishcovery_app/core/config/api_constants.dart';
 
-/// Service for interacting with Google Places API
 class PlacesApiService {
   static PlacesApiService? _instance;
   final HttpService _httpService = HttpService.instance;
 
-  // Google Places API endpoint
   static const String _baseUrl = ApiConstants.placesApiBaseUrl;
 
   PlacesApiService._();
@@ -21,15 +19,6 @@ class PlacesApiService {
     return _instance!;
   }
 
-  /// Search for restaurants that serve a specific food
-  ///
-  /// [foodName] - The name of the food to search for (e.g., "Nasi Goreng", "Sate Ayam")
-  /// [location] - Current user location for proximity search
-  /// [radius] - Search radius in meters (default: 5000m / 5km)
-  /// [maxResults] - Maximum number of results to return (default: 20, max: 20)
-  /// [includeOnlyOpenNow] - Whether to include only currently open places
-  /// [minRating] - Minimum rating filter (0.0 to 5.0)
-  /// [priceLevel] - Price level filter (1-4, null for all)
   Future<PlacesSearchResponse> searchNearbyRestaurants({
     required String foodName,
     Position? location,
@@ -40,7 +29,6 @@ class PlacesApiService {
     List<int>? priceLevels,
   }) async {
     try {
-      // Validate inputs
       if (foodName.isEmpty) {
         throw ArgumentError('Food name cannot be empty');
       }
@@ -53,16 +41,11 @@ class PlacesApiService {
         radius = 5000;
       }
 
-      // Detect if we're in Indonesia based on location
       bool isIndonesia = false;
-      String regionCode = 'US'; // Default to US
-      String languageCode = 'en'; // Default to English
+      String regionCode = 'US';
+      String languageCode = 'en';
 
       if (location != null) {
-        // Check if location is roughly in Indonesia
-        // Indonesia roughly spans:
-        // Latitude: -11 to 6
-        // Longitude: 95 to 141
         if (location.latitude >= -11 &&
             location.latitude <= 6 &&
             location.longitude >= 95 &&
@@ -73,30 +56,25 @@ class PlacesApiService {
         }
       }
 
-      // Build search queries with fallback strategy
       List<String> searchQueries = [];
 
       if (isIndonesia) {
-        // In Indonesia, search specifically for the food
         searchQueries.add('restaurants serving $foodName');
         searchQueries.add('$foodName restaurant');
-        searchQueries.add('warung $foodName'); // Local term
+        searchQueries.add('warung $foodName');
       } else {
-        // Outside Indonesia, search more broadly
         searchQueries.add(
           'Indonesian restaurant',
-        ); // Generic Indonesian restaurants
-        searchQueries.add('Asian restaurant'); // Broader category
-        searchQueries.add('$foodName restaurant'); // Still try specific food
+        );
+        searchQueries.add('Asian restaurant');
+        searchQueries.add('$foodName restaurant');
       }
 
-      // Try each search query until we get results
       PlacesSearchResponse? finalResponse;
 
       for (int i = 0; i < searchQueries.length; i++) {
         final searchQuery = searchQueries[i];
 
-        // Build request body
         final Map<String, dynamic> requestBody = {
           'textQuery': searchQuery,
           'maxResultCount': maxResults,
@@ -104,7 +82,6 @@ class PlacesApiService {
           'regionCode': regionCode,
         };
 
-        // Add location bias if available
         if (location != null) {
           requestBody['locationBias'] = {
             'circle': {
@@ -117,13 +94,11 @@ class PlacesApiService {
           };
         }
 
-        // Add filters
         if (includeOnlyOpenNow) {
           requestBody['openNow'] = true;
         }
 
         if (minRating != null && minRating >= 0 && minRating <= 5) {
-          // Round to nearest 0.5
           requestBody['minRating'] = (minRating * 2).round() / 2;
         }
 
@@ -134,17 +109,14 @@ class PlacesApiService {
               .toList();
         }
 
-        // Rank by distance if location is provided, otherwise by relevance
         requestBody['rankPreference'] = location != null
             ? 'DISTANCE'
             : 'RELEVANCE';
 
-        // Include restaurant type filter
         requestBody['includedType'] = 'restaurant';
         requestBody['strictTypeFiltering'] =
-            false; // Allow other food places too
+            false;
 
-        // Log request for debugging
         if (kDebugMode) {
           print(
             '🔍 Places API Request (Attempt ${i + 1}/${searchQueries.length}):',
@@ -156,7 +128,6 @@ class PlacesApiService {
           print('   Region: $regionCode');
         }
 
-        // Make the API request
         final response = await _httpService.post(
           _baseUrl,
           data: requestBody,
@@ -168,7 +139,6 @@ class PlacesApiService {
           ),
         );
 
-        // Parse response
         final searchResponse = PlacesSearchResponse.fromJson(response.data);
 
         if (kDebugMode) {
@@ -177,9 +147,7 @@ class PlacesApiService {
           );
         }
 
-        // If we found results, use them
         if (searchResponse.places.isNotEmpty) {
-          // Determine if this is a generic search
           bool isGeneric =
               !isIndonesia && (i > 0 || !searchQuery.contains(foodName));
 
@@ -192,7 +160,6 @@ class PlacesApiService {
           break;
         }
 
-        // If this was the last query and no results, return empty response
         if (i == searchQueries.length - 1) {
           finalResponse = PlacesSearchResponse(
             places: [],
@@ -210,7 +177,6 @@ class PlacesApiService {
         print('❌ Error Response: ${e.response?.data}');
       }
 
-      // Check for specific API errors
       if (e.response?.statusCode == 400) {
         final errorData = e.response?.data;
         if (errorData != null && errorData['error'] != null) {
@@ -232,11 +198,6 @@ class PlacesApiService {
     }
   }
 
-  /// Search for places with custom query
-  ///
-  /// [query] - Custom search query
-  /// [location] - Optional location for proximity search
-  /// [radius] - Search radius in meters
   Future<PlacesSearchResponse> searchPlaces({
     required String query,
     Position? location,
@@ -283,9 +244,6 @@ class PlacesApiService {
     }
   }
 
-  /// Get detailed information about a specific place
-  ///
-  /// [placeId] - The place ID to get details for
   Future<PlaceModel> getPlaceDetails(String placeId) async {
     try {
       final String url = 'https://places.googleapis.com/v1/places/$placeId';
@@ -309,24 +267,19 @@ class PlacesApiService {
     }
   }
 
-  /// Build field mask for API requests to optimize costs
-  /// Only request fields that we actually need
   String _getFieldMask() {
     return [
-      // ID Only fields (cheapest)
       'places.id',
       'places.displayName',
       'places.primaryType',
       'places.primaryTypeDisplayName',
 
-      // Location fields (Pro SKU)
       'places.formattedAddress',
       'places.shortFormattedAddress',
       'places.location',
       'places.googleMapsUri',
       'places.photos',
 
-      // Business fields (Enterprise SKU)
       'places.rating',
       'places.userRatingCount',
       'places.priceLevel',
@@ -336,7 +289,6 @@ class PlacesApiService {
     ].join(',');
   }
 
-  /// Build detailed field mask for place details
   String _getDetailedFieldMask() {
     return [
       'id',
@@ -365,11 +317,8 @@ class PlacesApiService {
     ].join(',');
   }
 
-  /// Get current user location
-  /// Returns null if location permission is denied or location service is disabled
   Future<Position?> getCurrentLocation() async {
     try {
-      // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         if (kDebugMode) {
@@ -378,7 +327,6 @@ class PlacesApiService {
         return null;
       }
 
-      // Check location permission
       LocationPermission permission = await Geolocator.checkPermission();
 
       if (permission == LocationPermission.denied) {
@@ -398,7 +346,6 @@ class PlacesApiService {
         return null;
       }
 
-      // Get current position
       final position = await Geolocator.getCurrentPosition(
         locationSettings: LocationSettings(
           accuracy: LocationAccuracy.high,
@@ -421,7 +368,6 @@ class PlacesApiService {
     }
   }
 
-  /// Calculate distance between two locations in kilometers
   double calculateDistance(
     double startLatitude,
     double startLongitude,
@@ -434,11 +380,10 @@ class PlacesApiService {
           endLatitude,
           endLongitude,
         ) /
-        1000; // Convert to kilometers
+        1000;
   }
 }
 
-/// Custom exception for Places API errors
 class PlacesApiException implements Exception {
   final String message;
   final int? statusCode;

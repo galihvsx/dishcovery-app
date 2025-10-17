@@ -58,12 +58,12 @@ class _FoodFeedCardState extends State<FoodFeedCard>
   }
 
   void _handleShare() async {
-    final shortDescription = widget.feed.description.length > 100
-        ? '${widget.feed.description.substring(0, 100)}...'
-        : widget.feed.description;
+    final shortDescription =
+        widget.feed.description.length > 100
+            ? '${widget.feed.description.substring(0, 100)}...'
+            : widget.feed.description;
 
-    final shareText =
-        '''
+    final shareText = '''
 🍽️ ${widget.feed.name}
 📍 ${widget.feed.origin}
 
@@ -75,18 +75,16 @@ https://bit.ly/dishcover-this
 
     try {
       if (widget.feed.imageUrl.startsWith('http')) {
-        // ignore: deprecated_member_use
-        await Share.share(shareText);
+        await SharePlus.instance.share(ShareParams(text: shareText));
       } else {
-        // For local images
         final file = File(widget.feed.imageUrl);
         if (file.existsSync()) {
           final xFile = XFile(widget.feed.imageUrl);
-          // ignore: deprecated_member_use
-          await Share.shareXFiles([xFile], text: shareText);
+          await SharePlus.instance.share(
+            ShareParams(files: [xFile], text: shareText),
+          );
         } else {
-          // ignore: deprecated_member_use
-          await Share.share(shareText);
+          await SharePlus.instance.share(ShareParams(text: shareText));
         }
       }
     } catch (e) {
@@ -118,7 +116,6 @@ https://bit.ly/dishcover-this
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image with overlay info
             Stack(
               children: [
                 ClipRRect(
@@ -127,7 +124,6 @@ https://bit.ly/dishcover-this
                   ),
                   child: AspectRatio(aspectRatio: 16 / 9, child: _buildImage()),
                 ),
-                // Gradient overlay
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -145,7 +141,6 @@ https://bit.ly/dishcover-this
                     ),
                   ),
                 ),
-                // User info overlay
                 Positioned(
                   bottom: 12,
                   left: 12,
@@ -199,13 +194,11 @@ https://bit.ly/dishcover-this
               ],
             ),
 
-            // Content
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Food name and origin
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -245,7 +238,6 @@ https://bit.ly/dishcover-this
                   ),
                   const SizedBox(height: 12),
 
-                  // Description
                   Text(
                     widget.feed.description,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -256,7 +248,6 @@ https://bit.ly/dishcover-this
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  // Recipe preview
                   if (ingredients.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Container(
@@ -309,45 +300,44 @@ https://bit.ly/dishcover-this
                     ),
                   ],
 
-                  // Tags
                   if (widget.feed.tags.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
-                      children: widget.feed.tags.take(5).map((tag) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '#${tag.replaceAll('#', '')}',
-                            style: TextStyle(
-                              color: colorScheme.onSecondaryContainer,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                      children:
+                          widget.feed.tags.take(5).map((tag) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colorScheme.secondaryContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '#${tag.replaceAll('#', '')}',
+                                style: TextStyle(
+                                  color: colorScheme.onSecondaryContainer,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                     ),
                   ],
 
                   const SizedBox(height: 16),
 
-                  // Action buttons
                   Row(
                     children: [
-                      // Like button
                       _ActionButton(
-                        icon: widget.feed.isLiked
-                            ? Icons.favorite
-                            : Icons.favorite_border,
+                        icon:
+                            widget.feed.isLiked
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                         color: widget.feed.isLiked ? Colors.red : null,
                         label: widget.feed.likesCount.toString(),
                         onTap: _handleLike,
@@ -355,7 +345,6 @@ https://bit.ly/dishcover-this
                       ),
                       const SizedBox(width: 16),
 
-                      // Comment button
                       _ActionButton(
                         icon: Icons.chat_bubble_outline,
                         label: widget.feed.commentsCount.toString(),
@@ -363,7 +352,6 @@ https://bit.ly/dishcover-this
                       ),
                       const SizedBox(width: 16),
 
-                      // Share button
                       _ActionButton(
                         icon: Icons.share_outlined,
                         label: 'Share',
@@ -371,17 +359,19 @@ https://bit.ly/dishcover-this
                       ),
                       const Spacer(),
 
-                      // Save button
                       IconButton(
                         icon: Icon(
                           widget.feed.isSaved
                               ? Icons.bookmark
                               : Icons.bookmark_border,
-                          color: widget.feed.isSaved
-                              ? colorScheme.primary
-                              : colorScheme.onSurfaceVariant,
+                          color:
+                              widget.feed.isSaved
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurfaceVariant,
                         ),
-                        onPressed: () => widget.onSave?.call(widget.feed.id),
+                        onPressed: () async {
+                          await widget.onSave?.call(widget.feed.id);
+                        },
                       ),
                     ],
                   ),

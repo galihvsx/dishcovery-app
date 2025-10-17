@@ -1,24 +1,16 @@
 import 'package:dishcovery_app/core/models/comment_model.dart';
 import 'package:dishcovery_app/providers/comment_provider.dart';
+import 'package:dishcovery_app/providers/feeds_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-/// Comments Bottom Sheet Widget
-///
-/// A modal bottom sheet that displays comments for a feed item with:
-/// - Real-time comment updates
-/// - Add/delete comment functionality
-/// - Pull-to-refresh
-/// - Empty, loading, and error states
-/// - Auto-scroll to bottom when new comment added
 class CommentsBottomSheet extends StatefulWidget {
   final String feedId;
 
   const CommentsBottomSheet({super.key, required this.feedId});
 
-  /// Static method to show the bottom sheet
   static Future<void> show(BuildContext context, String feedId) {
     return showModalBottomSheet(
       context: context,
@@ -43,7 +35,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
     super.initState();
     _textController.addListener(_onTextChanged);
 
-    // Load comments when sheet opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<CommentProvider>(context, listen: false);
       provider.loadComments(widget.feedId);
@@ -71,20 +62,18 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
     final content = _textController.text.trim();
     if (content.isEmpty) return;
 
-    // Haptic feedback
     HapticFeedback.lightImpact();
 
-    // Submit comment
     final success = await provider.addComment(widget.feedId, content);
 
     if (success) {
-      // Clear text field
+      _updateFeedCommentCount(increase: true);
+
       _textController.clear();
       setState(() {
         _isComposing = false;
       });
 
-      // Scroll to bottom after a short delay to allow new comment to render
       Future.delayed(const Duration(milliseconds: 300), () {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
@@ -95,13 +84,10 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
         }
       });
 
-      // Success haptic
       HapticFeedback.mediumImpact();
     } else {
-      // Error haptic
       HapticFeedback.heavyImpact();
 
-      // Show error snackbar
       if (mounted && provider.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -118,7 +104,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
     CommentProvider provider,
     Comment comment,
   ) async {
-    // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -145,6 +130,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
       final success = await provider.deleteComment(comment.id, widget.feedId);
 
       if (success) {
+        _updateFeedCommentCount(increase: false);
         HapticFeedback.lightImpact();
       } else {
         HapticFeedback.heavyImpact();
@@ -166,6 +152,18 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
     await provider.loadComments(widget.feedId);
   }
 
+  void _updateFeedCommentCount({required bool increase}) {
+    try {
+      final feedsProvider = Provider.of<FeedsProvider>(context, listen: false);
+      if (increase) {
+        feedsProvider.incrementCommentCount(widget.feedId);
+      } else {
+        feedsProvider.decrementCommentCount(widget.feedId);
+      }
+    } on ProviderNotFoundException {
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -181,7 +179,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
       ),
       child: Column(
         children: [
-          // Draggable handle
           Container(
             margin: const EdgeInsets.only(top: 12),
             width: 40,
@@ -192,12 +189,10 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
             ),
           ),
 
-          // Header
           _buildHeader(theme, colorScheme),
 
           const Divider(height: 1),
 
-          // Comments list
           Expanded(
             child: Consumer<CommentProvider>(
               builder: (context, provider, _) {
@@ -218,7 +213,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
             ),
           ),
 
-          // Input section
           _buildInputSection(theme, colorScheme, keyboardHeight),
         ],
       ),
@@ -383,7 +377,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // User avatar
           CircleAvatar(
             radius: 20,
             backgroundColor: colorScheme.primaryContainer,
@@ -400,14 +393,12 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
           ),
           const SizedBox(width: 12),
 
-          // Comment content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    // Username
                     Expanded(
                       child: Text(
                         comment.userName,
@@ -419,7 +410,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                       ),
                     ),
 
-                    // Timestamp
                     Text(
                       timeago.format(comment.createdAt),
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -430,13 +420,11 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                 ),
                 const SizedBox(height: 4),
 
-                // Comment text
                 Text(comment.content, style: theme.textTheme.bodyMedium),
               ],
             ),
           ),
 
-          // Delete button (only for comment owner)
           if (isOwner) ...[
             const SizedBox(width: 8),
             IconButton(
@@ -480,7 +468,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // Text field
               Expanded(
                 child: TextField(
                   controller: _textController,
@@ -504,7 +491,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
               ),
               const SizedBox(width: 8),
 
-              // Send button
               IconButton(
                 icon: provider.isSubmitting
                     ? SizedBox(

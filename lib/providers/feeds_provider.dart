@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-/// Provider for managing feeds with infinite scroll pagination
 class FeedsProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -32,7 +31,6 @@ class FeedsProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  /// Initialize feeds (first load)
   Future<void> loadInitialFeeds() async {
     if (_isLoading) return;
 
@@ -67,7 +65,6 @@ class FeedsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load more feeds (pagination)
   Future<void> loadMoreFeeds() async {
     if (_isLoading || !_hasMore || _lastDocument == null) return;
 
@@ -101,7 +98,6 @@ class FeedsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Process feed documents and add user interaction data
   Future<List<FeedData>> _processFeedDocuments(
     List<QueryDocumentSnapshot> docs,
   ) async {
@@ -112,11 +108,9 @@ class FeedsProvider extends ChangeNotifier {
       final data = doc.data() as Map<String, dynamic>;
       data['id'] = doc.id;
 
-      // Get interaction counts
       final likesCount = await _getLikesCount(doc.id);
       final commentsCount = await _getCommentsCount(doc.id);
 
-      // Check user interactions if logged in
       bool isLiked = false;
       bool isSaved = false;
 
@@ -139,7 +133,6 @@ class FeedsProvider extends ChangeNotifier {
     return feeds;
   }
 
-  /// Toggle like on a feed
   Future<void> toggleLike(String feedId) async {
     final userId = currentUser?.uid;
     if (userId == null) return;
@@ -156,14 +149,12 @@ class FeedsProvider extends ChangeNotifier {
 
     try {
       if (feed.isLiked) {
-        // Unlike
         await likeRef.delete();
         _feeds[feedIndex] = feed.copyWith(
           isLiked: false,
           likesCount: feed.likesCount - 1,
         );
       } else {
-        // Like
         await likeRef.set({
           'userId': userId,
           'timestamp': FieldValue.serverTimestamp(),
@@ -179,7 +170,6 @@ class FeedsProvider extends ChangeNotifier {
     }
   }
 
-  /// Toggle save on a feed
   Future<void> toggleSave(String feedId) async {
     final userId = currentUser?.uid;
     if (userId == null) return;
@@ -196,11 +186,9 @@ class FeedsProvider extends ChangeNotifier {
 
     try {
       if (feed.isSaved) {
-        // Unsave
         await saveRef.delete();
         _feeds[feedIndex] = feed.copyWith(isSaved: false);
       } else {
-        // Save
         await saveRef.set({
           'feedId': feedId,
           'timestamp': FieldValue.serverTimestamp(),
@@ -213,7 +201,38 @@ class FeedsProvider extends ChangeNotifier {
     }
   }
 
-  /// Add a comment to a feed
+  void updateSavedStatus(String feedId, bool isSaved) {
+    final feedIndex = _feeds.indexWhere((f) => f.id == feedId);
+    if (feedIndex == -1) return;
+
+    final current = _feeds[feedIndex];
+    if (current.isSaved == isSaved) return;
+
+    _feeds[feedIndex] = current.copyWith(isSaved: isSaved);
+    notifyListeners();
+  }
+
+  void incrementCommentCount(String feedId) {
+    final feedIndex = _feeds.indexWhere((f) => f.id == feedId);
+    if (feedIndex == -1) return;
+
+    final feed = _feeds[feedIndex];
+    _feeds[feedIndex] = feed.copyWith(commentsCount: feed.commentsCount + 1);
+    notifyListeners();
+  }
+
+  void decrementCommentCount(String feedId) {
+    final feedIndex = _feeds.indexWhere((f) => f.id == feedId);
+    if (feedIndex == -1) return;
+
+    final feed = _feeds[feedIndex];
+    final updatedCount = feed.commentsCount > 0 ? feed.commentsCount - 1 : 0;
+    if (updatedCount == feed.commentsCount) return;
+
+    _feeds[feedIndex] = feed.copyWith(commentsCount: updatedCount);
+    notifyListeners();
+  }
+
   Future<void> addComment(String feedId, String comment) async {
     final userId = currentUser?.uid;
     if (userId == null || comment.trim().isEmpty) return;
@@ -231,7 +250,6 @@ class FeedsProvider extends ChangeNotifier {
             'timestamp': FieldValue.serverTimestamp(),
           });
 
-      // Update comment count locally
       final feedIndex = _feeds.indexWhere((f) => f.id == feedId);
       if (feedIndex != -1) {
         final feed = _feeds[feedIndex];
@@ -245,7 +263,6 @@ class FeedsProvider extends ChangeNotifier {
     }
   }
 
-  /// Get likes count for a feed
   Future<int> _getLikesCount(String feedId) async {
     try {
       final snapshot = await _firestore
@@ -260,7 +277,6 @@ class FeedsProvider extends ChangeNotifier {
     }
   }
 
-  /// Get comments count for a feed
   Future<int> _getCommentsCount(String feedId) async {
     try {
       final snapshot = await _firestore
@@ -275,7 +291,6 @@ class FeedsProvider extends ChangeNotifier {
     }
   }
 
-  /// Check if user liked a feed
   Future<bool> _checkUserLiked(String feedId, String userId) async {
     try {
       final doc = await _firestore
@@ -290,7 +305,6 @@ class FeedsProvider extends ChangeNotifier {
     }
   }
 
-  /// Check if user saved a feed
   Future<bool> _checkUserSaved(String feedId, String userId) async {
     try {
       final doc = await _firestore
@@ -305,13 +319,11 @@ class FeedsProvider extends ChangeNotifier {
     }
   }
 
-  /// Refresh feeds
   Future<void> refreshFeeds() async {
     await loadInitialFeeds();
   }
 }
 
-/// Feed data model with social interactions
 class FeedData {
   final String id;
   final String userId;

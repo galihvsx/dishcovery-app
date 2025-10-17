@@ -1,7 +1,11 @@
 import 'dart:io';
+
 import 'package:dishcovery_app/core/models/scan_model.dart';
+import 'package:dishcovery_app/core/services/firestore_service.dart';
 import 'package:dishcovery_app/features/result/presentation/widgets/not_food_widget.dart';
 import 'package:dishcovery_app/features/result/widgets/nearby_restaurants_section.dart';
+import 'package:dishcovery_app/providers/feeds_provider.dart';
+import 'package:dishcovery_app/providers/history_provider.dart';
 import 'package:dishcovery_app/providers/scan_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -22,18 +26,19 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  bool _translated = false;
   bool _isSaved = false;
-  bool _hasProcessedImage = false; // Guard to prevent duplicate processing
+  bool _hasProcessedImage = false;
+  bool _isTogglingCollection = false;
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // PROCESS GUARD: Prevent multiple processImage calls on widget rebuild
       if (_hasProcessedImage) {
-        debugPrint("ResultScreen: Image already processed, skipping duplicate call");
+        debugPrint(
+          "ResultScreen: Image already processed, skipping duplicate call",
+        );
         return;
       }
 
@@ -50,15 +55,49 @@ class _ResultScreenState extends State<ResultScreen> {
     });
   }
 
-  void _saveToCollection() {
-    if (_isSaved) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('result_screen.saved_to_collection'.tr()),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+  ScanResult? _currentResult(
+    ScanProvider scanProvider,
+    HistoryProvider historyProvider,
+  ) {
+    final base = scanProvider.result ?? widget.initialData;
+    if (base == null) return null;
+    if (historyProvider.isInCollection(base))
+      return base.copyWith(isFavorite: true);
+    return base;
+  }
+
+  Future<void> _toggleCollection(
+    ScanProvider scanProvider,
+    HistoryProvider historyProvider,
+  ) async {
+    if (!_isSaved || _isTogglingCollection) return;
+
+    final activeResult = _currentResult(scanProvider, historyProvider);
+    if (activeResult == null) return;
+
+    setState(() => _isTogglingCollection = true);
+
+    final currentlyCollected = historyProvider.isInCollection(activeResult);
+    await historyProvider.setFavoriteStatus(activeResult, !currentlyCollected);
+    final firestoreId = activeResult.firestoreId;
+    if (firestoreId != null) {
+      await FirestoreService().setSavedStatus(firestoreId, !currentlyCollected);
+      try {
+        final feedsProvider = context.read<FeedsProvider>();
+        feedsProvider.updateSavedStatus(firestoreId, !currentlyCollected);
+      } catch (_) {}
     }
+
+    if (!mounted) return;
+
+    setState(() => _isTogglingCollection = false);
+    final message = !currentlyCollected
+        ? 'result_screen.saved_to_collection'.tr()
+        : 'result_screen.removed_from_collection'.tr();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
   }
 
   void _shareResult() {
@@ -75,18 +114,20 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     final scanProvider = context.watch<ScanProvider>();
+    final historyProvider = context.watch<HistoryProvider>();
     final isLoading = scanProvider.loading;
     final result = scanProvider.result;
+    final activeResult = _currentResult(scanProvider, historyProvider);
+    final isCollected = historyProvider.isInCollection(activeResult);
 
-    // Determine image source: prefer imageUrl for Firebase data, fall back to local path
     final String? imageUrl = (widget.initialData?.imageUrl ?? '').isNotEmpty
         ? widget.initialData!.imageUrl
         : (result?.imageUrl ?? '').isNotEmpty
-            ? result!.imageUrl
-            : null;
-    final String? localImagePath = widget.initialData?.imagePath ?? widget.imagePath;
+        ? result!.imageUrl
+        : null;
+    final String? localImagePath =
+        widget.initialData?.imagePath ?? widget.imagePath;
 
-    // Check if result is saved (either local id or firestoreId)
     if (result != null &&
         (result.id != null || result.firestoreId != null) &&
         !_isSaved) {
@@ -107,7 +148,6 @@ class _ResultScreenState extends State<ResultScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Full width image section
                 AspectRatio(
                   aspectRatio: 4 / 3,
                   child: _buildImageWidget(imageUrl, localImagePath, context),
@@ -119,7 +159,6 @@ class _ResultScreenState extends State<ResultScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Error handling
                       if (scanProvider.error != null)
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -195,15 +234,22 @@ class _ResultScreenState extends State<ResultScreen> {
                               ),
                               const SizedBox(height: 16),
 
-                              // Action buttons
                               Row(
                                 children: [
                                   _buildActionButton(
                                     context,
-                                    icon: Icons.bookmark_outline,
-                                    isEnabled: _isSaved,
-                                    isActive: false,
-                                    onTap: _saveToCollection,
+                                    icon: isCollected
+                                        ? Icons.bookmark
+                                        : Icons.bookmark_outline,
+                                    isEnabled:
+                                        _isSaved && !_isTogglingCollection,
+                                    isActive: isCollected,
+                                    onTap: () {
+                                      _toggleCollection(
+                                        scanProvider,
+                                        historyProvider,
+                                      );
+                                    },
                                   ),
                                   const SizedBox(width: 8),
                                   _buildActionButton(
@@ -314,8 +360,11 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
-  Widget _buildImageWidget(String? imageUrl, String? localPath, BuildContext context) {
-    // First try to use network image if URL is available
+  Widget _buildImageWidget(
+    String? imageUrl,
+    String? localPath,
+    BuildContext context,
+  ) {
     if (imageUrl != null && imageUrl.isNotEmpty) {
       return Image.network(
         imageUrl,
@@ -328,14 +377,13 @@ class _ResultScreenState extends State<ResultScreen> {
               child: CircularProgressIndicator(
                 value: loadingProgress.expectedTotalBytes != null
                     ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
+                          loadingProgress.expectedTotalBytes!
                     : null,
               ),
             ),
           );
         },
         errorBuilder: (context, error, stackTrace) {
-          // If network image fails, try local file
           if (localPath != null && File(localPath).existsSync()) {
             return Image.file(File(localPath), fit: BoxFit.cover);
           }
@@ -344,12 +392,10 @@ class _ResultScreenState extends State<ResultScreen> {
       );
     }
 
-    // If no URL, try local file
     if (localPath != null && File(localPath).existsSync()) {
       return Image.file(File(localPath), fit: BoxFit.cover);
     }
 
-    // Show error widget if no image can be displayed
     return _buildImageErrorWidget(context);
   }
 
@@ -357,11 +403,7 @@ class _ResultScreenState extends State<ResultScreen> {
     return Container(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: const Center(
-        child: Icon(
-          Icons.broken_image_outlined,
-          size: 64,
-          color: Colors.grey,
-        ),
+        child: Icon(Icons.broken_image_outlined, size: 64, color: Colors.grey),
       ),
     );
   }

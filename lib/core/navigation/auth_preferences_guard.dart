@@ -85,7 +85,6 @@ class _AuthPreferencesGuardState extends State<AuthPreferencesGuard> {
   }
 }
 
-/// Helper function to create authenticated routes with preferences check
 Route<T> createAuthenticatedRouteWithPreferences<T extends Object?>(
   RouteSettings settings,
   Widget Function(BuildContext) builder,

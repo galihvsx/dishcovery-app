@@ -21,20 +21,17 @@ class _PreferencesOnboardingScreenState
   final PageController _pageController = PageController();
   int _currentStep = 0;
 
-  // Preference data
   final List<String> _likedFlavors = [];
   final List<String> _avoidedFlavors = [];
   final List<String> _allergies = [];
   final List<String> _categories = [];
 
-  // Controllers for custom inputs
   final TextEditingController _customFlavorController = TextEditingController();
   final TextEditingController _customAllergyController =
       TextEditingController();
   final TextEditingController _customCategoryController =
       TextEditingController();
 
-  // Predefined options
   final List<String> _flavorOptions = const [
     'Spicy',
     'Sweet',
@@ -97,7 +94,6 @@ class _PreferencesOnboardingScreenState
     final provider = context.read<UserPreferencesProvider>();
 
     try {
-      // Save empty preferences to mark onboarding as complete
       final preferences = const UserPreferences(
         likedFlavors: [],
         avoidedFlavors: [],
@@ -108,7 +104,6 @@ class _PreferencesOnboardingScreenState
       await provider.save(preferences);
 
       if (mounted) {
-        // Navigate to main app and clear navigation stack
         Navigator.of(
           context,
         ).pushNamedAndRemoveUntil(AppRoutes.main, (route) => false);
@@ -135,7 +130,6 @@ class _PreferencesOnboardingScreenState
     final provider = context.read<UserPreferencesProvider>();
 
     try {
-      // Request location permission and get current location
       double? latitude, longitude;
       final permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -165,7 +159,6 @@ class _PreferencesOnboardingScreenState
       await provider.save(preferences);
 
       if (mounted) {
-        // Navigate to main app and clear navigation stack
         Navigator.of(
           context,
         ).pushNamedAndRemoveUntil(AppRoutes.main, (route) => false);
@@ -215,7 +208,6 @@ class _PreferencesOnboardingScreenState
       body: SafeArea(
         child: Column(
           children: [
-            // Page content
             Expanded(
               child: PageView(
                 controller: _pageController,
@@ -229,7 +221,6 @@ class _PreferencesOnboardingScreenState
               ),
             ),
 
-            // Bottom navigation
             _buildBottomNavigation(theme),
           ],
         ),
@@ -387,7 +378,6 @@ class _PreferencesOnboardingScreenState
   }) {
     final colorScheme = theme.colorScheme;
 
-    // Get all options including custom ones
     final allOptions = [...options];
     for (final custom in selectedOptions) {
       if (!allOptions.contains(custom)) {
@@ -400,7 +390,6 @@ class _PreferencesOnboardingScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title
           Text(
             title,
             style: theme.textTheme.headlineSmall?.copyWith(
@@ -411,7 +400,6 @@ class _PreferencesOnboardingScreenState
           ),
           const SizedBox(height: 8),
 
-          // Subtitle
           Text(
             subtitle,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -420,7 +408,6 @@ class _PreferencesOnboardingScreenState
           ),
           const SizedBox(height: 24),
 
-          // Badge selection
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -459,7 +446,6 @@ class _PreferencesOnboardingScreenState
           ),
           const SizedBox(height: 24),
 
-          // Custom input
           TextField(
             controller: customController,
             decoration: InputDecoration(

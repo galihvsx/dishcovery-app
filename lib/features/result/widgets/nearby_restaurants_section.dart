@@ -55,17 +55,15 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
     });
 
     try {
-      // Get user location
       _userLocation = await _placesService.getCurrentLocation();
 
-      // Search for restaurants
       final response = await _placesService.searchNearbyRestaurants(
         foodName: widget.foodName,
         location: _userLocation,
-        radius: 5000, // 5km radius
+        radius: 5000,
         maxResults: 10,
         includeOnlyOpenNow: false,
-        minRating: 3.5, // Only show restaurants with 3.5+ rating
+        minRating: 3.5,
       );
 
       if (mounted) {
@@ -105,7 +103,6 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
@@ -319,7 +316,6 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
         itemBuilder: (context, index) {
           final restaurant = _restaurants![index];
 
-          // Calculate distance if user location is available
           String? distance;
           if (_userLocation != null && restaurant.location != null) {
             final distanceInKm = _placesService.calculateDistance(
@@ -334,7 +330,6 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
           return RestaurantCard(
             place: restaurant,
             onTap: () {
-              // Optional: Add detail page navigation
               _showRestaurantDetails(context, restaurant, distance);
             },
           );
@@ -363,7 +358,6 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
         ),
         child: Column(
           children: [
-            // Handle bar
             Container(
               margin: const EdgeInsets.only(top: 12),
               width: 40,
@@ -373,7 +367,6 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            // Header
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -408,7 +401,6 @@ class _NearbyRestaurantsSectionState extends State<NearbyRestaurantsSection> {
                 ],
               ),
             ),
-            // Add more details here as needed
           ],
         ),
       ),
