@@ -88,14 +88,18 @@ class _CollectionScreenState extends State<CollectionScreen> {
     ScanResult scan,
   ) async {
     final historyProvider = context.read<HistoryProvider>();
+    final feedsProvider = context.read<FeedsProvider>();
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     await historyProvider.setFavoriteStatus(scan, false);
+
     final feedId = scan.firestoreId;
     if (feedId != null) {
       await FirestoreService().setSavedStatus(feedId, false);
-      context.read<FeedsProvider>().updateSavedStatus(feedId, false);
+      feedsProvider.updateSavedStatus(feedId, false);
     }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         content: Text('collection_screen.removed_message'.tr()),
         duration: const Duration(seconds: 2),
